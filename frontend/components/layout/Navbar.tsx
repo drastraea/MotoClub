@@ -36,6 +36,12 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
+          <Link
+            href="/login"
+            className="text-xs font-semibold tracking-widest text-muted-foreground uppercase transition-colors hover:text-primary"
+          >
+            Login
+          </Link>
           <Button size="sm" nativeButton={false} render={<Link href="/join" />}>
             Join Now
           </Button>
@@ -62,6 +68,13 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
+          <Link
+            href="/login"
+            className="text-xs font-semibold tracking-widest text-muted-foreground uppercase hover:text-primary"
+            onClick={() => setOpen(false)}
+          >
+            Login
+          </Link>
           <Button
             size="sm"
             className="w-full"
