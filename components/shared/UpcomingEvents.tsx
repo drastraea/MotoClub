@@ -13,7 +13,14 @@ export function UpcomingEvents() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Upcoming Events</h2>
+        <div>
+          <span className="text-xs font-semibold tracking-[0.3em] text-primary uppercase">
+            Ride Calendar
+          </span>
+          <h2 className="font-heading mt-2 text-3xl font-bold tracking-wide uppercase">
+            Upcoming Events
+          </h2>
+        </div>
         <Button variant="ghost" size="sm" render={<Link href="/events" />}>
           View all
         </Button>

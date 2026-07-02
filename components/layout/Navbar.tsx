@@ -16,18 +16,21 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b-2 border-primary/30 bg-background/95 backdrop-blur">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link href="/" className="text-lg font-bold tracking-tight">
-          Motorcycle Club
+        <Link
+          href="/"
+          className="font-heading text-xl font-bold tracking-widest uppercase"
+        >
+          Moto<span className="text-primary">Club</span>
         </Link>
 
-        <div className="hidden items-center gap-6 md:flex">
+        <div className="hidden items-center gap-8 md:flex">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              className="text-xs font-semibold tracking-widest text-muted-foreground uppercase transition-colors hover:text-primary"
             >
               {link.label}
             </Link>
@@ -52,7 +55,7 @@ export function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground"
+              className="text-xs font-semibold tracking-widest text-muted-foreground uppercase hover:text-primary"
               onClick={() => setOpen(false)}
             >
               {link.label}

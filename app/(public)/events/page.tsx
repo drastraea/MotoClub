@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { EventCard } from "@/components/cards/EventCard";
+import { PageHeader } from "@/components/shared/PageHeader";
 
 export const metadata: Metadata = {
   title: "Events - Motorcycle Club",
@@ -17,10 +18,10 @@ const events = [
 export default function EventsPage() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-      <h1 className="text-4xl font-bold tracking-tight">Events</h1>
-      <p className="mt-2 text-muted-foreground">
-        All upcoming rides and gatherings. Public events are open to everyone.
-      </p>
+      <PageHeader
+        title="Events"
+        description="All upcoming rides and gatherings. Public events are open to everyone."
+      />
 
       <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {events.map((event) => (

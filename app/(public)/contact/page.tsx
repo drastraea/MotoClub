@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { ContactForm } from "@/components/shared/ContactForm";
+import { PageHeader } from "@/components/shared/PageHeader";
 
 export const metadata: Metadata = {
   title: "Contact - Motorcycle Club",
@@ -9,10 +10,10 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
-      <h1 className="text-4xl font-bold tracking-tight">Contact Us</h1>
-      <p className="mt-2 text-muted-foreground">
-        Questions about membership or events? Send us a message.
-      </p>
+      <PageHeader
+        title="Contact Us"
+        description="Questions about membership or events? Send us a message."
+      />
 
       <div className="mt-10 grid gap-10 sm:grid-cols-2">
         <div className="flex flex-col gap-4 text-muted-foreground">
