@@ -19,7 +19,7 @@ const links = [
   { href: "/dashboard/events", label: "Events", icon: CalendarDays },
 ];
 
-export function DashboardSidebar() {
+export function DashboardSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
 
   return (
@@ -30,6 +30,7 @@ export function DashboardSidebar() {
           <Link
             key={href}
             href={href}
+            onClick={onNavigate}
             className={cn(
               "shape-corner-sm flex items-center gap-3 px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
               active && "bg-primary/10 text-primary"

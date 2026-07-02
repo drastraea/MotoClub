@@ -23,7 +23,7 @@ const links = [
   { href: "/admin/landing", label: "Landing Page", icon: LayoutTemplate },
 ];
 
-export function AdminSidebar() {
+export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
 
   return (
@@ -34,6 +34,7 @@ export function AdminSidebar() {
           <Link
             key={href}
             href={href}
+            onClick={onNavigate}
             className={cn(
               "shape-corner-sm flex items-center gap-3 px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground",
               active && "bg-primary/10 text-primary"
