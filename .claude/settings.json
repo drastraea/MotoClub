@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -)",
+      "Bash(podman compose *)",
+      "Bash(export DOCKER_HOST=unix:///run/user/1000/podman/podman.sock)",
+      "Bash(echo \"=== migrate logs ===\")",
+      "Bash(podman logs *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8080/healthz)",
+      "Bash(curl -s -w \" -> %{http_code}\\\\n\" http://localhost:8080/gallery)",
+      "Bash(curl -s -w \" -> %{http_code}\\\\n\" -X POST http://localhost:8080/login -H 'Content-Type: application/json' -d '{\"email\":\"a@b.com\",\"googleToken\":\"junk\"}')",
+      "Bash(curl -s -w \" -> %{http_code}\\\\n\" -X POST http://localhost:8080/register -H 'Content-Type: application/json' -d '{\"email\":\"a@b.com\"}')"
+    ]
+  }
+}

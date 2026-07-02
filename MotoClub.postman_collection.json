@@ -1,0 +1,332 @@
+{
+  "info": {
+    "name": "MotoClub API",
+    "description": "API collection for the MotoClub backend (Uwaw Uwu Dras Dras Muach).\n\nSet the collection variables:\n- `baseUrl` (default http://localhost:8080)\n- `token` — a JWT obtained from `POST /login`. The Login request auto-saves the returned token into this variable.\n- `memberId`, `eventId`, `announcementId`, `galleryId` — ids used by path parameters.\n\nAuth: all endpoints except Register and Login require `Authorization: Bearer {{token}}`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "token", "value": "" },
+    { "key": "memberId", "value": "1" },
+    { "key": "eventId", "value": "1" },
+    { "key": "announcementId", "value": "1" },
+    { "key": "galleryId", "value": "1" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/register", "host": ["{{baseUrl}}"], "path": ["register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alice Rider\",\n  \"email\": \"alice@example.com\",\n  \"phoneNumber\": \"081234567890\",\n  \"placeOfBirth\": \"Jakarta\",\n  \"dateofBirth\": \"1995-06-15\",\n  \"address\": \"Jl. Sudirman No. 1\",\n  \"instagramUsername\": \"alicerides\",\n  \"bloodType\": \"O\",\n  \"emergencyContactName\": \"Bob\",\n  \"emergencyContactPhoneNumber\": \"081200000000\",\n  \"motorbikeName\": \"Vespa Primavera\",\n  \"motorbikeSelfieLinkPath\": \"https://example.com/selfie.jpg\",\n  \"googleToken\": \"REPLACE_WITH_GOOGLE_ID_TOKEN\"\n}"
+            },
+            "description": "Creates a new member with status PENDING_APPROVAL. The googleToken must be a valid Google ID token whose email matches the `email` field. Returns { id }."
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const body = pm.response.json();",
+                  "  pm.collectionVariables.set('token', body.token);",
+                  "  pm.collectionVariables.set('memberId', body.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/login", "host": ["{{baseUrl}}"], "path": ["login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"alice@example.com\",\n  \"googleToken\": \"REPLACE_WITH_GOOGLE_ID_TOKEN\"\n}"
+            },
+            "description": "Verifies the Google token and issues an application JWT. On 200 the test script stores `token` and `memberId` in collection variables. Returns { id, token }."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/logout", "host": ["{{baseUrl}}"], "path": ["logout"] },
+            "description": "Revokes the current JWT (by jti) until its natural expiry. Returns 204."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Landing",
+      "item": [
+        {
+          "name": "Get gallery contents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/gallery", "host": ["{{baseUrl}}"], "path": ["gallery"] },
+            "description": "Returns { contents: [{ id, link, created_at }] }. Roles: member, admin, superadmin."
+          }
+        },
+        {
+          "name": "Get public events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/events?startFrom=2026-01-01",
+              "host": ["{{baseUrl}}"],
+              "path": ["events"],
+              "query": [{ "key": "startFrom", "value": "2026-01-01", "description": "Optional YYYY-MM-DD (Asia/Jakarta), inclusive" }]
+            },
+            "description": "Returns { events: [{ id, title, date, last_updated_at }] }. `startFrom` optional."
+          }
+        },
+        {
+          "name": "Get event detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/event/{{eventId}}", "host": ["{{baseUrl}}"], "path": ["event", "{{eventId}}"] },
+            "description": "Returns { id, title, date, location, description, last_updated_at }."
+          }
+        },
+        {
+          "name": "Get announcements",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/announcements?startFrom=2026-01-01",
+              "host": ["{{baseUrl}}"],
+              "path": ["announcements"],
+              "query": [{ "key": "startFrom", "value": "2026-01-01", "description": "Optional YYYY-MM-DD (Asia/Jakarta), inclusive" }]
+            },
+            "description": "Returns { announcements: [{ id, title, description, last_updated_at }] }."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "Get profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/members/{{memberId}}/profile", "host": ["{{baseUrl}}"], "path": ["members", "{{memberId}}", "profile"] },
+            "description": "A member may only read their own id (else 400). Admin/superadmin may read any. Returns the full member profile."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Members",
+      "item": [
+        {
+          "name": "Get pending registration count",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/members/registration/count", "host": ["{{baseUrl}}"], "path": ["members", "registration", "count"] },
+            "description": "Roles: admin, superadmin. Returns { count }."
+          }
+        },
+        {
+          "name": "Get pending registrations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/members/registration", "host": ["{{baseUrl}}"], "path": ["members", "registration"] },
+            "description": "Roles: admin, superadmin. Returns { registrations: [{ member_id, name, email, registered_at }] }."
+          }
+        },
+        {
+          "name": "Approve / Reject registration",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/members/{{memberId}}/status", "host": ["{{baseUrl}}"], "path": ["members", "{{memberId}}", "status"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"APPROVE\",\n  \"remarks\": null\n}"
+            },
+            "description": "Roles: admin, superadmin. `action` is APPROVE or REJECT; `remarks` optional. Returns 204."
+          }
+        },
+        {
+          "name": "Get all members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/members", "host": ["{{baseUrl}}"], "path": ["members"] },
+            "description": "Roles: admin, superadmin. Returns { members: [{ id, email, role, registration_date, approval_date }] }."
+          }
+        },
+        {
+          "name": "Update member role (superadmin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/members/{{memberId}}", "host": ["{{baseUrl}}"], "path": ["members", "{{memberId}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"ADMIN\"\n}"
+            },
+            "description": "Role: superadmin only. `role` is ADMIN or MEMBER. Returns 204."
+          }
+        },
+        {
+          "name": "Delete member",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/members/{{memberId}}", "host": ["{{baseUrl}}"], "path": ["members", "{{memberId}}"] },
+            "description": "Roles: admin, superadmin. Admins may only delete role=member; the last superadmin cannot be deleted. Soft delete. Returns 204."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Events",
+      "item": [
+        {
+          "name": "Create event",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/events", "host": ["{{baseUrl}}"], "path": ["events"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Sunday Ride\",\n  \"description\": \"Morning ride to the hills\",\n  \"date\": \"2026-08-01\",\n  \"location\": \"HQ\"\n}"
+            },
+            "description": "Roles: admin, superadmin. `location` optional. Returns { id }."
+          }
+        },
+        {
+          "name": "Update event",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/events/{{eventId}}", "host": ["{{baseUrl}}"], "path": ["events", "{{eventId}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Sunday Ride (updated)\",\n  \"description\": \"New route\",\n  \"date\": \"2026-08-02\",\n  \"location\": \"City Park\"\n}"
+            },
+            "description": "Roles: admin, superadmin. Returns 204."
+          }
+        },
+        {
+          "name": "Delete event",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/events/{{eventId}}", "host": ["{{baseUrl}}"], "path": ["events", "{{eventId}}"] },
+            "description": "Roles: admin, superadmin. Soft delete. Returns 204."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Announcements",
+      "item": [
+        {
+          "name": "Create announcement",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/announcements", "host": ["{{baseUrl}}"], "path": ["announcements"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Membership renewal\",\n  \"description\": \"Please renew before the end of the month\"\n}"
+            },
+            "description": "Roles: admin, superadmin. Returns { id }."
+          }
+        },
+        {
+          "name": "Update announcement",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/announcements/{{announcementId}}", "host": ["{{baseUrl}}"], "path": ["announcements", "{{announcementId}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Membership renewal (updated)\",\n  \"description\": \"Deadline extended by one week\"\n}"
+            },
+            "description": "Roles: admin, superadmin. Returns 204."
+          }
+        },
+        {
+          "name": "Delete announcement",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/announcements/{{announcementId}}", "host": ["{{baseUrl}}"], "path": ["announcements", "{{announcementId}}"] },
+            "description": "Roles: admin, superadmin. Soft delete. Returns 204."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - Gallery",
+      "item": [
+        {
+          "name": "Create gallery item",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/gallery", "host": ["{{baseUrl}}"], "path": ["gallery"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"link\": \"https://example.com/img1.jpg\"\n}"
+            },
+            "description": "Roles: admin, superadmin. Stores a link (no blob upload). Returns { id }."
+          }
+        },
+        {
+          "name": "Delete gallery item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/gallery/{{galleryId}}", "host": ["{{baseUrl}}"], "path": ["gallery", "{{galleryId}}"] },
+            "description": "Roles: admin, superadmin. Soft delete. Returns 204."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Healthz",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/healthz", "host": ["{{baseUrl}}"], "path": ["healthz"] },
+            "description": "Liveness probe. Returns { status: \"ok\" }."
+          }
+        }
+      ]
+    }
+  ]
+}

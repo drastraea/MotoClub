@@ -1,0 +1,9 @@
+.git
+.gitignore
+*.md
+cover.out
+cover.filtered.out
+Makefile
+compose.yaml
+scripts
+.mockery.yaml
