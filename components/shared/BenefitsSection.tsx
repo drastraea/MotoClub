@@ -45,7 +45,7 @@ export function BenefitsSection() {
           {benefits.map(({ icon: Icon, title, description }) => (
             <Card key={title}>
               <CardHeader>
-                <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 ring-1 ring-primary/30">
+                <div className="shape-corner-sm flex size-12 items-center justify-center bg-primary/10 ring-1 ring-primary/30">
                   <Icon className="size-6 text-primary" />
                 </div>
                 <CardTitle className="font-heading mt-3 tracking-wide uppercase">

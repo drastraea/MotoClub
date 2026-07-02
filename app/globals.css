@@ -117,6 +117,27 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+@layer utilities {
+  /* Asymmetric "one sharp corner" shape motif, borrowed from the
+     Awaiken/Glimy reference: every card, image, and icon badge shares it. */
+  .shape-corner {
+    border-radius: 2.5rem 2.5rem 0.5rem 2.5rem;
+  }
+  .shape-corner-sm {
+    border-radius: 0.875rem 0.875rem 0.25rem 0.875rem;
+  }
+
+  /* Photos render desaturated until hovered, per the reference site. */
+  .img-mono {
+    filter: grayscale(1);
+    transition: filter 0.3s ease-in-out;
+  }
+  .group:hover .img-mono,
+  .img-mono:hover {
+    filter: grayscale(0);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

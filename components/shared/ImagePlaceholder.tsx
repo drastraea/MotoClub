@@ -5,7 +5,7 @@ export function ImagePlaceholder({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-xl border border-border bg-gradient-to-br from-secondary to-muted shadow-inner",
+        "img-mono shape-corner flex items-center justify-center border border-border bg-gradient-to-br from-secondary to-muted shadow-inner",
         className
       )}
     >
