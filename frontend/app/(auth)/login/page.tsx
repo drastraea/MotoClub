@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { LogIn } from "lucide-react";
+import { LogIn, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +25,14 @@ export default function LoginPage() {
     router.push("/dashboard");
   };
 
+  // Dev-only convenience since there's no real role distinction from the
+  // backend yet — lets the admin panel be reached without a real account.
+  const handleMockAdminSignIn = () => {
+    login({ name: "Admin", email: "admin@example.com", role: "admin" });
+    toast.success("Signed in as admin (mock session)");
+    router.push("/admin");
+  };
+
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-24">
       <Card className="w-full max-w-sm">
@@ -36,10 +44,14 @@ export default function LoginPage() {
             Sign in with the Google account used on your membership application.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-col gap-3">
           <Button className="w-full" onClick={handleMockSignIn}>
             <LogIn className="size-4" />
             Sign in with Google
+          </Button>
+          <Button className="w-full" variant="outline" onClick={handleMockAdminSignIn}>
+            <ShieldCheck className="size-4" />
+            Continue as Admin (mock)
           </Button>
         </CardContent>
       </Card>
