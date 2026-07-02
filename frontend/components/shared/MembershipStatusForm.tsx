@@ -53,9 +53,17 @@ export function MembershipStatusForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">Email used on your application</Label>
-          <Input id="email" type="email" {...register("email")} />
+          <Input
+            id="email"
+            type="email"
+            aria-invalid={!!errors.email}
+            aria-describedby={errors.email ? "email-error" : undefined}
+            {...register("email")}
+          />
           {errors.email && (
-            <p className="text-sm text-destructive">{errors.email.message}</p>
+            <p id="email-error" className="text-sm text-destructive">
+              {errors.email.message}
+            </p>
           )}
         </div>
         <Button type="submit" disabled={isSubmitting} className="self-start">
@@ -64,7 +72,7 @@ export function MembershipStatusForm() {
       </form>
 
       {Result && (
-        <div className={`flex items-center gap-3 ${Result.className}`}>
+        <div role="status" className={`flex items-center gap-3 ${Result.className}`}>
           <Result.icon className="size-5" />
           <span className="font-medium">{Result.label}</span>
         </div>

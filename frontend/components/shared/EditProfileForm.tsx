@@ -63,25 +63,48 @@ export function EditProfileForm() {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="name">Full Name</Label>
-          <Input id="name" {...register("name")} />
+          <Input
+            id="name"
+            aria-invalid={!!errors.name}
+            aria-describedby={errors.name ? "name-error" : undefined}
+            {...register("name")}
+          />
           {errors.name && (
-            <p className="text-sm text-destructive">{errors.name.message}</p>
+            <p id="name-error" className="text-sm text-destructive">
+              {errors.name.message}
+            </p>
           )}
         </div>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" {...register("email")} />
+          <Input
+            id="email"
+            type="email"
+            aria-invalid={!!errors.email}
+            aria-describedby={errors.email ? "email-error" : undefined}
+            {...register("email")}
+          />
           {errors.email && (
-            <p className="text-sm text-destructive">{errors.email.message}</p>
+            <p id="email-error" className="text-sm text-destructive">
+              {errors.email.message}
+            </p>
           )}
         </div>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="phoneNumber">Phone Number</Label>
-          <Input id="phoneNumber" type="tel" {...register("phoneNumber")} />
+          <Input
+            id="phoneNumber"
+            type="tel"
+            aria-invalid={!!errors.phoneNumber}
+            aria-describedby={errors.phoneNumber ? "phoneNumber-error" : undefined}
+            {...register("phoneNumber")}
+          />
           {errors.phoneNumber && (
-            <p className="text-sm text-destructive">{errors.phoneNumber.message}</p>
+            <p id="phoneNumber-error" className="text-sm text-destructive">
+              {errors.phoneNumber.message}
+            </p>
           )}
         </div>
 
@@ -92,25 +115,48 @@ export function EditProfileForm() {
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="placeOfBirth">Place of Birth</Label>
-          <Input id="placeOfBirth" {...register("placeOfBirth")} />
+          <Input
+            id="placeOfBirth"
+            aria-invalid={!!errors.placeOfBirth}
+            aria-describedby={errors.placeOfBirth ? "placeOfBirth-error" : undefined}
+            {...register("placeOfBirth")}
+          />
           {errors.placeOfBirth && (
-            <p className="text-sm text-destructive">{errors.placeOfBirth.message}</p>
+            <p id="placeOfBirth-error" className="text-sm text-destructive">
+              {errors.placeOfBirth.message}
+            </p>
           )}
         </div>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="dateOfBirth">Date of Birth</Label>
-          <Input id="dateOfBirth" type="date" {...register("dateOfBirth")} />
+          <Input
+            id="dateOfBirth"
+            type="date"
+            aria-invalid={!!errors.dateOfBirth}
+            aria-describedby={errors.dateOfBirth ? "dateOfBirth-error" : undefined}
+            {...register("dateOfBirth")}
+          />
           {errors.dateOfBirth && (
-            <p className="text-sm text-destructive">{errors.dateOfBirth.message}</p>
+            <p id="dateOfBirth-error" className="text-sm text-destructive">
+              {errors.dateOfBirth.message}
+            </p>
           )}
         </div>
 
         <div className="flex flex-col gap-1.5 sm:col-span-2">
           <Label htmlFor="address">Address</Label>
-          <Textarea id="address" rows={3} {...register("address")} />
+          <Textarea
+            id="address"
+            rows={3}
+            aria-invalid={!!errors.address}
+            aria-describedby={errors.address ? "address-error" : undefined}
+            {...register("address")}
+          />
           {errors.address && (
-            <p className="text-sm text-destructive">{errors.address.message}</p>
+            <p id="address-error" className="text-sm text-destructive">
+              {errors.address.message}
+            </p>
           )}
         </div>
 
@@ -120,7 +166,12 @@ export function EditProfileForm() {
             defaultValue={mockProfile.bloodType}
             onValueChange={(v) => setValue("bloodType", v as EditProfileValues["bloodType"])}
           >
-            <SelectTrigger id="bloodType" className="w-full">
+            <SelectTrigger
+              id="bloodType"
+              className="w-full"
+              aria-invalid={!!errors.bloodType}
+              aria-describedby={errors.bloodType ? "bloodType-error" : undefined}
+            >
               <SelectValue placeholder="Select blood type" />
             </SelectTrigger>
             <SelectContent>
@@ -131,22 +182,40 @@ export function EditProfileForm() {
               ))}
             </SelectContent>
           </Select>
-          {errors.bloodType && <p className="text-sm text-destructive">Required</p>}
+          {errors.bloodType && (
+            <p id="bloodType-error" className="text-sm text-destructive">
+              Required
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="motorbikeName">Motorbike Name</Label>
-          <Input id="motorbikeName" {...register("motorbikeName")} />
+          <Input
+            id="motorbikeName"
+            aria-invalid={!!errors.motorbikeName}
+            aria-describedby={errors.motorbikeName ? "motorbikeName-error" : undefined}
+            {...register("motorbikeName")}
+          />
           {errors.motorbikeName && (
-            <p className="text-sm text-destructive">{errors.motorbikeName.message}</p>
+            <p id="motorbikeName-error" className="text-sm text-destructive">
+              {errors.motorbikeName.message}
+            </p>
           )}
         </div>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="emergencyContactName">Emergency Contact Name</Label>
-          <Input id="emergencyContactName" {...register("emergencyContactName")} />
+          <Input
+            id="emergencyContactName"
+            aria-invalid={!!errors.emergencyContactName}
+            aria-describedby={errors.emergencyContactName ? "emergencyContactName-error" : undefined}
+            {...register("emergencyContactName")}
+          />
           {errors.emergencyContactName && (
-            <p className="text-sm text-destructive">{errors.emergencyContactName.message}</p>
+            <p id="emergencyContactName-error" className="text-sm text-destructive">
+              {errors.emergencyContactName.message}
+            </p>
           )}
         </div>
 
@@ -155,10 +224,14 @@ export function EditProfileForm() {
           <Input
             id="emergencyContactPhoneNumber"
             type="tel"
+            aria-invalid={!!errors.emergencyContactPhoneNumber}
+            aria-describedby={
+              errors.emergencyContactPhoneNumber ? "emergencyContactPhoneNumber-error" : undefined
+            }
             {...register("emergencyContactPhoneNumber")}
           />
           {errors.emergencyContactPhoneNumber && (
-            <p className="text-sm text-destructive">
+            <p id="emergencyContactPhoneNumber-error" className="text-sm text-destructive">
               {errors.emergencyContactPhoneNumber.message}
             </p>
           )}

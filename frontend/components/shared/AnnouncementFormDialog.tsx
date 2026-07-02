@@ -58,16 +58,31 @@ export function AnnouncementFormDialog({
         >
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="title">Title</Label>
-            <Input id="title" {...register("title")} />
+            <Input
+              id="title"
+              aria-invalid={!!errors.title}
+              aria-describedby={errors.title ? "title-error" : undefined}
+              {...register("title")}
+            />
             {errors.title && (
-              <p className="text-sm text-destructive">{errors.title.message}</p>
+              <p id="title-error" className="text-sm text-destructive">
+                {errors.title.message}
+              </p>
             )}
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="description">Description</Label>
-            <Textarea id="description" rows={4} {...register("description")} />
+            <Textarea
+              id="description"
+              rows={4}
+              aria-invalid={!!errors.description}
+              aria-describedby={errors.description ? "description-error" : undefined}
+              {...register("description")}
+            />
             {errors.description && (
-              <p className="text-sm text-destructive">{errors.description.message}</p>
+              <p id="description-error" className="text-sm text-destructive">
+                {errors.description.message}
+              </p>
             )}
           </div>
           <DialogFooter>

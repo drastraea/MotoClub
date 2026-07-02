@@ -37,25 +37,48 @@ export function ContactForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="name">Name</Label>
-        <Input id="name" {...register("name")} />
+        <Input
+          id="name"
+          aria-invalid={!!errors.name}
+          aria-describedby={errors.name ? "name-error" : undefined}
+          {...register("name")}
+        />
         {errors.name && (
-          <p className="text-sm text-destructive">{errors.name.message}</p>
+          <p id="name-error" className="text-sm text-destructive">
+            {errors.name.message}
+          </p>
         )}
       </div>
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" type="email" {...register("email")} />
+        <Input
+          id="email"
+          type="email"
+          aria-invalid={!!errors.email}
+          aria-describedby={errors.email ? "email-error" : undefined}
+          {...register("email")}
+        />
         {errors.email && (
-          <p className="text-sm text-destructive">{errors.email.message}</p>
+          <p id="email-error" className="text-sm text-destructive">
+            {errors.email.message}
+          </p>
         )}
       </div>
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="message">Message</Label>
-        <Textarea id="message" rows={5} {...register("message")} />
+        <Textarea
+          id="message"
+          rows={5}
+          aria-invalid={!!errors.message}
+          aria-describedby={errors.message ? "message-error" : undefined}
+          {...register("message")}
+        />
         {errors.message && (
-          <p className="text-sm text-destructive">{errors.message.message}</p>
+          <p id="message-error" className="text-sm text-destructive">
+            {errors.message.message}
+          </p>
         )}
       </div>
 
