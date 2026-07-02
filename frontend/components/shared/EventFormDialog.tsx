@@ -60,23 +60,49 @@ export function EventFormDialog({
         >
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="title">Title</Label>
-            <Input id="title" {...register("title")} />
+            <Input
+              id="title"
+              aria-invalid={!!errors.title}
+              aria-describedby={errors.title ? "title-error" : undefined}
+              {...register("title")}
+            />
             {errors.title && (
-              <p className="text-sm text-destructive">{errors.title.message}</p>
+              <p id="title-error" className="text-sm text-destructive">
+                {errors.title.message}
+              </p>
             )}
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="description">Description</Label>
-            <Textarea id="description" rows={3} {...register("description")} />
+            <Textarea
+              id="description"
+              rows={3}
+              aria-invalid={!!errors.description}
+              aria-describedby={errors.description ? "description-error" : undefined}
+              {...register("description")}
+            />
             {errors.description && (
-              <p className="text-sm text-destructive">{errors.description.message}</p>
+              <p id="description-error" className="text-sm text-destructive">
+                {errors.description.message}
+              </p>
             )}
           </div>
           <div className="flex flex-col gap-1.5">
+            {/* Backend stores date-only (YYYY-MM-DD, Asia/Jakarta) - see
+                backend/internal/util/datetime.go. No time-of-day field
+                exists yet on the real Event model. */}
             <Label htmlFor="date">Date</Label>
-            <Input id="date" type="datetime-local" {...register("date")} />
+            <Input
+              id="date"
+              type="date"
+              aria-invalid={!!errors.date}
+              aria-describedby={errors.date ? "date-error" : undefined}
+              {...register("date")}
+            />
             {errors.date && (
-              <p className="text-sm text-destructive">{errors.date.message}</p>
+              <p id="date-error" className="text-sm text-destructive">
+                {errors.date.message}
+              </p>
             )}
           </div>
           <div className="flex flex-col gap-1.5">

@@ -24,16 +24,16 @@ import {
   TableCell,
 } from "@/components/ui/table";
 
-type Role = "Member" | "Admin";
+type Role = "MEMBER" | "ADMIN";
 type User = { id: string; name: string; email: string; role: Role; joinedAt: string };
 
 // TODO: Replace with GET /members (see api_contract.json)
 const initialUsers: User[] = [
-  { id: "1", name: "Alex Rider", email: "alex.rider@example.com", role: "Admin", joinedAt: "2023-01-15" },
-  { id: "2", name: "Jordan Blake", email: "jordan.blake@example.com", role: "Member", joinedAt: "2023-06-02" },
-  { id: "3", name: "Sam Carter", email: "sam.carter@example.com", role: "Member", joinedAt: "2024-02-20" },
-  { id: "4", name: "Riley Storm", email: "riley.storm@example.com", role: "Member", joinedAt: "2024-05-11" },
-  { id: "5", name: "Casey Vance", email: "casey.vance@example.com", role: "Member", joinedAt: "2025-01-30" },
+  { id: "1", name: "Alex Rider", email: "alex.rider@example.com", role: "ADMIN", joinedAt: "2023-01-15" },
+  { id: "2", name: "Jordan Blake", email: "jordan.blake@example.com", role: "MEMBER", joinedAt: "2023-06-02" },
+  { id: "3", name: "Sam Carter", email: "sam.carter@example.com", role: "MEMBER", joinedAt: "2024-02-20" },
+  { id: "4", name: "Riley Storm", email: "riley.storm@example.com", role: "MEMBER", joinedAt: "2024-05-11" },
+  { id: "5", name: "Casey Vance", email: "casey.vance@example.com", role: "MEMBER", joinedAt: "2025-01-30" },
 ];
 
 const columnHelper = createColumnHelper<User>();
@@ -41,7 +41,10 @@ const columnHelper = createColumnHelper<User>();
 export default function AdminUsersPage() {
   const [users, setUsers] = useState(initialUsers);
 
-  // TODO: Replace with POST /members/:id { role } (see api_contract.json)
+  // TODO: Replace with POST /members/:id { role } (see
+  // backend/internal/handler/member_handler.go - note this is
+  // superadmin-only there, not just admin, and role values are
+  // "ADMIN"/"MEMBER" uppercase, unlike api_contract.json's stale example)
   const updateRole = (id: string, role: Role) => {
     setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role } : u)));
     toast.success("Role updated");
@@ -63,8 +66,8 @@ export default function AdminUsersPage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="Member">Member</SelectItem>
-            <SelectItem value="Admin">Admin</SelectItem>
+            <SelectItem value="MEMBER">Member</SelectItem>
+            <SelectItem value="ADMIN">Admin</SelectItem>
           </SelectContent>
         </Select>
       ),

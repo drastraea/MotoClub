@@ -25,11 +25,14 @@ const initialRegistrations: Registration[] = [
 export default function AdminMembersPage() {
   const [registrations, setRegistrations] = useState(initialRegistrations);
 
-  // TODO: Replace with POST /members/registration/:id { action, remarks }
-  // (see api_contract.json)
-  const respond = (id: string, name: string, action: "ACCEPT" | "REJECT") => {
+  // TODO: Replace with POST /members/:id/status { action, remarks } (see
+  // backend/internal/handler/member_handler.go - the real endpoint, path,
+  // and "APPROVE"/"REJECT" action values differ from api_contract.json's
+  // stale Postman collection, which has this at /members/registration/:id
+  // with an "ACCEPT" action).
+  const respond = (id: string, name: string, action: "APPROVE" | "REJECT") => {
     setRegistrations((prev) => prev.filter((r) => r.id !== id));
-    toast.success(action === "ACCEPT" ? `${name} approved` : `${name} rejected`);
+    toast.success(action === "APPROVE" ? `${name} approved` : `${name} rejected`);
   };
 
   return (
@@ -57,7 +60,7 @@ export default function AdminMembersPage() {
                 </CardDescription>
               </div>
               <div className="mt-4 flex gap-2 sm:mt-0">
-                <Button size="sm" onClick={() => respond(r.id, r.name, "ACCEPT")}>
+                <Button size="sm" onClick={() => respond(r.id, r.name, "APPROVE")}>
                   <Check className="size-4" />
                   Approve
                 </Button>

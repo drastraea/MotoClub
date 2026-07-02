@@ -14,9 +14,9 @@ type AdminEvent = EventFormValues & { id: string };
 
 // TODO: Replace with GET /events (see api_contract.json)
 const initialEvents: AdminEvent[] = [
-  { id: "1", title: "Sunday Morning Ride", description: "Easy group ride ending with breakfast.", date: "2026-07-06T07:00", location: "Club HQ" },
-  { id: "2", title: "Charity Run for Local Shelter", description: "Raising funds for the local animal shelter.", date: "2026-07-19T09:00", location: "City Park" },
-  { id: "3", title: "Annual Members Meetup", description: "Club-wide meetup and planning session.", date: "2026-08-02T17:00", location: "Riverside Grounds" },
+  { id: "1", title: "Sunday Morning Ride", description: "Easy group ride ending with breakfast.", date: "2026-07-06", location: "Club HQ" },
+  { id: "2", title: "Charity Run for Local Shelter", description: "Raising funds for the local animal shelter.", date: "2026-07-19", location: "City Park" },
+  { id: "3", title: "Annual Members Meetup", description: "Club-wide meetup and planning session.", date: "2026-08-02", location: "Riverside Grounds" },
 ];
 
 export default function AdminEventsPage() {
@@ -70,7 +70,7 @@ export default function AdminEventsPage() {
               <div>
                 <CardTitle>{event.title}</CardTitle>
                 <CardDescription className="flex flex-col gap-1">
-                  <span>{event.date.replace("T", " ")}</span>
+                  <span>{event.date}</span>
                   {event.location && <span>{event.location}</span>}
                 </CardDescription>
               </div>

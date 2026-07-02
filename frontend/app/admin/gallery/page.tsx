@@ -13,7 +13,12 @@ const initialImages = Array.from({ length: 8 }, (_, i) => ({ id: `${i}` }));
 export default function AdminGalleryPage() {
   const [images, setImages] = useState(initialImages);
 
-  // TODO: Replace with POST /gallery { blob } (see api_contract.json)
+  // TODO: Replace with POST /gallery { link } (see
+  // backend/internal/handler/gallery_handler.go - the real field is a
+  // `link` (a path/URL to an already-hosted image), not a raw `blob` upload
+  // as api_contract.json's stale Postman example suggests. No public
+  // file-upload-and-get-a-link endpoint is visible yet, same gap as the
+  // Join form's motorbike selfie.
   const onDrop = useCallback((accepted: File[]) => {
     if (accepted.length === 0) return;
     setImages((prev) => [...prev, ...accepted.map(() => ({ id: crypto.randomUUID() }))]);
