@@ -19,10 +19,15 @@ export function Hero() {
           brotherhood. Join the club and be part of every ride.
         </p>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button size="lg" render={<Link href="/join" />}>
+          <Button size="lg" nativeButton={false} render={<Link href="/join" />}>
             Join Now
           </Button>
-          <Button size="lg" variant="outline" render={<Link href="/events" />}>
+          <Button
+            size="lg"
+            variant="outline"
+            nativeButton={false}
+            render={<Link href="/events" />}
+          >
             View Events
           </Button>
         </div>

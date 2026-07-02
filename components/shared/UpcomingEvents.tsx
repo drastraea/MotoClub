@@ -21,7 +21,12 @@ export function UpcomingEvents() {
             Upcoming Events
           </h2>
         </div>
-        <Button variant="ghost" size="sm" render={<Link href="/events" />}>
+        <Button
+          variant="ghost"
+          size="sm"
+          nativeButton={false}
+          render={<Link href="/events" />}
+        >
           View all
         </Button>
       </div>

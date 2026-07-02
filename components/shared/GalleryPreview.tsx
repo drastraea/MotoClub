@@ -16,7 +16,12 @@ export function GalleryPreview() {
             Gallery
           </h2>
         </div>
-        <Button variant="ghost" size="sm" render={<Link href="/gallery" />}>
+        <Button
+          variant="ghost"
+          size="sm"
+          nativeButton={false}
+          render={<Link href="/gallery" />}
+        >
           View all
         </Button>
       </div>

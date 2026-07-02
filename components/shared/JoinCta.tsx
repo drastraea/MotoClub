@@ -11,7 +11,12 @@ export function JoinCta() {
         <p className="max-w-md text-primary-foreground/80">
           Apply for membership today and join the next chapter of our club.
         </p>
-        <Button size="lg" variant="secondary" render={<Link href="/join" />}>
+        <Button
+          size="lg"
+          variant="secondary"
+          nativeButton={false}
+          render={<Link href="/join" />}
+        >
           Join Now
         </Button>
       </div>

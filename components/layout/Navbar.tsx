@@ -35,7 +35,7 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
-          <Button size="sm" render={<Link href="/join" />}>
+          <Button size="sm" nativeButton={false} render={<Link href="/join" />}>
             Join Now
           </Button>
         </div>
@@ -61,7 +61,12 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
-          <Button size="sm" className="w-full" render={<Link href="/join" />}>
+          <Button
+            size="sm"
+            className="w-full"
+            nativeButton={false}
+            render={<Link href="/join" />}
+          >
             Join Now
           </Button>
         </div>
