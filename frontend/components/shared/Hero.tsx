@@ -26,7 +26,7 @@ export function Hero() {
             size="lg"
             variant="outline"
             nativeButton={false}
-            render={<Link href="/events" />}
+            render={<Link href="/#events" />}
           >
             View Events
           </Button>

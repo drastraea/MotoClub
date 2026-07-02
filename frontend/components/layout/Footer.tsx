@@ -8,7 +8,7 @@ export function Footer() {
           &copy; {new Date().getFullYear()} Moto<span className="text-primary">Club</span>. All rights reserved.
         </p>
         <div className="flex gap-6">
-          <Link href="/contact" className="hover:text-primary">
+          <Link href="/#contact" className="hover:text-primary">
             Contact
           </Link>
           <Link href="/join" className="hover:text-primary">

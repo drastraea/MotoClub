@@ -1,19 +1,17 @@
-import type { Metadata } from "next";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { ContactForm } from "@/components/shared/ContactForm";
-import { PageHeader } from "@/components/shared/PageHeader";
 
-export const metadata: Metadata = {
-  title: "Contact - Motorcycle Club",
-};
-
-export default function ContactPage() {
+export function ContactSection() {
   return (
-    <section className="mx-auto max-w-4xl px-4 py-16 sm:px-6">
-      <PageHeader
-        title="Contact Us"
-        description="Questions about membership or events? Send us a message."
-      />
+    <section id="contact" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-16 sm:px-6">
+      <div className="text-center">
+        <span className="text-xs font-semibold tracking-[0.3em] text-primary uppercase">
+          Get In Touch
+        </span>
+        <h2 className="font-heading mt-2 text-3xl font-bold tracking-wide uppercase">
+          Contact Us
+        </h2>
+      </div>
 
       <div className="mt-10 grid gap-10 sm:grid-cols-2">
         <div className="flex flex-col gap-4 text-muted-foreground">

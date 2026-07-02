@@ -2,7 +2,7 @@ import { ImagePlaceholder } from "@/components/shared/ImagePlaceholder";
 
 export function AboutSection() {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <section id="about" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-16 sm:px-6">
       <div className="grid gap-8 sm:grid-cols-2 sm:items-center">
         <div>
           <span className="text-xs font-semibold tracking-[0.3em] text-primary uppercase">
@@ -19,6 +19,27 @@ export function AboutSection() {
           </p>
         </div>
         <ImagePlaceholder className="aspect-video" />
+      </div>
+
+      <div className="mt-10 grid gap-6 sm:grid-cols-2">
+        <div>
+          <h3 className="font-heading text-xl font-semibold tracking-wide uppercase">
+            Our Mission
+          </h3>
+          <p className="mt-2 text-muted-foreground">
+            To support our members, give back to the community, and keep the
+            spirit of riding alive across generations.
+          </p>
+        </div>
+        <div>
+          <h3 className="font-heading text-xl font-semibold tracking-wide uppercase">
+            Our Values
+          </h3>
+          <p className="mt-2 text-muted-foreground">
+            Brotherhood, safety, respect for the road, and giving back to the
+            communities we ride through.
+          </p>
+        </div>
       </div>
     </section>
   );
