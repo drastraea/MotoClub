@@ -1,36 +1,23 @@
+import Link from "next/link";
+import { Pencil } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-
-// TODO: Replace with GET /members/:id/profile (see api_contract.json)
-const profile = {
-  name: "Alex Rider",
-  email: "alex.rider@example.com",
-  phoneNumber: "+62 812-3456-7890",
-  placeOfBirth: "Jakarta",
-  dateOfBirth: "1995-04-12",
-  address: "Jl. Rider No. 12, Jakarta",
-  instagramUsername: "@alex.rides",
-  bloodType: "O",
-  emergencyContactName: "Sam Rider",
-  emergencyContactPhoneNumber: "+62 813-9876-5432",
-  motorbikeName: "Iron Horse",
-  memberSince: "2024-03-01",
-  status: "Active",
-};
+import { Button } from "@/components/ui/button";
+import { mockProfile } from "@/lib/mock-profile";
 
 const fields: [string, string][] = [
-  ["Full Name", profile.name],
-  ["Email", profile.email],
-  ["Phone Number", profile.phoneNumber],
-  ["Place of Birth", profile.placeOfBirth],
-  ["Date of Birth", profile.dateOfBirth],
-  ["Address", profile.address],
-  ["Instagram", profile.instagramUsername],
-  ["Blood Type", profile.bloodType],
-  ["Emergency Contact", profile.emergencyContactName],
-  ["Emergency Contact Phone", profile.emergencyContactPhoneNumber],
-  ["Motorbike", profile.motorbikeName],
-  ["Member Since", profile.memberSince],
+  ["Full Name", mockProfile.name],
+  ["Email", mockProfile.email],
+  ["Phone Number", mockProfile.phoneNumber],
+  ["Place of Birth", mockProfile.placeOfBirth],
+  ["Date of Birth", mockProfile.dateOfBirth],
+  ["Address", mockProfile.address],
+  ["Instagram", mockProfile.instagramUsername],
+  ["Blood Type", mockProfile.bloodType],
+  ["Emergency Contact", mockProfile.emergencyContactName],
+  ["Emergency Contact Phone", mockProfile.emergencyContactPhoneNumber],
+  ["Motorbike", mockProfile.motorbikeName],
+  ["Member Since", mockProfile.memberSince],
 ];
 
 export default function ProfilePage() {
@@ -40,7 +27,18 @@ export default function ProfilePage() {
         <h1 className="font-heading text-3xl font-bold tracking-wide uppercase">
           My Profile
         </h1>
-        <Badge>{profile.status}</Badge>
+        <div className="flex items-center gap-3">
+          <Badge>{mockProfile.status}</Badge>
+          <Button
+            size="sm"
+            variant="outline"
+            nativeButton={false}
+            render={<Link href="/dashboard/profile/edit" />}
+          >
+            <Pencil className="size-4" />
+            Edit
+          </Button>
+        </div>
       </div>
 
       <Card className="mt-8">
