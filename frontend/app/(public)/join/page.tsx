@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { JoinForm } from "@/components/shared/JoinForm";
 import { PageHeader } from "@/components/shared/PageHeader";
 
@@ -17,6 +18,14 @@ export default function JoinPage() {
       <div className="mt-10">
         <JoinForm />
       </div>
+
+      <p className="mt-6 text-sm text-muted-foreground">
+        Already applied?{" "}
+        <Link href="/status" className="font-medium text-primary hover:underline">
+          Check your membership status
+        </Link>
+        .
+      </p>
     </section>
   );
 }
