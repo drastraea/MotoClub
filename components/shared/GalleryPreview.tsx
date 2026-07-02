@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ImagePlaceholder } from "@/components/shared/ImagePlaceholder";
 
 // TODO: Replace with GET /api/gallery?featured=true
 const previewCount = 6;
@@ -27,10 +28,7 @@ export function GalleryPreview() {
       </div>
       <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3">
         {Array.from({ length: previewCount }).map((_, i) => (
-          <div
-            key={i}
-            className="aspect-square rounded-lg border border-border bg-muted"
-          />
+          <ImagePlaceholder key={i} className="aspect-square" />
         ))}
       </div>
     </section>

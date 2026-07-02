@@ -11,29 +11,31 @@ const upcomingEvents = [
 
 export function UpcomingEvents() {
   return (
-    <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <span className="text-xs font-semibold tracking-[0.3em] text-primary uppercase">
-            Ride Calendar
-          </span>
-          <h2 className="font-heading mt-2 text-3xl font-bold tracking-wide uppercase">
-            Upcoming Events
-          </h2>
+    <section className="border-y border-border bg-secondary/20 py-16">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="text-xs font-semibold tracking-[0.3em] text-primary uppercase">
+              Ride Calendar
+            </span>
+            <h2 className="font-heading mt-2 text-3xl font-bold tracking-wide uppercase">
+              Upcoming Events
+            </h2>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            nativeButton={false}
+            render={<Link href="/events" />}
+          >
+            View all
+          </Button>
         </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          nativeButton={false}
-          render={<Link href="/events" />}
-        >
-          View all
-        </Button>
-      </div>
-      <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {upcomingEvents.map((event) => (
-          <EventCard key={event.id} {...event} />
-        ))}
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {upcomingEvents.map((event) => (
+            <EventCard key={event.id} {...event} />
+          ))}
+        </div>
       </div>
     </section>
   );

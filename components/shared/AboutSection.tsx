@@ -1,3 +1,5 @@
+import { ImagePlaceholder } from "@/components/shared/ImagePlaceholder";
+
 export function AboutSection() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
@@ -16,7 +18,7 @@ export function AboutSection() {
             runs, we build lasting friendships one mile at a time.
           </p>
         </div>
-        <div className="aspect-video rounded-xl border border-border bg-muted" />
+        <ImagePlaceholder className="aspect-video" />
       </div>
     </section>
   );

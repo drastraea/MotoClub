@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { ImagePlaceholder } from "@/components/shared/ImagePlaceholder";
 
 export const metadata: Metadata = {
   title: "Gallery - Motorcycle Club",
@@ -18,10 +19,7 @@ export default function GalleryPage() {
 
       <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {galleryItems.map((item) => (
-          <div
-            key={item.id}
-            className="aspect-square rounded-lg border border-border bg-muted"
-          />
+          <ImagePlaceholder key={item.id} className="aspect-square" />
         ))}
       </div>
     </section>
