@@ -1,0 +1,10 @@
+# Works with both `docker compose` and `podman compose`.
+# Start with: podman compose up --build -d   →   http://localhost:3000
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+    restart: unless-stopped

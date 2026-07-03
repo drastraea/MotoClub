@@ -20,6 +20,34 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Running with Docker
+
+The app is containerized as a self-contained Next.js production server (uses
+`output: "standalone"`). No local Node toolchain is required — only Podman or
+Docker.
+
+```bash
+# from the frontend/ directory
+podman compose up --build -d     # or: docker compose up --build -d
+```
+
+Then open [http://localhost:3000](http://localhost:3000).
+
+```bash
+podman compose logs -f web       # tail logs
+podman compose down              # stop and remove the container
+```
+
+To build/run the image without Compose:
+
+```bash
+podman build -t motoclub-frontend .
+podman run --rm -p 3000:3000 motoclub-frontend
+```
+
+The container listens on port `3000` and binds `0.0.0.0`, so it is reachable at
+`http://localhost:3000` on the host.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
