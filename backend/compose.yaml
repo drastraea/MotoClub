@@ -33,8 +33,12 @@ services:
       PORT: "8080"
       DATABASE_URL: "postgres://motoclub:motoclub@db:5432/motoclub?sslmode=disable"
       JWT_SECRET: "dev-secret-change-me"
-      GOOGLE_CLIENT_ID: "dev-google-client-id.apps.googleusercontent.com"
+      # Must equal the `aud` of the Google ID tokens your frontend sends,
+      # otherwise idtoken verification fails and /login and /register return 401.
+      GOOGLE_CLIENT_ID: "407408718192.apps.googleusercontent.com"
       TZ: "Asia/Jakarta"
+      LOG_LEVEL: "${LOG_LEVEL:-info}"
+      LOG_FORMAT: "${LOG_FORMAT:-json}"
     ports:
       - "8080:8080"
     depends_on:

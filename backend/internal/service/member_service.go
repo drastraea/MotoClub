@@ -48,7 +48,8 @@ func (s *MemberService) ListMembers(ctx context.Context) ([]domain.Member, error
 	return s.members.List(ctx)
 }
 
-// SetStatus approves or rejects a registration.
+// SetStatus approves or rejects a registration. Approval promotes the member
+// from visitor to member; rejection leaves them as a visitor.
 func (s *MemberService) SetStatus(ctx context.Context, id int64, action StatusAction, remarks *string) error {
 	in := repository.UpdateStatusInput{ID: id, Remarks: remarks}
 	switch action {
@@ -56,8 +57,10 @@ func (s *MemberService) SetStatus(ctx context.Context, id int64, action StatusAc
 		now := s.clock.Now()
 		in.Status = domain.StatusApproved
 		in.ApprovedAt = &now
+		in.Role = domain.RoleMember
 	case ActionReject:
 		in.Status = domain.StatusRejected
+		in.Role = domain.RoleVisitor
 	default:
 		return apperr.ErrValidation
 	}

@@ -390,7 +390,7 @@ func (q *Queries) UpdateMemberRole(ctx context.Context, arg UpdateMemberRolePara
 
 const updateMemberStatus = `-- name: UpdateMemberStatus :one
 UPDATE members
-SET status = $2, remarks = $3, approved_at = $4
+SET status = $2, remarks = $3, approved_at = $4, role = $5
 WHERE id = $1 AND deleted_at IS NULL
 RETURNING id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at
 `
@@ -400,6 +400,7 @@ type UpdateMemberStatusParams struct {
 	Status     string
 	Remarks    *string
 	ApprovedAt *time.Time
+	Role       string
 }
 
 func (q *Queries) UpdateMemberStatus(ctx context.Context, arg UpdateMemberStatusParams) (Member, error) {
@@ -408,6 +409,7 @@ func (q *Queries) UpdateMemberStatus(ctx context.Context, arg UpdateMemberStatus
 		arg.Status,
 		arg.Remarks,
 		arg.ApprovedAt,
+		arg.Role,
 	)
 	var i Member
 	err := row.Scan(

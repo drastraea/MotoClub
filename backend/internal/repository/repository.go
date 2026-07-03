@@ -28,12 +28,13 @@ type CreateMemberInput struct {
 	MotorbikeSelfieLinkPath     string
 }
 
-// UpdateStatusInput carries an approve/reject decision.
+// UpdateStatusInput carries an approve/reject decision (and the resulting role).
 type UpdateStatusInput struct {
 	ID         int64
 	Status     domain.Status
 	Remarks    *string
 	ApprovedAt *time.Time
+	Role       domain.Role
 }
 
 // CreateEventInput carries the fields for creating an event.

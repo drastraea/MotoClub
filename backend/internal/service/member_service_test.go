@@ -47,7 +47,8 @@ func TestSetStatus_Approve(t *testing.T) {
 	clock.On("Now").Return(now)
 	members := repomocks.NewMockMemberRepository(t)
 	members.On("UpdateStatus", mock.Anything, mock.MatchedBy(func(in repository.UpdateStatusInput) bool {
-		return in.ID == 1 && in.Status == domain.StatusApproved && in.ApprovedAt != nil && in.ApprovedAt.Equal(now)
+		return in.ID == 1 && in.Status == domain.StatusApproved && in.ApprovedAt != nil &&
+			in.ApprovedAt.Equal(now) && in.Role == domain.RoleMember
 	})).Return(domain.Member{}, nil)
 	s := NewMemberService(members, clock)
 
@@ -58,7 +59,8 @@ func TestSetStatus_Reject(t *testing.T) {
 	members := repomocks.NewMockMemberRepository(t)
 	remarks := "no"
 	members.On("UpdateStatus", mock.Anything, mock.MatchedBy(func(in repository.UpdateStatusInput) bool {
-		return in.Status == domain.StatusRejected && in.ApprovedAt == nil && in.Remarks == &remarks
+		return in.Status == domain.StatusRejected && in.ApprovedAt == nil &&
+			in.Remarks == &remarks && in.Role == domain.RoleVisitor
 	})).Return(domain.Member{}, nil)
 	s := NewMemberService(members, utilmocks.NewMockClock(t))
 

@@ -53,8 +53,11 @@ func StatusFor(err error) int {
 	}
 }
 
-// Error writes err as a JSON envelope with the mapped status and aborts.
+// Error writes err as a JSON envelope with the mapped status and aborts. The
+// underlying error is attached to the context (c.Error) so the request logger
+// records the real cause even when the client sees a sanitized message.
 func Error(c *gin.Context, err error) {
+	_ = c.Error(err)
 	status := StatusFor(err)
 	msg := err.Error()
 	if status == http.StatusInternalServerError {

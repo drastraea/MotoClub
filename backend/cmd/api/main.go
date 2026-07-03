@@ -5,7 +5,8 @@ package main
 
 import (
 	"context"
-	"log"
+	"log/slog"
+	"os"
 	"os/signal"
 	"syscall"
 
@@ -22,12 +23,32 @@ import (
 )
 
 func main() {
-	if err := run(); err != nil {
-		log.Fatalf("fatal: %v", err)
+	logger := newLogger()
+	slog.SetDefault(logger)
+
+	if err := run(logger); err != nil {
+		logger.Error("fatal", "error", err.Error())
+		os.Exit(1)
 	}
 }
 
-func run() error {
+// newLogger builds the structured logger. LOG_LEVEL (debug|info|warn|error) and
+// LOG_FORMAT (json|text) are read from the environment; defaults are info/json.
+func newLogger() *slog.Logger {
+	level := slog.LevelInfo
+	if v := os.Getenv("LOG_LEVEL"); v != "" {
+		_ = level.UnmarshalText([]byte(v))
+	}
+	opts := &slog.HandlerOptions{Level: level}
+
+	var h slog.Handler = slog.NewJSONHandler(os.Stdout, opts)
+	if os.Getenv("LOG_FORMAT") == "text" {
+		h = slog.NewTextHandler(os.Stdout, opts)
+	}
+	return slog.New(h)
+}
+
+func run(logger *slog.Logger) error {
 	cfg, err := config.LoadFromOS()
 	if err != nil {
 		return err
@@ -60,8 +81,8 @@ func run() error {
 	}
 
 	gin.SetMode(gin.ReleaseMode)
-	router := server.NewRouter(handlers, jwtMgr, repos.Tokens)
+	router := server.NewRouter(handlers, jwtMgr, repos.Tokens, logger)
 
-	log.Printf("listening on :%s", cfg.Port)
+	logger.Info("listening", "port", cfg.Port)
 	return server.Run(ctx, ":"+cfg.Port, router)
 }

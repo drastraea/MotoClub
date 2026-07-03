@@ -141,6 +141,7 @@ func (r *MemberRepo) UpdateStatus(ctx context.Context, in repository.UpdateStatu
 		Status:     string(in.Status),
 		Remarks:    in.Remarks,
 		ApprovedAt: in.ApprovedAt,
+		Role:       string(in.Role),
 	})
 	if err != nil {
 		return domain.Member{}, mapGetErr(err)

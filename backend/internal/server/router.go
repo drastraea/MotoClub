@@ -2,6 +2,7 @@
 package server
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,9 +14,9 @@ import (
 )
 
 // NewRouter builds the full route table with its middleware chain.
-func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middleware.RevocationChecker) *gin.Engine {
+func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middleware.RevocationChecker, logger *slog.Logger) *gin.Engine {
 	r := gin.New()
-	r.Use(gin.Recovery())
+	r.Use(middleware.RequestLogger(logger), gin.Recovery())
 	r.HandleMethodNotAllowed = true
 
 	r.GET("/healthz", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"status": "ok"}) })
@@ -24,15 +25,19 @@ func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middlewa
 	r.POST("/register", h.Auth.Register)
 	r.POST("/login", h.Auth.Login)
 
-	// Authenticated endpoints (any role).
+	// Authenticated endpoints available to any role, including visitors
+	// (registered-but-unapproved members).
 	authed := r.Group("/", middleware.JWTAuth(jwtMgr, revocations))
 	authed.POST("/logout", h.Auth.Logout)
-	authed.GET("/gallery", h.Gallery.List)
-	authed.GET("/events", h.Event.List)
-	authed.GET("/event/:id", h.Event.Get)
-	authed.GET("/announcements", h.Announcement.List)
 	authed.GET("/members/:id/profile",
 		middleware.RequireSelfOrRole(domain.RoleAdmin, domain.RoleSuperadmin), h.Member.GetProfile)
+
+	// Member area — approved members and up (visitors are excluded).
+	memberArea := authed.Group("/", middleware.RequireRole(domain.RoleMember, domain.RoleAdmin, domain.RoleSuperadmin))
+	memberArea.GET("/gallery", h.Gallery.List)
+	memberArea.GET("/events", h.Event.List)
+	memberArea.GET("/event/:id", h.Event.Get)
+	memberArea.GET("/announcements", h.Announcement.List)
 
 	// Admin + superadmin endpoints.
 	admin := authed.Group("/", middleware.RequireRole(domain.RoleAdmin, domain.RoleSuperadmin))

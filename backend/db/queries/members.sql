@@ -42,7 +42,7 @@ ORDER BY created_at;
 
 -- name: UpdateMemberStatus :one
 UPDATE members
-SET status = $2, remarks = $3, approved_at = $4
+SET status = $2, remarks = $3, approved_at = $4, role = $5
 WHERE id = $1 AND deleted_at IS NULL
 RETURNING *;
 
