@@ -9,6 +9,10 @@ Dockerfile
 .dockerignore
 compose.yaml
 README.md
-.env*
+# Keep committed per-env files (.env.production is used by the prod build);
+# only exclude local/secret ones.
+.env
+.env.local
+.env*.local
 .vercel
 *.tsbuildinfo

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -9,46 +9,63 @@ import {
   EventFormDialog,
   type EventFormValues,
 } from "@/components/shared/EventFormDialog";
-
-type AdminEvent = EventFormValues & { id: string };
-
-// TODO: Replace with GET /events (see api_contract.json)
-const initialEvents: AdminEvent[] = [
-  { id: "1", title: "Sunday Morning Ride", description: "Easy group ride ending with breakfast.", date: "2026-07-06", location: "Club HQ" },
-  { id: "2", title: "Charity Run for Local Shelter", description: "Raising funds for the local animal shelter.", date: "2026-07-19", location: "City Park" },
-  { id: "3", title: "Annual Members Meetup", description: "Club-wide meetup and planning session.", date: "2026-08-02", location: "Riverside Grounds" },
-];
+import { api } from "@/lib/api";
+import { useApiData } from "@/hooks/useApiData";
 
 export default function AdminEventsPage() {
-  const [events, setEvents] = useState(initialEvents);
+  const { data: events, loading, error, reload } = useApiData(
+    useCallback(() => api.getEvents(), []),
+    []
+  );
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<AdminEvent | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingValues, setEditingValues] = useState<EventFormValues | undefined>(undefined);
 
   const openCreate = () => {
-    setEditing(null);
+    setEditingId(null);
+    setEditingValues(undefined);
     setDialogOpen(true);
   };
 
-  const openEdit = (event: AdminEvent) => {
-    setEditing(event);
-    setDialogOpen(true);
-  };
-
-  // TODO: Replace with POST /events / PUT /events/:id (see api_contract.json)
-  const handleSubmit = (values: EventFormValues) => {
-    if (editing) {
-      setEvents((prev) => prev.map((e) => (e.id === editing.id ? { ...e, ...values } : e)));
-      toast.success("Event updated");
-    } else {
-      setEvents((prev) => [...prev, { ...values, id: crypto.randomUUID() }]);
-      toast.success("Event created");
+  const openEdit = async (id: string) => {
+    try {
+      const detail = await api.getEvent(id);
+      setEditingId(id);
+      setEditingValues({
+        title: detail.title,
+        description: detail.description,
+        date: detail.date,
+        location: detail.location ?? undefined,
+      });
+      setDialogOpen(true);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to load event");
     }
   };
 
-  // TODO: Replace with DELETE /events/:id (see api_contract.json)
-  const handleDelete = (id: string) => {
-    setEvents((prev) => prev.filter((e) => e.id !== id));
-    toast.success("Event deleted");
+  const handleSubmit = async (values: EventFormValues) => {
+    try {
+      if (editingId) {
+        await api.updateEvent(editingId, values);
+        toast.success("Event updated");
+      } else {
+        await api.createEvent(values);
+        toast.success("Event created");
+      }
+      await reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Save failed");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await api.deleteEvent(id);
+      toast.success("Event deleted");
+      await reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Delete failed");
+    }
   };
 
   return (
@@ -63,19 +80,19 @@ export default function AdminEventsPage() {
         </Button>
       </div>
 
+      {loading && <p className="mt-4 text-sm text-muted-foreground">Loading…</p>}
+      {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
+
       <div className="mt-8 flex flex-col gap-4">
-        {events.map((event) => (
+        {events?.map((event) => (
           <Card key={event.id}>
             <CardHeader className="sm:grid-cols-[1fr_auto] sm:items-center">
               <div>
                 <CardTitle>{event.title}</CardTitle>
-                <CardDescription className="flex flex-col gap-1">
-                  <span>{event.date}</span>
-                  {event.location && <span>{event.location}</span>}
-                </CardDescription>
+                <CardDescription>{event.date}</CardDescription>
               </div>
               <div className="mt-4 flex gap-2 sm:mt-0">
-                <Button size="sm" variant="outline" onClick={() => openEdit(event)}>
+                <Button size="sm" variant="outline" onClick={() => openEdit(event.id)}>
                   <Pencil className="size-4" />
                   Edit
                 </Button>
@@ -92,7 +109,7 @@ export default function AdminEventsPage() {
       <EventFormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        defaultValues={editing ?? undefined}
+        defaultValues={editingValues}
         onSubmit={handleSubmit}
       />
     </div>

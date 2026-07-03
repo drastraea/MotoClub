@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback } from "react";
 import {
   useReactTable,
   getCoreRowModel,
   flexRender,
   createColumnHelper,
 } from "@tanstack/react-table";
+import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -23,59 +25,81 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
+import { api, type MemberRow } from "@/lib/api";
+import { useApiData } from "@/hooks/useApiData";
 
-type Role = "MEMBER" | "ADMIN";
-type User = { id: string; name: string; email: string; role: Role; joinedAt: string };
-
-// TODO: Replace with GET /members (see api_contract.json)
-const initialUsers: User[] = [
-  { id: "1", name: "Alex Rider", email: "alex.rider@example.com", role: "ADMIN", joinedAt: "2023-01-15" },
-  { id: "2", name: "Jordan Blake", email: "jordan.blake@example.com", role: "MEMBER", joinedAt: "2023-06-02" },
-  { id: "3", name: "Sam Carter", email: "sam.carter@example.com", role: "MEMBER", joinedAt: "2024-02-20" },
-  { id: "4", name: "Riley Storm", email: "riley.storm@example.com", role: "MEMBER", joinedAt: "2024-05-11" },
-  { id: "5", name: "Casey Vance", email: "casey.vance@example.com", role: "MEMBER", joinedAt: "2025-01-30" },
-];
-
-const columnHelper = createColumnHelper<User>();
+const columnHelper = createColumnHelper<MemberRow>();
 
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState(initialUsers);
+  const { data: users, loading, error, reload } = useApiData(
+    useCallback(() => api.getMembers(), []),
+    []
+  );
 
-  // TODO: Replace with POST /members/:id { role } (see
-  // backend/internal/handler/member_handler.go - note this is
-  // superadmin-only there, not just admin, and role values are
-  // "ADMIN"/"MEMBER" uppercase, unlike api_contract.json's stale example)
-  const updateRole = (id: string, role: Role) => {
-    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, role } : u)));
-    toast.success("Role updated");
+  // POST /members/:id { role } — superadmin only; admins receive 403.
+  const updateRole = async (id: string, role: "ADMIN" | "MEMBER") => {
+    try {
+      await api.updateMemberRole(id, role);
+      toast.success("Role updated");
+      await reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Update failed");
+    }
+  };
+
+  const removeUser = async (id: string) => {
+    try {
+      await api.deleteMember(id);
+      toast.success("Member removed");
+      await reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Delete failed");
+    }
   };
 
   const columns = [
-    columnHelper.accessor("name", { header: "Name" }),
     columnHelper.accessor("email", { header: "Email" }),
-    columnHelper.accessor("joinedAt", { header: "Joined" }),
+    columnHelper.accessor("registration_date", { header: "Joined" }),
     columnHelper.display({
       id: "role",
       header: "Role",
+      cell: ({ row }) => {
+        const role = row.original.role;
+        const selectable = role === "admin" ? "ADMIN" : role === "member" ? "MEMBER" : undefined;
+        return (
+          <Select
+            defaultValue={selectable}
+            onValueChange={(value) => updateRole(row.original.id, value as "ADMIN" | "MEMBER")}
+          >
+            <SelectTrigger size="sm" className="w-32">
+              <SelectValue placeholder={role} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="MEMBER">Member</SelectItem>
+              <SelectItem value="ADMIN">Admin</SelectItem>
+            </SelectContent>
+          </Select>
+        );
+      },
+    }),
+    columnHelper.display({
+      id: "actions",
+      header: "",
       cell: ({ row }) => (
-        <Select
-          defaultValue={row.original.role}
-          onValueChange={(value) => updateRole(row.original.id, value as Role)}
+        <Button
+          size="icon-sm"
+          variant="outline"
+          aria-label="Remove member"
+          onClick={() => removeUser(row.original.id)}
         >
-          <SelectTrigger size="sm" className="w-28">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="MEMBER">Member</SelectItem>
-            <SelectItem value="ADMIN">Admin</SelectItem>
-          </SelectContent>
-        </Select>
+          <Trash2 className="size-4" />
+        </Button>
       ),
     }),
   ];
 
   const table = useReactTable({
-    data: users,
+    data: users ?? [],
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -85,7 +109,9 @@ export default function AdminUsersPage() {
       <h1 className="font-heading text-3xl font-bold tracking-wide uppercase">
         User Management
       </h1>
-      <p className="mt-2 text-muted-foreground">{users.length} members</p>
+      {loading && <p className="mt-2 text-muted-foreground">Loading…</p>}
+      {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+      {users && <p className="mt-2 text-muted-foreground">{users.length} members</p>}
 
       <div className="shape-corner mt-8 overflow-hidden border border-border">
         <Table>

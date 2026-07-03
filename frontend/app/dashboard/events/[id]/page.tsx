@@ -1,17 +1,24 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { use, useCallback } from "react";
 import { CalendarDays, MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { mockEvents } from "@/lib/mock-events";
+import { api } from "@/lib/api";
+import { useApiData } from "@/hooks/useApiData";
 
-export default async function EventDetailPage({
+export default function EventDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
-  const event = mockEvents.find((e) => e.id === id);
+  const { id } = use(params);
+  const { data: event, loading, error } = useApiData(
+    useCallback(() => api.getEvent(id), [id]),
+    [id]
+  );
 
-  if (!event) notFound();
+  if (loading) return <p className="text-sm text-muted-foreground">Loading…</p>;
+  if (error || !event) return <p className="text-sm text-destructive">{error ?? "Event not found."}</p>;
 
   return (
     <div>
@@ -23,12 +30,14 @@ export default async function EventDetailPage({
         <CardContent className="flex flex-col gap-4">
           <div className="flex items-center gap-2 text-muted-foreground">
             <CalendarDays className="size-4" />
-            {event.dateLabel}
+            {event.date}
           </div>
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <MapPin className="size-4" />
-            {event.location}
-          </div>
+          {event.location && (
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <MapPin className="size-4" />
+              {event.location}
+            </div>
+          )}
           <p className="text-sm">{event.description}</p>
         </CardContent>
       </Card>

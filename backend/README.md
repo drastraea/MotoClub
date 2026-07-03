@@ -109,28 +109,55 @@ systemctl --user start podman.socket
 export DOCKER_HOST=unix:///run/user/$(id -u)/podman/podman.sock
 ```
 
-## Running locally
+## Running
+
+### Local (`APP_ENV=local`, uses the `local` section of `config.yaml`)
 
 Bring up Postgres, run migrations, and start the API in one command:
 
 ```sh
-make up          # builds images, starts db + migrate + api (detached)
-make logs        # tail the api logs
-make down        # stop and remove containers (keeps the data volume)
+cd backend
+podman compose up --build -d     # db + migrate + api → http://localhost:8080
+podman compose logs -f api       # tail logs
+podman compose down              # stop (keeps the data volume; add -v to wipe)
 ```
 
-The API listens on **http://localhost:8080**. Quick check:
+`make up` / `make logs` / `make down` are equivalent wrappers. Quick check:
 
 ```sh
 curl http://localhost:8080/healthz        # {"status":"ok"}
 ```
 
-To run the API process directly against a database (without building the image),
-copy `.env.example` to `.env` and:
+### Production (`APP_ENV=production`)
+
+The `production` section of `config.yaml` reads secrets from the environment via
+`${VAR}`, so you inject them at deploy time. Build the image, run migrations
+once, then start the API:
 
 ```sh
-make run         # go run ./cmd/api on the host network, using .env
+cd backend
+podman build -t motoclub-backend .
+
+# 1) run migrations against the prod DB (override the entrypoint to goose)
+podman run --rm \
+  -e GOOSE_DRIVER=postgres \
+  -e GOOSE_DBSTRING="postgres://user:pass@db-host:5432/motoclub?sslmode=require" \
+  --entrypoint /goose motoclub-backend -dir /db/migrations up
+
+# 2) start the API
+podman run -d --name motoclub-api -p 8080:8080 \
+  -e APP_ENV=production \
+  -e DATABASE_URL="postgres://user:pass@db-host:5432/motoclub?sslmode=require" \
+  -e JWT_SECRET="a-long-random-secret" \
+  -e GOOGLE_CLIENT_ID="xxxx.apps.googleusercontent.com" \
+  -e FRONTEND_ORIGIN="https://app.motoclub.example" \
+  -e PORT=8080 -e LOG_LEVEL=info \
+  motoclub-backend
 ```
+
+`FRONTEND_ORIGIN` must be your deployed frontend's origin (it becomes the allowed
+CORS origin), and `GOOGLE_CLIENT_ID` must match the frontend's
+`NEXT_PUBLIC_GOOGLE_CLIENT_ID`.
 
 ### Try the API
 
@@ -142,20 +169,36 @@ auto-saves the JWT into the `token` collection variable for the other requests.
 
 ## Configuration
 
-Configuration comes from the environment (see [`.env.example`](.env.example)):
+All application settings live in a single **[`config.yaml`](config.yaml)** with
+one section per environment. The process only needs two env vars to locate them:
 
-| Variable           | Required | Default | Notes                                            |
-| ------------------ | :------: | ------- | ------------------------------------------------ |
-| `PORT`             |    no    | `8080`  | HTTP listen port                                 |
-| `DATABASE_URL`     |   yes    | —       | `postgres://user:pass@host:5432/db?sslmode=disable` |
-| `JWT_SECRET`       |   yes    | —       | HMAC signing key for application JWTs            |
-| `GOOGLE_CLIENT_ID` |   yes    | —       | OAuth client id used to verify Google ID tokens  |
-| `TOKEN_TTL_HOURS`  |    no    | `24`    | JWT lifetime                                     |
-| `TZ`               |    no    | —       | Set to `Asia/Jakarta` in containers              |
-| `LOG_LEVEL`        |    no    | `info`  | `debug` \| `info` \| `warn` \| `error`           |
-| `LOG_FORMAT`       |    no    | `json`  | `json` \| `text` (text is easier to read locally)|
+| Env var       | Default       | Purpose                                        |
+| ------------- | ------------- | ---------------------------------------------- |
+| `APP_ENV`     | `local`       | Which `config.yaml` section to load            |
+| `CONFIG_PATH` | `config.yaml` | Path to the config file (baked as `/config.yaml` in Docker) |
 
-> `GOOGLE_CLIENT_ID` **must equal the `aud` claim** of the Google ID tokens your
+Each section holds:
+
+```yaml
+local:
+  port: "8080"
+  database: { host: db, port: 5432, user: motoclub, password: motoclub, name: motoclub, sslmode: disable }
+  jwt_secret: dev-secret-change-me
+  google_client_id: "…apps.googleusercontent.com"
+  token_ttl_hours: 24
+  cors_allowed_origins: [ http://localhost:3000 ]   # the frontend
+  log: { level: info, format: json }
+```
+
+Values support **`${VAR}` interpolation** from the process environment, so
+production secrets stay out of source control — the `production` section reads
+`${DATABASE_URL}`, `${JWT_SECRET}`, `${GOOGLE_CLIENT_ID}`, `${FRONTEND_ORIGIN}`,
+etc., which you inject at deploy time. The `database` block accepts either a
+full `url:` or discrete `host/port/user/password/name/sslmode` fields.
+
+Switch environments with `APP_ENV`, e.g. `APP_ENV=production`.
+
+> `google_client_id` **must equal the `aud` claim** of the Google ID tokens your
 > frontend sends. If it doesn't, `idtoken` verification fails and `/login` and
 > `/register` return `401 unauthorized` — see [Troubleshooting](#troubleshooting).
 

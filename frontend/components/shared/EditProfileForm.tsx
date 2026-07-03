@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,7 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { mockProfile } from "@/lib/mock-profile";
+import { api, type Profile } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
+import { useApiData } from "@/hooks/useApiData";
 
 const bloodTypes = ["A", "B", "AB", "O"] as const;
 
@@ -36,7 +39,43 @@ const editProfileSchema = z.object({
 
 type EditProfileValues = z.infer<typeof editProfileSchema>;
 
+function toDefaults(p: Profile): EditProfileValues {
+  return {
+    name: p.name,
+    email: p.email,
+    phoneNumber: p.phoneNumber,
+    placeOfBirth: p.placeOfBirth,
+    dateOfBirth: p.dateofBirth,
+    address: p.address,
+    instagramUsername: p.instagramUsername,
+    bloodType: (bloodTypes as readonly string[]).includes(p.bloodType)
+      ? (p.bloodType as EditProfileValues["bloodType"])
+      : "O",
+    emergencyContactName: p.emergencyContactName,
+    emergencyContactPhoneNumber: p.emergencyContactPhoneNumber,
+    motorbikeName: p.motorbikeName,
+  };
+}
+
 export function EditProfileForm() {
+  const { user } = useAuth();
+  const memberId = user?.id;
+
+  const { data: profile, loading, error } = useApiData(
+    useCallback(() => {
+      if (!memberId) return Promise.reject(new Error("Not signed in"));
+      return api.getProfile(memberId);
+    }, [memberId]),
+    [memberId]
+  );
+
+  if (loading) return <p className="text-sm text-muted-foreground">Loading…</p>;
+  if (error || !profile) return <p className="text-sm text-destructive">{error ?? "Profile not found."}</p>;
+
+  return <InnerForm defaults={toDefaults(profile)} />;
+}
+
+function InnerForm({ defaults }: { defaults: EditProfileValues }) {
   const router = useRouter();
   const {
     register,
@@ -45,16 +84,15 @@ export function EditProfileForm() {
     formState: { errors, isSubmitting },
   } = useForm<EditProfileValues>({
     resolver: zodResolver(editProfileSchema),
-    defaultValues: mockProfile,
+    defaultValues: defaults,
   });
 
-  // TODO: No self-service profile-update endpoint exists yet in
-  // api_contract.json (only the admin-only "Update Member" for roles).
-  // Wire this up once one is added.
+  // NOTE: the backend has no self-service profile-update endpoint yet (only the
+  // superadmin role update). This submit is a client-side stub until one exists.
   const onSubmit = async (values: EditProfileValues) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    console.log("Profile updated", values);
-    toast.success("Profile updated");
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    console.log("Profile updated (not persisted — no backend endpoint yet)", values);
+    toast.info("Saving profiles isn't supported by the backend yet.");
     router.push("/dashboard/profile");
   };
 
@@ -63,49 +101,20 @@ export function EditProfileForm() {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="name">Full Name</Label>
-          <Input
-            id="name"
-            aria-invalid={!!errors.name}
-            aria-describedby={errors.name ? "name-error" : undefined}
-            {...register("name")}
-          />
-          {errors.name && (
-            <p id="name-error" className="text-sm text-destructive">
-              {errors.name.message}
-            </p>
-          )}
+          <Input id="name" aria-invalid={!!errors.name} {...register("name")} />
+          {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? "email-error" : undefined}
-            {...register("email")}
-          />
-          {errors.email && (
-            <p id="email-error" className="text-sm text-destructive">
-              {errors.email.message}
-            </p>
-          )}
+          <Input id="email" type="email" aria-invalid={!!errors.email} {...register("email")} />
+          {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="phoneNumber">Phone Number</Label>
-          <Input
-            id="phoneNumber"
-            type="tel"
-            aria-invalid={!!errors.phoneNumber}
-            aria-describedby={errors.phoneNumber ? "phoneNumber-error" : undefined}
-            {...register("phoneNumber")}
-          />
-          {errors.phoneNumber && (
-            <p id="phoneNumber-error" className="text-sm text-destructive">
-              {errors.phoneNumber.message}
-            </p>
-          )}
+          <Input id="phoneNumber" type="tel" aria-invalid={!!errors.phoneNumber} {...register("phoneNumber")} />
+          {errors.phoneNumber && <p className="text-sm text-destructive">{errors.phoneNumber.message}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -115,63 +124,29 @@ export function EditProfileForm() {
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="placeOfBirth">Place of Birth</Label>
-          <Input
-            id="placeOfBirth"
-            aria-invalid={!!errors.placeOfBirth}
-            aria-describedby={errors.placeOfBirth ? "placeOfBirth-error" : undefined}
-            {...register("placeOfBirth")}
-          />
-          {errors.placeOfBirth && (
-            <p id="placeOfBirth-error" className="text-sm text-destructive">
-              {errors.placeOfBirth.message}
-            </p>
-          )}
+          <Input id="placeOfBirth" aria-invalid={!!errors.placeOfBirth} {...register("placeOfBirth")} />
+          {errors.placeOfBirth && <p className="text-sm text-destructive">{errors.placeOfBirth.message}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="dateOfBirth">Date of Birth</Label>
-          <Input
-            id="dateOfBirth"
-            type="date"
-            aria-invalid={!!errors.dateOfBirth}
-            aria-describedby={errors.dateOfBirth ? "dateOfBirth-error" : undefined}
-            {...register("dateOfBirth")}
-          />
-          {errors.dateOfBirth && (
-            <p id="dateOfBirth-error" className="text-sm text-destructive">
-              {errors.dateOfBirth.message}
-            </p>
-          )}
+          <Input id="dateOfBirth" type="date" aria-invalid={!!errors.dateOfBirth} {...register("dateOfBirth")} />
+          {errors.dateOfBirth && <p className="text-sm text-destructive">{errors.dateOfBirth.message}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5 sm:col-span-2">
           <Label htmlFor="address">Address</Label>
-          <Textarea
-            id="address"
-            rows={3}
-            aria-invalid={!!errors.address}
-            aria-describedby={errors.address ? "address-error" : undefined}
-            {...register("address")}
-          />
-          {errors.address && (
-            <p id="address-error" className="text-sm text-destructive">
-              {errors.address.message}
-            </p>
-          )}
+          <Textarea id="address" rows={3} aria-invalid={!!errors.address} {...register("address")} />
+          {errors.address && <p className="text-sm text-destructive">{errors.address.message}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="bloodType">Blood Type</Label>
           <Select
-            defaultValue={mockProfile.bloodType}
+            defaultValue={defaults.bloodType}
             onValueChange={(v) => setValue("bloodType", v as EditProfileValues["bloodType"])}
           >
-            <SelectTrigger
-              id="bloodType"
-              className="w-full"
-              aria-invalid={!!errors.bloodType}
-              aria-describedby={errors.bloodType ? "bloodType-error" : undefined}
-            >
+            <SelectTrigger id="bloodType" className="w-full" aria-invalid={!!errors.bloodType}>
               <SelectValue placeholder="Select blood type" />
             </SelectTrigger>
             <SelectContent>
@@ -182,26 +157,13 @@ export function EditProfileForm() {
               ))}
             </SelectContent>
           </Select>
-          {errors.bloodType && (
-            <p id="bloodType-error" className="text-sm text-destructive">
-              Required
-            </p>
-          )}
+          {errors.bloodType && <p className="text-sm text-destructive">Required</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="motorbikeName">Motorbike Name</Label>
-          <Input
-            id="motorbikeName"
-            aria-invalid={!!errors.motorbikeName}
-            aria-describedby={errors.motorbikeName ? "motorbikeName-error" : undefined}
-            {...register("motorbikeName")}
-          />
-          {errors.motorbikeName && (
-            <p id="motorbikeName-error" className="text-sm text-destructive">
-              {errors.motorbikeName.message}
-            </p>
-          )}
+          <Input id="motorbikeName" aria-invalid={!!errors.motorbikeName} {...register("motorbikeName")} />
+          {errors.motorbikeName && <p className="text-sm text-destructive">{errors.motorbikeName.message}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -209,13 +171,10 @@ export function EditProfileForm() {
           <Input
             id="emergencyContactName"
             aria-invalid={!!errors.emergencyContactName}
-            aria-describedby={errors.emergencyContactName ? "emergencyContactName-error" : undefined}
             {...register("emergencyContactName")}
           />
           {errors.emergencyContactName && (
-            <p id="emergencyContactName-error" className="text-sm text-destructive">
-              {errors.emergencyContactName.message}
-            </p>
+            <p className="text-sm text-destructive">{errors.emergencyContactName.message}</p>
           )}
         </div>
 
@@ -225,15 +184,10 @@ export function EditProfileForm() {
             id="emergencyContactPhoneNumber"
             type="tel"
             aria-invalid={!!errors.emergencyContactPhoneNumber}
-            aria-describedby={
-              errors.emergencyContactPhoneNumber ? "emergencyContactPhoneNumber-error" : undefined
-            }
             {...register("emergencyContactPhoneNumber")}
           />
           {errors.emergencyContactPhoneNumber && (
-            <p id="emergencyContactPhoneNumber-error" className="text-sm text-destructive">
-              {errors.emergencyContactPhoneNumber.message}
-            </p>
+            <p className="text-sm text-destructive">{errors.emergencyContactPhoneNumber.message}</p>
           )}
         </div>
       </div>
@@ -242,11 +196,7 @@ export function EditProfileForm() {
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Saving..." : "Save Changes"}
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => router.push("/dashboard/profile")}
-        >
+        <Button type="button" variant="outline" onClick={() => router.push("/dashboard/profile")}>
           Cancel
         </Button>
       </div>

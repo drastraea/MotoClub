@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -15,42 +16,35 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
+import { api, type MemberRow } from "@/lib/api";
+import { useApiData } from "@/hooks/useApiData";
 
-type Member = {
-  name: string;
-  email: string;
-  role: "Member" | "Admin";
-  joinedAt: string;
-};
-
-// TODO: Replace with GET /members (see api_contract.json)
-const members: Member[] = [
-  { name: "Alex Rider", email: "alex.rider@example.com", role: "Admin", joinedAt: "2023-01-15" },
-  { name: "Jordan Blake", email: "jordan.blake@example.com", role: "Member", joinedAt: "2023-06-02" },
-  { name: "Sam Carter", email: "sam.carter@example.com", role: "Member", joinedAt: "2024-02-20" },
-  { name: "Riley Storm", email: "riley.storm@example.com", role: "Member", joinedAt: "2024-05-11" },
-  { name: "Casey Vance", email: "casey.vance@example.com", role: "Member", joinedAt: "2025-01-30" },
-];
-
-const columnHelper = createColumnHelper<Member>();
+const columnHelper = createColumnHelper<MemberRow>();
 
 const columns = [
-  columnHelper.accessor("name", { header: "Name" }),
   columnHelper.accessor("email", { header: "Email" }),
   columnHelper.accessor("role", {
     header: "Role",
-    cell: (info) => (
-      <Badge variant={info.getValue() === "Admin" ? "default" : "secondary"}>
-        {info.getValue()}
-      </Badge>
-    ),
+    cell: (info) => {
+      const role = info.getValue();
+      return (
+        <Badge variant={role === "admin" || role === "superadmin" ? "default" : "secondary"}>
+          {role}
+        </Badge>
+      );
+    },
   }),
-  columnHelper.accessor("joinedAt", { header: "Joined" }),
+  columnHelper.accessor("registration_date", { header: "Joined" }),
 ];
 
 export default function MembersPage() {
+  const { data: members, loading, error } = useApiData(
+    useCallback(() => api.getMembers(), []),
+    []
+  );
+
   const table = useReactTable({
-    data: members,
+    data: members ?? [],
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -60,7 +54,9 @@ export default function MembersPage() {
       <h1 className="font-heading text-3xl font-bold tracking-wide uppercase">
         Member Directory
       </h1>
-      <p className="mt-2 text-muted-foreground">{members.length} members</p>
+      {loading && <p className="mt-2 text-muted-foreground">Loading…</p>}
+      {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+      {members && <p className="mt-2 text-muted-foreground">{members.length} members</p>}
 
       <div className="shape-corner mt-8 overflow-hidden border border-border">
         <Table>

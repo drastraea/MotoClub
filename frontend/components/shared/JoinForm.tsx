@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
-import { UploadCloud } from "lucide-react";
+import { UploadCloud, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { GoogleSignInButton } from "@/components/shared/GoogleSignInButton";
+import { api } from "@/lib/api";
+import { decodeJwtPayload } from "@/lib/session";
 
 const bloodTypes = ["A", "B", "AB", "O"] as const;
 
@@ -28,7 +32,7 @@ const joinSchema = z.object({
   placeOfBirth: z.string().min(2, "Required"),
   dateOfBirth: z.string().min(1, "Required"),
   address: z.string().min(5, "Required"),
-  instagramUsername: z.string().optional(),
+  instagramUsername: z.string().min(1, "Required"),
   bloodType: z.enum(bloodTypes),
   emergencyContactName: z.string().min(2, "Required"),
   emergencyContactPhoneNumber: z.string().min(8, "Enter a valid phone number"),
@@ -47,8 +51,11 @@ function fileToBase64(file: File): Promise<string> {
 }
 
 export function JoinForm() {
+  const router = useRouter();
   const [selfie, setSelfie] = useState<File | null>(null);
   const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
+  const [googleToken, setGoogleToken] = useState("");
+  const [googleEmail, setGoogleEmail] = useState<string | null>(null);
 
   const onDrop = useCallback((accepted: File[]) => {
     const file = accepted[0];
@@ -70,34 +77,66 @@ export function JoinForm() {
     formState: { errors, isSubmitting },
   } = useForm<JoinValues>({ resolver: zodResolver(joinSchema) });
 
-  // TODO: Wire up real Google Sign-In and set the resulting ID token here.
-  const googleToken = "";
+  const handleCredential = useCallback(
+    (idToken: string) => {
+      const claims = decodeJwtPayload<{ email: string; name?: string }>(idToken);
+      setGoogleToken(idToken);
+      if (claims?.email) {
+        setGoogleEmail(claims.email);
+        setValue("email", claims.email, { shouldValidate: true });
+      }
+      if (claims?.name) setValue("name", claims.name, { shouldValidate: true });
+    },
+    [setValue]
+  );
 
-  // TODO: Replace with POST /register. The real Go handler
-  // (backend/internal/handler/auth_handler.go) expects
-  // `motorbikeSelfieLinkPath` - a path/URL to an already-hosted image, not
-  // a raw upload - and /register itself is unauthenticated. There's no
-  // visible public endpoint yet for an unauthenticated applicant to upload
-  // a selfie and get that link back, so this can't be wired for real until
-  // the backend adds one. Currently base64-encoding the file client-side
-  // as a placeholder for that missing link.
+  // POST /register. The backend expects `motorbikeSelfieLinkPath` (a link to an
+  // already-hosted image). There is no public upload endpoint yet, so the image
+  // is sent as a base64 data URI placeholder for that link. `email` must match
+  // the verified Google token's email.
   const onSubmit = async (values: JoinValues) => {
     if (!googleToken) {
       toast.error("Sign in with Google before submitting.");
       return;
     }
-
-    const motorbikeSelfieLinkPath = selfie ? await fileToBase64(selfie) : "";
-    const payload = { ...values, motorbikeSelfieLinkPath, googleToken };
-    console.log("Membership application", payload);
-    toast.success("Application submitted!");
+    if (!selfie) {
+      toast.error("Please upload a motorbike selfie.");
+      return;
+    }
+    const motorbikeSelfieLinkPath = await fileToBase64(selfie);
+    try {
+      await api.register({
+        name: values.name,
+        email: values.email,
+        phoneNumber: values.phoneNumber,
+        placeOfBirth: values.placeOfBirth,
+        dateofBirth: values.dateOfBirth,
+        address: values.address,
+        instagramUsername: values.instagramUsername,
+        bloodType: values.bloodType,
+        emergencyContactName: values.emergencyContactName,
+        emergencyContactPhoneNumber: values.emergencyContactPhoneNumber,
+        motorbikeName: values.motorbikeName,
+        motorbikeSelfieLinkPath,
+        googleToken,
+      });
+      toast.success("Application submitted! You can sign in once an admin approves it.");
+      router.push("/login");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Submission failed");
+    }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-      <Button type="button" variant="outline" disabled className="self-start">
-        Sign in with Google (coming soon)
-      </Button>
+      {googleEmail ? (
+        <p className="flex items-center gap-2 self-start text-sm text-primary">
+          <CheckCircle2 className="size-4" />
+          Signed in as {googleEmail}
+        </p>
+      ) : (
+        <GoogleSignInButton onCredential={handleCredential} text="continue_with" />
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
@@ -120,6 +159,7 @@ export function JoinForm() {
           <Input
             id="email"
             type="email"
+            readOnly={!!googleEmail}
             aria-invalid={!!errors.email}
             aria-describedby={errors.email ? "email-error" : undefined}
             {...register("email")}
@@ -149,7 +189,17 @@ export function JoinForm() {
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="instagramUsername">Instagram Username</Label>
-          <Input id="instagramUsername" {...register("instagramUsername")} />
+          <Input
+            id="instagramUsername"
+            aria-invalid={!!errors.instagramUsername}
+            aria-describedby={errors.instagramUsername ? "instagramUsername-error" : undefined}
+            {...register("instagramUsername")}
+          />
+          {errors.instagramUsername && (
+            <p id="instagramUsername-error" className="text-sm text-destructive">
+              {errors.instagramUsername.message}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-1.5">

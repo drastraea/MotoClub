@@ -1,26 +1,45 @@
+"use client";
+
+import { useCallback } from "react";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { mockProfile } from "@/lib/mock-profile";
-
-const fields: [string, string][] = [
-  ["Full Name", mockProfile.name],
-  ["Email", mockProfile.email],
-  ["Phone Number", mockProfile.phoneNumber],
-  ["Place of Birth", mockProfile.placeOfBirth],
-  ["Date of Birth", mockProfile.dateOfBirth],
-  ["Address", mockProfile.address],
-  ["Instagram", mockProfile.instagramUsername],
-  ["Blood Type", mockProfile.bloodType],
-  ["Emergency Contact", mockProfile.emergencyContactName],
-  ["Emergency Contact Phone", mockProfile.emergencyContactPhoneNumber],
-  ["Motorbike", mockProfile.motorbikeName],
-  ["Member Since", mockProfile.memberSince],
-];
+import { api } from "@/lib/api";
+import { useAuth } from "@/hooks/useAuth";
+import { useApiData } from "@/hooks/useApiData";
 
 export default function ProfilePage() {
+  const { user } = useAuth();
+  const memberId = user?.id;
+
+  const { data: profile, loading, error } = useApiData(
+    useCallback(() => {
+      if (!memberId) return Promise.reject(new Error("Not signed in"));
+      return api.getProfile(memberId);
+    }, [memberId]),
+    [memberId]
+  );
+
+  if (loading) return <p className="text-sm text-muted-foreground">Loading…</p>;
+  if (error || !profile) return <p className="text-sm text-destructive">{error ?? "Profile not found."}</p>;
+
+  const fields: [string, string][] = [
+    ["Full Name", profile.name],
+    ["Email", profile.email],
+    ["Phone Number", profile.phoneNumber],
+    ["Place of Birth", profile.placeOfBirth],
+    ["Date of Birth", profile.dateofBirth],
+    ["Address", profile.address],
+    ["Instagram", profile.instagramUsername],
+    ["Blood Type", profile.bloodType],
+    ["Emergency Contact", profile.emergencyContactName],
+    ["Emergency Contact Phone", profile.emergencyContactPhoneNumber],
+    ["Motorbike", profile.motorbikeName],
+    ["Member Since", profile.created_at],
+  ];
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -28,7 +47,7 @@ export default function ProfilePage() {
           My Profile
         </h1>
         <div className="flex items-center gap-3">
-          <Badge>{mockProfile.status}</Badge>
+          <Badge>{profile.status}</Badge>
           <Button
             size="sm"
             variant="outline"

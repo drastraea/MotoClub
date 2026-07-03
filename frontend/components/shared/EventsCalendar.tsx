@@ -1,13 +1,16 @@
 "use client";
 
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { mockEvents } from "@/lib/mock-events";
+import { api } from "@/lib/api";
+import { useApiData } from "@/hooks/useApiData";
 
 export function EventsCalendar() {
   const router = useRouter();
+  const { data: events } = useApiData(useCallback(() => api.getEvents(), []), []);
 
   return (
     <div className="shape-corner border border-border bg-card p-4">
@@ -15,7 +18,7 @@ export function EventsCalendar() {
         plugins={[dayGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
         height="auto"
-        events={mockEvents.map((event) => ({
+        events={(events ?? []).map((event) => ({
           id: event.id,
           title: event.title,
           start: event.date,

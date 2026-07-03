@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
 import { DashboardTopbar } from "@/components/layout/DashboardTopbar";
 import { useAuth } from "@/hooks/useAuth";
+import { isAdmin } from "@/lib/session";
 
 export default function AdminLayout({
   children,
@@ -18,10 +19,10 @@ export default function AdminLayout({
   useEffect(() => {
     if (!ready) return;
     if (!user) router.replace("/login");
-    else if (user.role !== "admin") router.replace("/dashboard");
+    else if (!isAdmin(user.role)) router.replace("/dashboard");
   }, [ready, user, router]);
 
-  if (!ready || !user || user.role !== "admin") return null;
+  if (!ready || !user || !isAdmin(user.role)) return null;
 
   return (
     <div className="flex min-h-screen flex-1">
