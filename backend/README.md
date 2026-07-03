@@ -152,6 +152,12 @@ Configuration comes from the environment (see [`.env.example`](.env.example)):
 | `GOOGLE_CLIENT_ID` |   yes    | —       | OAuth client id used to verify Google ID tokens  |
 | `TOKEN_TTL_HOURS`  |    no    | `24`    | JWT lifetime                                     |
 | `TZ`               |    no    | —       | Set to `Asia/Jakarta` in containers              |
+| `LOG_LEVEL`        |    no    | `info`  | `debug` \| `info` \| `warn` \| `error`           |
+| `LOG_FORMAT`       |    no    | `json`  | `json` \| `text` (text is easier to read locally)|
+
+> `GOOGLE_CLIENT_ID` **must equal the `aud` claim** of the Google ID tokens your
+> frontend sends. If it doesn't, `idtoken` verification fails and `/login` and
+> `/register` return `401 unauthorized` — see [Troubleshooting](#troubleshooting).
 
 ## Database & migrations
 
@@ -254,9 +260,15 @@ Error responses use a uniform envelope: `{ "error": "message" }`.
 - **Logout** records the token's `jti` in `revoked_tokens`; the auth middleware
   rejects revoked tokens until they expire. Prune expired rows with
   `make prune-tokens`.
-- **Roles:** `member`, `admin`, `superadmin`. Role checks are enforced by
-  middleware; data-dependent rules (an admin may only delete plain members; the
-  last superadmin cannot be deleted) live in the service layer.
+- **Roles:** `visitor`, `member`, `admin`, `superadmin`. Role checks are enforced
+  by middleware; data-dependent rules (an admin may only delete plain members;
+  the last superadmin cannot be deleted) live in the service layer.
+- **Visitors** are registered-but-unapproved members: `POST /register` creates a
+  member with role `visitor` and status `PENDING_APPROVAL`. A visitor may log in
+  and may **only view their own profile** (`GET /members/{id}/profile`) and log
+  out — gallery, events and announcements require role `member` or above.
+  Approving a registration (`POST /members/{id}/status` with `APPROVE`) promotes
+  the member from `visitor` to `member`; rejecting leaves them a `visitor`.
 
 ### Bootstrapping the first superadmin
 
@@ -268,6 +280,37 @@ directly in the database (human intervention), e.g.:
 podman exec -it backend-db-1 psql -U motoclub -d motoclub \
   -c "UPDATE members SET role='superadmin', status='APPROVED' WHERE email='you@example.com';"
 ```
+
+## Observability
+
+The API emits one structured log line (`log/slog`) per request with method,
+path, status, latency and client IP, plus the underlying error for any failed
+request. Control it with `LOG_LEVEL` and `LOG_FORMAT`. Tail it with `make logs`.
+
+Because client responses are sanitized (a `500` shows `internal server error`;
+an auth failure shows `unauthorized`), the **real cause is always in the logs**:
+
+```json
+{"level":"WARN","msg":"request","method":"POST","path":"/register","status":401,"error":"Error #01: unauthorized"}
+{"level":"WARN","msg":"google id token validation failed","error":"idtoken: audience provided does not match aud claim in the JWT","expected_aud":"dev-google-client-id.apps.googleusercontent.com"}
+```
+
+## Troubleshooting
+
+**`/register` or `/login` returns `{"error":"unauthorized"}`.** The Google ID
+token failed verification. Check `make logs` for a `google id token validation
+failed` line — the `error` field gives the exact reason:
+
+- *"audience provided does not match aud claim in the JWT"* → `GOOGLE_CLIENT_ID`
+  doesn't match the token's `aud`. Set it to the OAuth client ID your frontend
+  uses (the `expected_aud` field in the log shows what the server currently
+  expects). With compose: `GOOGLE_CLIENT_ID=<your-id>.apps.googleusercontent.com make up`.
+- *"token expired"* → Google ID tokens live ~1 hour; get a fresh one.
+- *"unable to decode JWT / invalid signature"* → the `googleToken` value is not a
+  well-formed Google ID token.
+
+**No logs at all.** Ensure you're tailing the API container (`make logs`) and
+that `LOG_LEVEL` isn't set above the level you expect.
 
 ## Conventions
 

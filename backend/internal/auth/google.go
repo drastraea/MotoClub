@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"log/slog"
 
 	"google.golang.org/api/idtoken"
 )
@@ -36,6 +37,11 @@ func NewGoogleVerifier(clientID string) GoogleVerifier {
 func (g *googleVerifier) Verify(ctx context.Context, idToken string) (GoogleIdentity, error) {
 	payload, err := idtoken.Validate(ctx, idToken, g.clientID)
 	if err != nil {
+		// Log the real reason (audience mismatch, expired token, bad signature,
+		// ...) server-side; the caller only ever sees a sanitized error. This is
+		// the line to check when a login/register returns "unauthorized".
+		slog.Warn("google id token validation failed",
+			"error", err.Error(), "expected_aud", g.clientID)
 		return GoogleIdentity{}, ErrInvalidGoogleToken
 	}
 
@@ -47,6 +53,8 @@ func (g *googleVerifier) Verify(ctx context.Context, idToken string) (GoogleIden
 		identity.Name = name
 	}
 	if identity.Sub == "" || identity.Email == "" {
+		slog.Warn("google id token missing required claims",
+			"has_sub", identity.Sub != "", "has_email", identity.Email != "")
 		return GoogleIdentity{}, ErrInvalidGoogleToken
 	}
 	return identity, nil

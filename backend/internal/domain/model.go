@@ -9,6 +9,9 @@ import "time"
 type Role string
 
 const (
+	// RoleVisitor is a registered but not-yet-approved member. Visitors may only
+	// view their own profile.
+	RoleVisitor    Role = "visitor"
 	RoleMember     Role = "member"
 	RoleAdmin      Role = "admin"
 	RoleSuperadmin Role = "superadmin"
@@ -17,7 +20,7 @@ const (
 // Valid reports whether r is one of the known roles.
 func (r Role) Valid() bool {
 	switch r {
-	case RoleMember, RoleAdmin, RoleSuperadmin:
+	case RoleVisitor, RoleMember, RoleAdmin, RoleSuperadmin:
 		return true
 	default:
 		return false

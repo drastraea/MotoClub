@@ -3,7 +3,7 @@ package domain
 import "testing"
 
 func TestRoleValid(t *testing.T) {
-	for _, r := range []Role{RoleMember, RoleAdmin, RoleSuperadmin} {
+	for _, r := range []Role{RoleVisitor, RoleMember, RoleAdmin, RoleSuperadmin} {
 		if !r.Valid() {
 			t.Errorf("expected %q to be valid", r)
 		}

@@ -1,6 +1,8 @@
 package server
 
 import (
+	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -24,9 +26,10 @@ func TestNewRouter_NoConflictAndHealthz(t *testing.T) {
 		Gallery:      handler.NewGalleryHandler(nil),
 	}
 
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	var r *gin.Engine
 	require.NotPanics(t, func() {
-		r = NewRouter(handlers, auth.JWTManager(nil), nil)
+		r = NewRouter(handlers, auth.JWTManager(nil), nil, logger)
 	})
 
 	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)
