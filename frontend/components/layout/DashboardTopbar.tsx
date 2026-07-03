@@ -1,0 +1,39 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { LogOut, Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { useAuth } from "@/hooks/useAuth";
+
+export function DashboardTopbar({ onMenuClick }: { onMenuClick?: () => void }) {
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
+
+  return (
+    <header className="flex h-16 items-center justify-between border-b border-border px-4 sm:px-6">
+      <div className="flex items-center gap-3">
+        {onMenuClick && (
+          <button onClick={onMenuClick} aria-label="Toggle navigation" className="lg:hidden">
+            <Menu className="size-6" />
+          </button>
+        )}
+        <span className="font-heading text-sm font-semibold tracking-widest uppercase">
+          Welcome{user ? `, ${user.name}` : ""}
+        </span>
+      </div>
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <Button variant="outline" size="sm" onClick={handleLogout}>
+          <LogOut className="size-4" />
+          <span className="hidden sm:inline">Logout</span>
+        </Button>
+      </div>
+    </header>
+  );
+}
