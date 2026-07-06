@@ -3,10 +3,12 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -20,29 +22,43 @@ const eventSchema = z.object({
   description: z.string().min(5, "Description is too short"),
   date: z.string().min(1, "Required"),
   location: z.string().optional(),
+  // TODO: Not real backend fields yet - see lib/event-stubs.ts. Kept out of
+  // EventFormValues (which mirrors the real EventInput sent to the API) and
+  // handled separately by the caller.
 });
 
 export type EventFormValues = z.infer<typeof eventSchema>;
+
+export type EventStubValues = {
+  imageLink?: string;
+  isPublic?: boolean;
+};
 
 export function EventFormDialog({
   open,
   onOpenChange,
   defaultValues,
+  defaultStubValues,
   onSubmit,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   defaultValues?: EventFormValues;
-  onSubmit: (values: EventFormValues) => void;
+  defaultStubValues?: EventStubValues;
+  onSubmit: (values: EventFormValues, stub: EventStubValues) => void;
 }) {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
-  } = useForm<EventFormValues>({
+  } = useForm<EventFormValues & EventStubValues>({
     resolver: zodResolver(eventSchema),
-    values: defaultValues,
+    values: defaultValues && { ...defaultValues, ...defaultStubValues },
   });
+
+  const isPublic = watch("isPublic");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -52,8 +68,8 @@ export function EventFormDialog({
         </DialogHeader>
 
         <form
-          onSubmit={handleSubmit((values) => {
-            onSubmit(values);
+          onSubmit={handleSubmit(({ imageLink, isPublic, ...values }) => {
+            onSubmit(values, { imageLink, isPublic });
             onOpenChange(false);
           })}
           className="flex flex-col gap-4"
@@ -109,6 +125,27 @@ export function EventFormDialog({
             <Label htmlFor="location">Location</Label>
             <Input id="location" {...register("location")} />
           </div>
+
+          <div className="flex flex-col gap-1.5 rounded-lg border border-dashed border-border p-3">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Info className="size-3.5" />
+              Not saved to the server yet - stored in this browser only
+            </div>
+            <Label htmlFor="imageLink">Banner Image URL</Label>
+            <Input id="imageLink" placeholder="https://..." {...register("imageLink")} />
+
+            <div className="mt-2 flex items-center gap-2">
+              <Checkbox
+                id="isPublic"
+                checked={!!isPublic}
+                onCheckedChange={(checked) => setValue("isPublic", checked)}
+              />
+              <Label htmlFor="isPublic" className="font-normal">
+                Public (visible to non-members) - display only for now
+              </Label>
+            </div>
+          </div>
+
           <DialogFooter>
             <Button type="submit">Save</Button>
           </DialogFooter>

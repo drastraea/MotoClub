@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { EventCard } from "@/components/cards/EventCard";
+import { EventCardWithStub } from "@/components/cards/EventCardWithStub";
 import { EventsCalendar } from "@/components/shared/EventsCalendar";
 import { api } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
@@ -27,8 +27,9 @@ export default function DashboardEventsPage() {
 
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {events?.map((event) => (
-          <EventCard
+          <EventCardWithStub
             key={event.id}
+            id={event.id}
             title={event.title}
             date={event.date}
             href={`/dashboard/events/${event.id}`}

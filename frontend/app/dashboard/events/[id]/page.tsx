@@ -5,6 +5,7 @@ import { CalendarDays, MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { api } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
+import { useEventStub } from "@/hooks/useEventStub";
 
 export default function EventDetailPage({
   params,
@@ -16,6 +17,7 @@ export default function EventDetailPage({
     useCallback(() => api.getEvent(id), [id]),
     [id]
   );
+  const stub = useEventStub(id);
 
   if (loading) return <p className="text-sm text-muted-foreground">Loading…</p>;
   if (error || !event) return <p className="text-sm text-destructive">{error ?? "Event not found."}</p>;
@@ -27,6 +29,10 @@ export default function EventDetailPage({
       </h1>
 
       <Card className="mt-8 max-w-2xl">
+        {stub.imageLink && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={stub.imageLink} alt="" className="aspect-video w-full object-cover" />
+        )}
         <CardContent className="flex flex-col gap-4">
           <div className="flex items-center gap-2 text-muted-foreground">
             <CalendarDays className="size-4" />

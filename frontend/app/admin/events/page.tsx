@@ -1,16 +1,35 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   EventFormDialog,
   type EventFormValues,
+  type EventStubValues,
 } from "@/components/shared/EventFormDialog";
 import { api } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
+import { getEventStub, setEventStub, deleteEventStub } from "@/lib/event-stubs";
+import { useEventStub } from "@/hooks/useEventStub";
+
+function EventStubBadges({ eventId }: { eventId: string }) {
+  const stub = useEventStub(eventId);
+  if (!stub.isPublic && !stub.imageLink) return null;
+  return (
+    <div className="mt-2 flex gap-2">
+      {stub.isPublic && <Badge variant="secondary">Public (local only)</Badge>}
+      {stub.imageLink && (
+        <Badge variant="secondary">
+          <ImageIcon className="size-3" /> Has banner
+        </Badge>
+      )}
+    </div>
+  );
+}
 
 export default function AdminEventsPage() {
   const { data: events, loading, error, reload } = useApiData(
@@ -20,10 +39,12 @@ export default function AdminEventsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValues, setEditingValues] = useState<EventFormValues | undefined>(undefined);
+  const [editingStub, setEditingStub] = useState<EventStubValues | undefined>(undefined);
 
   const openCreate = () => {
     setEditingId(null);
     setEditingValues(undefined);
+    setEditingStub(undefined);
     setDialogOpen(true);
   };
 
@@ -37,21 +58,25 @@ export default function AdminEventsPage() {
         date: detail.date,
         location: detail.location ?? undefined,
       });
+      setEditingStub(getEventStub(id));
       setDialogOpen(true);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to load event");
     }
   };
 
-  const handleSubmit = async (values: EventFormValues) => {
+  const handleSubmit = async (values: EventFormValues, stub: EventStubValues) => {
     try {
-      if (editingId) {
-        await api.updateEvent(editingId, values);
+      let id = editingId;
+      if (id) {
+        await api.updateEvent(id, values);
         toast.success("Event updated");
       } else {
-        await api.createEvent(values);
+        const created = await api.createEvent(values);
+        id = created.id;
         toast.success("Event created");
       }
+      setEventStub(id, stub);
       await reload();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Save failed");
@@ -61,6 +86,7 @@ export default function AdminEventsPage() {
   const handleDelete = async (id: string) => {
     try {
       await api.deleteEvent(id);
+      deleteEventStub(id);
       toast.success("Event deleted");
       await reload();
     } catch (err) {
@@ -90,6 +116,7 @@ export default function AdminEventsPage() {
               <div>
                 <CardTitle>{event.title}</CardTitle>
                 <CardDescription>{event.date}</CardDescription>
+                <EventStubBadges eventId={event.id} />
               </div>
               <div className="mt-4 flex gap-2 sm:mt-0">
                 <Button size="sm" variant="outline" onClick={() => openEdit(event.id)}>
@@ -110,6 +137,7 @@ export default function AdminEventsPage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         defaultValues={editingValues}
+        defaultStubValues={editingStub}
         onSubmit={handleSubmit}
       />
     </div>

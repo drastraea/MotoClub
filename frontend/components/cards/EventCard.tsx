@@ -13,11 +13,16 @@ export type EventCardProps = {
   date: string;
   location?: string;
   href?: string;
+  imageLink?: string;
 };
 
-export function EventCard({ title, date, location, href }: EventCardProps) {
+export function EventCard({ title, date, location, href, imageLink }: EventCardProps) {
   return (
     <Card>
+      {imageLink && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={imageLink} alt="" className="aspect-video w-full object-cover" />
+      )}
       <CardHeader>
         <CardTitle>
           {href ? (
