@@ -1,9 +1,8 @@
 "use client";
 
+import { useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { LogIn, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardHeader,
@@ -11,27 +10,41 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { GoogleSignInButton } from "@/components/shared/GoogleSignInButton";
+import { api, ApiError } from "@/lib/api";
+import { decodeJwtPayload, isAdmin, type Role } from "@/lib/session";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
 
-  // TODO: Replace with real Google Identity Services sign-in + POST /login
-  // (see api_contract.json) once a Google OAuth Client ID is available.
-  const handleMockSignIn = () => {
-    login({ name: "Alex Rider", email: "alex.rider@example.com", role: "member" });
-    toast.success("Signed in (mock session)");
-    router.push("/dashboard");
-  };
-
-  // Dev-only convenience since there's no real role distinction from the
-  // backend yet — lets the admin panel be reached without a real account.
-  const handleMockAdminSignIn = () => {
-    login({ name: "Admin", email: "admin@example.com", role: "admin" });
-    toast.success("Signed in as admin (mock session)");
-    router.push("/admin");
-  };
+  const handleCredential = useCallback(
+    async (idToken: string) => {
+      const googleClaims = decodeJwtPayload<{ email: string; name?: string }>(idToken);
+      if (!googleClaims?.email) {
+        toast.error("Could not read your Google account email.");
+        return;
+      }
+      try {
+        const { id, token } = await api.login(googleClaims.email, idToken);
+        const appClaims = decodeJwtPayload<{ role: Role }>(token);
+        const role = appClaims?.role ?? "member";
+        login({ id, token, role, name: googleClaims.name, email: googleClaims.email });
+        toast.success("Signed in");
+        router.push(isAdmin(role) ? "/admin" : "/dashboard");
+      } catch (err) {
+        const msg =
+          err instanceof ApiError && err.status === 401
+            ? "This Google account isn't registered yet. Apply to join first."
+            : err instanceof Error
+              ? err.message
+              : "Sign in failed";
+        toast.error(msg);
+      }
+    },
+    [login, router]
+  );
 
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-24">
@@ -44,15 +57,8 @@ export default function LoginPage() {
             Sign in with the Google account used on your membership application.
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-3">
-          <Button className="w-full" onClick={handleMockSignIn}>
-            <LogIn className="size-4" />
-            Sign in with Google
-          </Button>
-          <Button className="w-full" variant="outline" onClick={handleMockAdminSignIn}>
-            <ShieldCheck className="size-4" />
-            Continue as Admin (mock)
-          </Button>
+        <CardContent className="flex flex-col items-center gap-3">
+          <GoogleSignInButton onCredential={handleCredential} text="signin_with" />
         </CardContent>
       </Card>
     </div>

@@ -1,15 +1,31 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python3 -)",
-      "Bash(podman compose *)",
+      "Bash(ls -la .env*)",
+      "Bash(cat .nvmrc)",
+      "Bash(cat .node-version)",
+      "Bash(cd frontend *)",
       "Bash(export DOCKER_HOST=unix:///run/user/1000/podman/podman.sock)",
-      "Bash(echo \"=== migrate logs ===\")",
+      "Bash(podman compose *)",
+      "Bash(sleep 3)",
+      "Bash(echo \"=== container logs ===\")",
       "Bash(podman logs *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(cd /home/edbert/work/freelance/MotoClub/frontend)",
+      "Bash(NEXT_PUBLIC_API_URL=http://localhost:8080 podman compose up --build -d)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/login)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/dashboard)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8080/healthz)",
-      "Bash(curl -s -w \" -> %{http_code}\\\\n\" http://localhost:8080/gallery)",
-      "Bash(curl -s -w \" -> %{http_code}\\\\n\" -X POST http://localhost:8080/login -H 'Content-Type: application/json' -d '{\"email\":\"a@b.com\",\"googleToken\":\"junk\"}')",
-      "Bash(curl -s -w \" -> %{http_code}\\\\n\" -X POST http://localhost:8080/register -H 'Content-Type: application/json' -d '{\"email\":\"a@b.com\"}')"
+      "Bash(curl -s -i -X OPTIONS http://localhost:8080/gallery -H \"Origin: http://localhost:3000\")",
+      "Bash(echo \"=== compose build \\(passes localhost:8080 as build arg override\\) ===\")",
+      "Bash(curl -s -o /dev/null -w \"frontend / -> %{http_code}\\\\n\" http://localhost:3000)",
+      "Bash(podman exec *)",
+      "Bash(echo \"=== backend still has the matching client id ===\")",
+      "Read(//home/edbert/work/freelance/backend/**)"
+    ],
+    "additionalDirectories": [
+      "/home/edbert/work/freelance/MotoClub/frontend/lib"
     ]
   }
 }

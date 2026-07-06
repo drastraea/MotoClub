@@ -1,46 +1,40 @@
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+"use client";
 
-// TODO: Replace with GET /announcements?startFrom= (see api_contract.json)
-const announcements = [
-  {
-    id: "1",
-    title: "New Merch Drop",
-    date: "Jun 28, 2026",
-    body: "Club jackets and patches are back in stock at HQ.",
-  },
-  {
-    id: "2",
-    title: "Road Safety Briefing",
-    date: "Jun 20, 2026",
-    body: "Mandatory briefing before the charity run this month.",
-  },
-  {
-    id: "3",
-    title: "Membership Dues Reminder",
-    date: "Jun 10, 2026",
-    body: "Annual dues are due by the end of the month.",
-  },
-];
+import { useCallback } from "react";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { api } from "@/lib/api";
+import { useApiData } from "@/hooks/useApiData";
 
 export default function AnnouncementsPage() {
+  const { data: announcements, loading, error } = useApiData(
+    useCallback(() => api.getAnnouncements(), []),
+    []
+  );
+
   return (
     <div>
       <h1 className="font-heading text-3xl font-bold tracking-wide uppercase">
         Announcements
       </h1>
 
+      {loading && <p className="mt-8 text-sm text-muted-foreground">Loading…</p>}
+      {error && <p className="mt-8 text-sm text-destructive">{error}</p>}
+
       <div className="mt-8 flex flex-col gap-4">
-        {announcements.map((item) => (
+        {announcements?.map((item) => (
           <Card key={item.id}>
             <CardHeader>
               <CardTitle>{item.title}</CardTitle>
               <CardDescription className="flex flex-col gap-1">
-                <span>{item.date}</span>
-                <span>{item.body}</span>
+                <span>{item.last_updated_at}</span>
+                <span>{item.description}</span>
               </CardDescription>
             </CardHeader>
           </Card>
         ))}
+        {announcements && announcements.length === 0 && !loading && (
+          <p className="text-sm text-muted-foreground">No announcements yet.</p>
+        )}
       </div>
     </div>
   );

@@ -10,9 +10,19 @@ RUN npm ci
 FROM docker.io/library/node:22-alpine AS build
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# Per-environment NEXT_PUBLIC_* values come from .env.production by default
+# (Next loads it for production builds). Optionally override via build args —
+# e.g. to point a local Docker demo at http://localhost:8080. When an arg is
+# empty it is unset so the committed .env.production value wins.
+ARG NEXT_PUBLIC_API_URL=""
+ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID=""
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-RUN npm run build
+RUN [ -n "$NEXT_PUBLIC_API_URL" ] || unset NEXT_PUBLIC_API_URL; \
+    [ -n "$NEXT_PUBLIC_GOOGLE_CLIENT_ID" ] || unset NEXT_PUBLIC_GOOGLE_CLIENT_ID; \
+    npm run build
 
 # ---- runtime ----
 FROM docker.io/library/node:22-alpine AS runner

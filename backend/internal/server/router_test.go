@@ -29,7 +29,7 @@ func TestNewRouter_NoConflictAndHealthz(t *testing.T) {
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	var r *gin.Engine
 	require.NotPanics(t, func() {
-		r = NewRouter(handlers, auth.JWTManager(nil), nil, logger)
+		r = NewRouter(handlers, auth.JWTManager(nil), nil, logger, []string{"http://localhost:3000"})
 	})
 
 	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)

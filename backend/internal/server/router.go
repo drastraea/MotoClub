@@ -14,9 +14,9 @@ import (
 )
 
 // NewRouter builds the full route table with its middleware chain.
-func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middleware.RevocationChecker, logger *slog.Logger) *gin.Engine {
+func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middleware.RevocationChecker, logger *slog.Logger, allowedOrigins []string) *gin.Engine {
 	r := gin.New()
-	r.Use(middleware.RequestLogger(logger), gin.Recovery())
+	r.Use(middleware.RequestLogger(logger), gin.Recovery(), middleware.CORS(allowedOrigins))
 	r.HandleMethodNotAllowed = true
 
 	r.GET("/healthz", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"status": "ok"}) })

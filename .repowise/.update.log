@@ -1,0 +1,435 @@
+
+--- post-commit hook fired at Mon Jul  6 10:22:34 WIB 2026 for HEAD 1058f050f18492f22c6b7f089bb27751c7728a43 ---
+repowise update · MotoClub
+e670db7d..1058f050
+Config files changed — re-running health analysis.
+2026-07-06 10:22:35 [info     ] FileTraverser initialised      extra_exclude_patterns=0 include_nested_repos=False max_file_size_kb=500 repo_root=/home/edbert/work/freelance/MotoClub submodules_skipped=0
+2026-07-06 10:22:35 [debug    ] Skipping oversized file        path=.repowise/duplication_cache.pkl size_kb=1156
+2026-07-06 10:22:35 [debug    ] Skipping oversized file        path=.repowise/parse_cache.pkl size_kb=527
+2026-07-06 10:22:35 [debug    ] Skipping oversized file        path=.repowise/wiki.db size_kb=3344
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/db/sqlc/announcements.sql.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/db/sqlc/db.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/db/sqlc/events.sql.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/db/sqlc/gallery.sql.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/db/sqlc/members.sql.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/db/sqlc/models.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/db/sqlc/querier.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/db/sqlc/tokens.sql.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/auth/mocks/GoogleVerifier.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/auth/mocks/JWTManager.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/middleware/mocks/RevocationChecker.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/AnnouncementRepository.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/EventRepository.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/GalleryRepository.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/MemberRepository.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/TokenRepository.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/service/mocks/AnnouncementServicer.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/service/mocks/AuthServicer.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/service/mocks/EventServicer.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/service/mocks/GalleryServicer.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/service/mocks/MemberServicer.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/util/mocks/Clock.go
+2026-07-06 10:22:35 [debug    ] Skipping oversized file        path=.repowise/duplication_cache.pkl size_kb=1156
+2026-07-06 10:22:35 [debug    ] Skipping oversized file        path=.repowise/parse_cache.pkl size_kb=527
+2026-07-06 10:22:35 [debug    ] Skipping oversized file        path=.repowise/wiki.db size_kb=3344
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/db/sqlc/announcements.sql.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/db/sqlc/db.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/db/sqlc/events.sql.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/db/sqlc/gallery.sql.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/db/sqlc/members.sql.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/db/sqlc/models.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/db/sqlc/querier.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/db/sqlc/tokens.sql.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/auth/mocks/GoogleVerifier.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/auth/mocks/JWTManager.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/middleware/mocks/RevocationChecker.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/AnnouncementRepository.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/EventRepository.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/GalleryRepository.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/MemberRepository.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/TokenRepository.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/service/mocks/AnnouncementServicer.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/service/mocks/AuthServicer.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/service/mocks/EventServicer.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/service/mocks/GalleryServicer.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/service/mocks/MemberServicer.go
+2026-07-06 10:22:35 [debug    ] Skipping generated file        path=backend/internal/util/mocks/Clock.go
+2026-07-06 10:22:35 [debug    ] Built Go package index         import_paths=13 modules=1 packages=13
+2026-07-06 10:22:35 [info     ] import_resolution_per_language seconds={'json': 0.0, 'markdown': 0.0, 'yaml': 0.0, 'dockerfile': 0.0, 'makefile': 0.0, 'go': 0.0, 'sql': 0.0, 'shell': 0.0, 'javascript': 0.0, 'typescript': 0.0}
+2026-07-06 10:22:35 [info     ] type_use edges emitted         per_language={'go': 121, 'typescript': 1}
+2026-07-06 10:22:35 [info     ] Heritage edges resolved        total=0
+2026-07-06 10:22:35 [info     ] interface_satisfaction_edges   added=29 language=go
+2026-07-06 10:22:35 [debug    ] Built Go package index         import_paths=13 modules=1 packages=13
+2026-07-06 10:22:35 [info     ] Call edges resolved            total=587
+2026-07-06 10:22:35 [info     ] Graph built                    edge_types={'defines': 699, 'imports': 748, 'calls': 587, 'method_implements': 29, 'has_method': 78, 'type_use': 23} edges=2164 file_nodes=258 symbol_nodes=699
+2026-07-06 10:22:35 [info     ] Framework edges added          count=9
+Framework edges added: 9
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=pytest_conftest
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=django_settings
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=xaml
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=scala
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=jvm
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=ruby
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=c
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=spring
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=php
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=python_dynamic_import
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=1 extractor=node_package
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=dotnet
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=luau
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=cpp
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=swift
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=rust
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=alpine
+2026-07-06 10:22:35 [debug    ] dynamic_hints                  count=0 extractor=go
+Dynamic hint edges added: 1
+2026-07-06 10:22:35 [info     ] file_communities_detected      algorithm=louvain communities=63 prod_files=241 test_files=18 total_files=259
+2026-07-06 10:22:35 [info     ] symbol_communities_detected    communities=348 connected=375 total_symbols=699
+2026-07-06 10:22:36 [info     ] execution_flows_traced         candidates_scored=84 deduplicated=0 traced=46
+2026-07-06 10:22:36 [debug    ] duplication_token_cache        hits=145 misses=8
+2026-07-06 10:22:36 [debug    ] health_duplication_limits      degenerate_buckets=0 files_considered=154 files_tokenized=116 skipped_minified=1 skipped_token_cap=0 skipped_unreadable=0 timed_out=False total_windows=52482 window_budget_hit=False
+Health re-score: 154 files, 177 findings
+Config-triggered health re-score complete in 1.6s
+
+--- post-commit hook fired at Mon Jul  6 10:24:10 WIB 2026 for HEAD 9fb1b5b94d112805f8606513a4963d956927fb8c ---
+repowise update · MotoClub
+1058f050..9fb1b5b9
+41 changed · 1 modified, 40 added
+    modified  .claude/settings.json
+       added  .mcp.json
+       added  .repowise/.augment-session.json
+       added  .repowise/.augment-warned
+       added  .repowise/.update.log
+       added  .repowise/centrality_cache.pkl
+       added  .repowise/config.yaml
+       added  .repowise/duplication_cache.pkl
+       added  .repowise/duplication_pairs.pkl
+       added  .repowise/jobs/40828f45-4080-4a41-a38d-d15e0d02e197.json
+  +31 more (use -v to list all)
+2026-07-06 10:24:10 [info     ] FileTraverser initialised      extra_exclude_patterns=0 include_nested_repos=False max_file_size_kb=500 repo_root=/home/edbert/work/freelance/MotoClub submodules_skipped=0
+2026-07-06 10:24:10 [debug    ] Skipping oversized file        path=.repowise/duplication_cache.pkl size_kb=1165
+2026-07-06 10:24:10 [debug    ] Skipping oversized file        path=.repowise/parse_cache.pkl size_kb=534
+2026-07-06 10:24:10 [debug    ] Skipping oversized file        path=.repowise/wiki.db size_kb=3424
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/db/sqlc/announcements.sql.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/db/sqlc/db.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/db/sqlc/events.sql.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/db/sqlc/gallery.sql.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/db/sqlc/members.sql.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/db/sqlc/models.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/db/sqlc/querier.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/db/sqlc/tokens.sql.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/auth/mocks/GoogleVerifier.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/auth/mocks/JWTManager.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/middleware/mocks/RevocationChecker.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/AnnouncementRepository.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/EventRepository.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/GalleryRepository.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/MemberRepository.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/TokenRepository.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/service/mocks/AnnouncementServicer.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/service/mocks/AuthServicer.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/service/mocks/EventServicer.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/service/mocks/GalleryServicer.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/service/mocks/MemberServicer.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/util/mocks/Clock.go
+2026-07-06 10:24:10 [debug    ] Skipping oversized file        path=.repowise/duplication_cache.pkl size_kb=1165
+2026-07-06 10:24:10 [debug    ] Skipping oversized file        path=.repowise/parse_cache.pkl size_kb=534
+2026-07-06 10:24:10 [debug    ] Skipping oversized file        path=.repowise/wiki.db size_kb=3424
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/db/sqlc/announcements.sql.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/db/sqlc/db.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/db/sqlc/events.sql.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/db/sqlc/gallery.sql.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/db/sqlc/members.sql.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/db/sqlc/models.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/db/sqlc/querier.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/db/sqlc/tokens.sql.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/auth/mocks/GoogleVerifier.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/auth/mocks/JWTManager.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/middleware/mocks/RevocationChecker.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/AnnouncementRepository.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/EventRepository.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/GalleryRepository.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/MemberRepository.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/TokenRepository.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/service/mocks/AnnouncementServicer.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/service/mocks/AuthServicer.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/service/mocks/EventServicer.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/service/mocks/GalleryServicer.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/service/mocks/MemberServicer.go
+2026-07-06 10:24:10 [debug    ] Skipping generated file        path=backend/internal/util/mocks/Clock.go
+2026-07-06 10:24:10 [debug    ] Built Go package index         import_paths=13 modules=1 packages=13
+2026-07-06 10:24:10 [info     ] import_resolution_per_language seconds={'json': 0.0, 'markdown': 0.0, 'yaml': 0.0, 'dockerfile': 0.0, 'makefile': 0.0, 'go': 0.0, 'sql': 0.0, 'shell': 0.0, 'javascript': 0.0, 'typescript': 0.0}
+2026-07-06 10:24:10 [info     ] type_use edges emitted         per_language={'go': 121, 'typescript': 1}
+2026-07-06 10:24:10 [info     ] Heritage edges resolved        total=0
+2026-07-06 10:24:10 [info     ] interface_satisfaction_edges   added=29 language=go
+2026-07-06 10:24:10 [debug    ] Built Go package index         import_paths=13 modules=1 packages=13
+2026-07-06 10:24:10 [info     ] Call edges resolved            total=587
+2026-07-06 10:24:10 [info     ] Graph built                    edge_types={'defines': 699, 'imports': 748, 'calls': 587, 'method_implements': 29, 'has_method': 78, 'type_use': 23} edges=2164 file_nodes=258 symbol_nodes=699
+2026-07-06 10:24:10 [info     ] Framework edges added          count=9
+Framework edges added: 9
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=xaml
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=ruby
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=jvm
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=scala
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=spring
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=python_dynamic_import
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=dotnet
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=php
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=django_settings
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=pytest_conftest
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=1 extractor=node_package
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=swift
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=cpp
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=c
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=luau
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=rust
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=alpine
+2026-07-06 10:24:10 [debug    ] dynamic_hints                  count=0 extractor=go
+Dynamic hint edges added: 1
+2026-07-06 10:24:10 [debug    ] repo_commit_index_built        commits_parsed=30 files_with_history=41 indexable_files=41
+2026-07-06 10:24:10 [debug    ] co_change_computed             commit_limit=2000 commits=30 files_with_entropy=76 files_with_partners=11 min_count=2 pairs_above_threshold=17 pairs_considered=3451 tracked_files=154
+2026-07-06 10:24:10 [info     ] Co-change edges added          count=0
+2026-07-06 10:24:10 [info     ] betweenness_reused_from_cache  kind=symbol nodes=699
+2026-07-06 10:24:10 [info     ] betweenness_reused_from_cache  kind=file nodes=259
+2026-07-06 10:24:11 [info     ] file_communities_detected      algorithm=louvain communities=63 prod_files=241 test_files=18 total_files=259
+2026-07-06 10:24:11 [info     ] symbol_communities_detected    communities=348 connected=375 total_symbols=699
+2026-07-06 10:24:11 [info     ] execution_flows_traced         candidates_scored=84 deduplicated=0 traced=46
+Pages to regenerate: 41
+2026-07-06 10:24:11 [debug    ] duplication_incremental_splice changed=10 deleted=0 pairs=7207 touched_buckets=0
+2026-07-06 10:24:11 [debug    ] health_duplication_limits      degenerate_buckets=0 files_considered=10 files_tokenized=0 incremental=True skipped_minified=1 skipped_token_cap=0 skipped_unreadable=0 timed_out=False total_windows=0 window_budget_hit=False
+Health analysis (partial): 41 files, 10 findings
+2026-07-06 10:24:11 [info     ] decision_extractor.scanning_inline_markers total_files=41
+2026-07-06 10:24:11 [info     ] kg_context_loaded              layers=10 nodes=145
+2026-07-06 10:24:11 [info     ] page_selection.complete        budget=10 counts={'api_contract': 0, 'symbol_spotlight': 0, 'file_page': 0, 'scc_page': 0, 'module_page': 0, 'repo_overview': 1, 'architecture_diagram': 1, 'infra_page': 0} coverage_pct=0.2
+2026-07-06 10:24:12 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=c046c9cd-336e-42b0-a1a0-042b6000eeaa
+2026-07-06 10:24:12 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=658a2121-4647-41f5-8483-16174494a48a
+2026-07-06 10:24:12 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=1186b164-cae2-41ce-9493-966bedcf4d7d
+2026-07-06 10:24:12 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=a456df8b-434b-4d06-a658-8a1d83123fee
+2026-07-06 10:24:12 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=b93b8ae0-7c6c-4ab8-81c3-6615c0564b50
+2026-07-06 10:24:12 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=7a2240d6-a6ca-4d13-b327-723d94d8d486
+2026-07-06 10:24:12 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=365f203d-0c26-4f43-8706-a2557728bdfa
+2026-07-06 10:24:35 [debug    ] opencode.generate.done         cached_tokens=5248 input_tokens=14442 output_tokens=1753 request_id=c046c9cd-336e-42b0-a1a0-042b6000eeaa
+2026-07-06 10:24:52 [debug    ] opencode.generate.done         cached_tokens=0 input_tokens=4870 output_tokens=1164 request_id=658a2121-4647-41f5-8483-16174494a48a
+2026-07-06 10:25:12 [debug    ] opencode.generate.done         cached_tokens=4864 input_tokens=6961 output_tokens=1255 request_id=1186b164-cae2-41ce-9493-966bedcf4d7d
+2026-07-06 10:25:36 [debug    ] opencode.generate.done         cached_tokens=12544 input_tokens=13153 output_tokens=1661 request_id=a456df8b-434b-4d06-a658-8a1d83123fee
+2026-07-06 10:25:52 [debug    ] opencode.generate.done         cached_tokens=0 input_tokens=4885 output_tokens=1030 request_id=b93b8ae0-7c6c-4ab8-81c3-6615c0564b50
+2026-07-06 10:26:25 [debug    ] opencode.generate.done         cached_tokens=28544 input_tokens=14436 output_tokens=2638 request_id=7a2240d6-a6ca-4d13-b327-723d94d8d486
+2026-07-06 10:26:55 [debug    ] opencode.generate.done         cached_tokens=12416 input_tokens=10652 output_tokens=1859 request_id=365f203d-0c26-4f43-8706-a2557728bdfa
+2026-07-06 10:26:55 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=abb0688f-8337-4890-bdfa-61edf875890b
+2026-07-06 10:26:55 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=f70e42f1-afd7-4038-97ee-ae25efcc671e
+2026-07-06 10:26:55 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=8f4da6e2-7c96-406a-a4e6-e29dcfbbb87f
+2026-07-06 10:26:55 [debug    ] onboarding.gate_skipped        slot=getting_started
+2026-07-06 10:26:55 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=6935f7d4-1d66-4406-9a75-29bf44b2b0fa
+2026-07-06 10:26:55 [debug    ] onboarding.gate_skipped        slot=key_concepts
+2026-07-06 10:26:55 [debug    ] page_cache.persistent_hit      page_type=onboarding target_path=onboarding/how_it_works
+2026-07-06 10:26:55 [debug    ] onboarding.gate_skipped        slot=development_guide
+2026-07-06 10:26:55 [debug    ] onboarding.gate_skipped        slot=active_landscape
+2026-07-06 10:27:32 [debug    ] opencode.generate.done         cached_tokens=32896 input_tokens=11148 output_tokens=2878 request_id=abb0688f-8337-4890-bdfa-61edf875890b
+2026-07-06 10:27:42 [debug    ] opencode.generate.done         cached_tokens=0 input_tokens=5358 output_tokens=521 request_id=f70e42f1-afd7-4038-97ee-ae25efcc671e
+2026-07-06 10:28:16 [debug    ] opencode.generate.done         cached_tokens=48768 input_tokens=16242 output_tokens=2310 request_id=8f4da6e2-7c96-406a-a4e6-e29dcfbbb87f
+2026-07-06 10:28:46 [debug    ] opencode.generate.done         cached_tokens=0 input_tokens=5167 output_tokens=542 request_id=6935f7d4-1d66-4406-9a75-29bf44b2b0fa
+2026-07-06 10:28:46 [info     ] mermaid_safety.applied         pages_changed=1
+2026-07-06 10:28:46 [info     ] wiki_links.resolved            pages=12 pages_with_backlinks=0 total_forward_links=0
+2026-07-06 10:28:46 [info     ] kg_enrichment.tour_wiki_links  steps_with_links=0 total_steps=12
+2026-07-06 10:28:46 [info     ] Generation complete            model=opencode/default provider=opencode total_pages=12
+  Generating pages... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12/9 0:03:20 $0.000
+2026-07-06 10:28:46 [debug    ] repo_commit_index_built        commits_parsed=1 files_with_history=0 indexable_files=0
+  ✓ VS Code MCP configured 
+(/home/edbert/work/freelance/MotoClub/.vscode/mcp.json)
+  ✓ VS Code extension recommended 
+(/home/edbert/work/freelance/MotoClub/.vscode/extensions.json)
+
+╭────────────────────── {^ ^}  repowise update complete ───────────────────────╮
+│                                                                              │
+│   Pages updated           12                                                 │
+│   Provider                opencode / opencode/default                        │
+│   Elapsed                 4m 36s                                             │
+│                                                                              │
+│   What's next:                                                               │
+│   repowise serve               browse the updated wiki at localhost:3000     │
+│   repowise search <query>      search the wiki                               │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+
+--- post-commit hook fired at Mon Jul  6 10:48:01 WIB 2026 for HEAD d10df172f82321bdd6f99d99165e83f045dcd3a4 ---
+repowise update · MotoClub
+9fb1b5b9..d10df172
+16 changed · 9 modified, 7 added
+    modified  .repowise/.update.log
+    modified  .repowise/duplication_cache.pkl
+    modified  .repowise/duplication_pairs.pkl
+    modified  .repowise/knowledge-graph.json
+       added  
+.repowise/lancedb/wiki_pages.lance/_deletions/4-8-1887610305191305108.arrow
+       added  
+.repowise/lancedb/wiki_pages.lance/_transactions/7-e02c11ea-ff68-414b-9106-d0825
+2c0082a.txn
+       added  
+.repowise/lancedb/wiki_pages.lance/_transactions/8-be67e281-8824-4387-95ff-c38e3
+0831b4d.txn
+       added  
+.repowise/lancedb/wiki_pages.lance/_versions/18446744073709551606.manifest
+       added  
+.repowise/lancedb/wiki_pages.lance/_versions/18446744073709551607.manifest
+    modified  
+.repowise/lancedb/wiki_pages.lance/_versions/latest_version_hint.json
+  +6 more (use -v to list all)
+2026-07-06 10:48:02 [info     ] FileTraverser initialised      extra_exclude_patterns=0 include_nested_repos=False max_file_size_kb=500 repo_root=/home/edbert/work/freelance/MotoClub submodules_skipped=0
+2026-07-06 10:48:02 [debug    ] Skipping oversized file        path=.repowise/duplication_cache.pkl size_kb=1153
+2026-07-06 10:48:02 [debug    ] Skipping oversized file        path=.repowise/parse_cache.pkl size_kb=534
+2026-07-06 10:48:02 [debug    ] Skipping oversized file        path=.repowise/wiki.db size_kb=3616
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/db/sqlc/announcements.sql.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/db/sqlc/db.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/db/sqlc/events.sql.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/db/sqlc/gallery.sql.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/db/sqlc/members.sql.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/db/sqlc/models.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/db/sqlc/querier.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/db/sqlc/tokens.sql.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/auth/mocks/GoogleVerifier.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/auth/mocks/JWTManager.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/middleware/mocks/RevocationChecker.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/AnnouncementRepository.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/EventRepository.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/GalleryRepository.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/MemberRepository.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/TokenRepository.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/service/mocks/AnnouncementServicer.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/service/mocks/AuthServicer.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/service/mocks/EventServicer.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/service/mocks/GalleryServicer.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/service/mocks/MemberServicer.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/util/mocks/Clock.go
+2026-07-06 10:48:02 [debug    ] Skipping oversized file        path=.repowise/duplication_cache.pkl size_kb=1153
+2026-07-06 10:48:02 [debug    ] Skipping oversized file        path=.repowise/parse_cache.pkl size_kb=534
+2026-07-06 10:48:02 [debug    ] Skipping oversized file        path=.repowise/wiki.db size_kb=3616
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/db/sqlc/announcements.sql.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/db/sqlc/db.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/db/sqlc/events.sql.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/db/sqlc/gallery.sql.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/db/sqlc/members.sql.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/db/sqlc/models.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/db/sqlc/querier.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/db/sqlc/tokens.sql.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/auth/mocks/GoogleVerifier.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/auth/mocks/JWTManager.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/middleware/mocks/RevocationChecker.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/AnnouncementRepository.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/EventRepository.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/GalleryRepository.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/MemberRepository.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/repository/mocks/TokenRepository.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/service/mocks/AnnouncementServicer.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/service/mocks/AuthServicer.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/service/mocks/EventServicer.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/service/mocks/GalleryServicer.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/service/mocks/MemberServicer.go
+2026-07-06 10:48:02 [debug    ] Skipping generated file        path=backend/internal/util/mocks/Clock.go
+2026-07-06 10:48:02 [debug    ] Built Go package index         import_paths=13 modules=1 packages=13
+2026-07-06 10:48:02 [info     ] import_resolution_per_language seconds={'json': 0.0, 'markdown': 0.0, 'yaml': 0.0, 'dockerfile': 0.0, 'makefile': 0.0, 'go': 0.0, 'sql': 0.0, 'shell': 0.0, 'javascript': 0.0, 'typescript': 0.0}
+2026-07-06 10:48:02 [info     ] type_use edges emitted         per_language={'go': 121, 'typescript': 1}
+2026-07-06 10:48:02 [info     ] Heritage edges resolved        total=0
+2026-07-06 10:48:02 [info     ] interface_satisfaction_edges   added=29 language=go
+2026-07-06 10:48:02 [debug    ] Built Go package index         import_paths=13 modules=1 packages=13
+2026-07-06 10:48:02 [info     ] Call edges resolved            total=587
+2026-07-06 10:48:02 [info     ] Graph built                    edge_types={'defines': 699, 'imports': 748, 'calls': 587, 'method_implements': 29, 'has_method': 78, 'type_use': 23} edges=2164 file_nodes=258 symbol_nodes=699
+2026-07-06 10:48:02 [info     ] Framework edges added          count=9
+Framework edges added: 9
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=xaml
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=python_dynamic_import
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=dotnet
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=pytest_conftest
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=spring
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=scala
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=ruby
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=jvm
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=php
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=django_settings
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=luau
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=1 extractor=node_package
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=swift
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=c
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=cpp
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=rust
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=alpine
+2026-07-06 10:48:02 [debug    ] dynamic_hints                  count=0 extractor=go
+Dynamic hint edges added: 1
+2026-07-06 10:48:02 [debug    ] repo_commit_index_built        commits_parsed=31 files_with_history=16 indexable_files=16
+2026-07-06 10:48:02 [debug    ] co_change_computed             commit_limit=2000 commits=31 files_with_entropy=76 files_with_partners=11 min_count=2 pairs_above_threshold=17 pairs_considered=3454 tracked_files=154
+2026-07-06 10:48:02 [info     ] Co-change edges added          count=0
+2026-07-06 10:48:02 [info     ] betweenness_reused_from_cache  kind=file nodes=259
+2026-07-06 10:48:02 [info     ] betweenness_reused_from_cache  kind=symbol nodes=699
+2026-07-06 10:48:02 [info     ] symbol_communities_detected    communities=348 connected=375 total_symbols=699
+2026-07-06 10:48:02 [info     ] file_communities_detected      algorithm=louvain communities=63 prod_files=241 test_files=18 total_files=259
+2026-07-06 10:48:02 [info     ] execution_flows_traced         candidates_scored=84 deduplicated=0 traced=46
+Pages to regenerate: 16
+2026-07-06 10:48:03 [debug    ] duplication_incremental_splice changed=4 deleted=0 pairs=7207 touched_buckets=2020
+Health analysis (partial): 16 files, 6 findings
+Dead code findings (partial): 1
+2026-07-06 10:48:03 [info     ] decision_extractor.scanning_inline_markers total_files=16
+2026-07-06 10:48:03 [info     ] kg_context_loaded              layers=10 nodes=145
+2026-07-06 10:48:03 [info     ] page_selection.complete        budget=4 counts={'api_contract': 0, 'symbol_spotlight': 1, 'file_page': 1, 'scc_page': 0, 'module_page': 0, 'repo_overview': 1, 'architecture_diagram': 1, 'infra_page': 0} coverage_pct=0.2
+2026-07-06 10:48:03 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=f8d22c50-388e-4b83-a456-3d5afa9567ee
+2026-07-06 10:48:10 [debug    ] opencode.generate.done         cached_tokens=0 input_tokens=4430 output_tokens=363 request_id=f8d22c50-388e-4b83-a456-3d5afa9567ee
+2026-07-06 10:48:12 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=07cea832-075b-47cf-8df8-5718e8808355
+2026-07-06 10:48:24 [debug    ] opencode.generate.done         cached_tokens=0 input_tokens=10051 output_tokens=798 request_id=07cea832-075b-47cf-8df8-5718e8808355
+2026-07-06 10:48:24 [warning  ] hallucination_check            count=3 path=frontend/components/shared/JoinForm.tsx refs=['File', 'FileReader', 'URL.createObjectURL']
+2026-07-06 10:48:24 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=ec58ea1f-38b7-43d3-a66c-a7b01fbf563d
+2026-07-06 10:48:24 [debug    ] page_cache.persistent_hit      page_type=layer_page target_path=layer:utility
+2026-07-06 10:48:24 [debug    ] page_cache.persistent_hit      page_type=layer_page target_path=layer:middleware
+2026-07-06 10:48:24 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=45262a12-00d1-4e62-9bde-54277b9317e2
+2026-07-06 10:48:24 [debug    ] page_cache.persistent_hit      page_type=layer_page target_path=layer:service
+2026-07-06 10:48:24 [debug    ] page_cache.persistent_hit      page_type=layer_page target_path=layer:ui
+2026-07-06 10:48:24 [debug    ] page_cache.persistent_hit      page_type=layer_page target_path=layer:test
+2026-07-06 10:48:39 [debug    ] opencode.generate.done         cached_tokens=0 input_tokens=4799 output_tokens=870 request_id=ec58ea1f-38b7-43d3-a66c-a7b01fbf563d
+2026-07-06 10:49:03 [debug    ] opencode.generate.done         cached_tokens=14080 input_tokens=11513 output_tokens=1544 request_id=45262a12-00d1-4e62-9bde-54277b9317e2
+2026-07-06 10:49:03 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=074b01a6-d7eb-49ba-9dd4-8f7bdcde9c2d
+2026-07-06 10:49:03 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=b07877f6-eaaf-4ddf-bda6-e4bcb338b2a5
+2026-07-06 10:49:03 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=db838c23-2dc9-4eed-8f33-31cd088cf20b
+2026-07-06 10:49:03 [debug    ] onboarding.gate_skipped        slot=getting_started
+2026-07-06 10:49:03 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=9f993780-f677-40c9-a9e5-7ec297d0fe12
+2026-07-06 10:49:03 [debug    ] onboarding.gate_skipped        slot=key_concepts
+2026-07-06 10:49:03 [debug    ] page_cache.persistent_hit      page_type=onboarding target_path=onboarding/how_it_works
+2026-07-06 10:49:03 [debug    ] onboarding.gate_skipped        slot=development_guide
+2026-07-06 10:49:03 [debug    ] onboarding.gate_skipped        slot=active_landscape
+2026-07-06 10:49:40 [debug    ] opencode.generate.done         cached_tokens=76800 input_tokens=16601 output_tokens=2968 request_id=074b01a6-d7eb-49ba-9dd4-8f7bdcde9c2d
+2026-07-06 10:49:51 [debug    ] opencode.generate.done         cached_tokens=0 input_tokens=5362 output_tokens=501 request_id=b07877f6-eaaf-4ddf-bda6-e4bcb338b2a5
+2026-07-06 10:50:30 [debug    ] opencode.generate.done         cached_tokens=14592 input_tokens=15686 output_tokens=2104 request_id=db838c23-2dc9-4eed-8f33-31cd088cf20b
+2026-07-06 10:51:03 [debug    ] opencode.generate.done         cached_tokens=32512 input_tokens=8016 output_tokens=2498 request_id=9f993780-f677-40c9-a9e5-7ec297d0fe12
+2026-07-06 10:51:03 [info     ] mermaid_safety.applied         pages_changed=1
+2026-07-06 10:51:03 [info     ] wiki_links.resolved            pages=14 pages_with_backlinks=1 total_forward_links=1
+2026-07-06 10:51:03 [info     ] kg_enrichment.tour_wiki_links  steps_with_links=0 total_steps=12
+2026-07-06 10:51:03 [info     ] Generation complete            model=opencode/default provider=opencode total_pages=14
+  Generating pages... ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14/11 0:01:37 $0.000
+2026-07-06 10:51:03 [debug    ] repo_commit_index_built        commits_parsed=1 files_with_history=0 indexable_files=0
+2026-07-06 10:51:03 [info     ] decision_dedup_embedding       batched=True groups=1
+2026-07-06 10:51:03 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=None
+2026-07-06 10:51:08 [debug    ] opencode.generate.done         cached_tokens=0 input_tokens=4292 output_tokens=4 request_id=None
+2026-07-06 10:51:08 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=None
+2026-07-06 10:51:12 [debug    ] opencode.generate.done         cached_tokens=0 input_tokens=4314 output_tokens=4 request_id=None
+2026-07-06 10:51:12 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=None
+2026-07-06 10:51:18 [debug    ] opencode.generate.done         cached_tokens=0 input_tokens=4322 output_tokens=4 request_id=None
+2026-07-06 10:51:18 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=None
+2026-07-06 10:51:24 [debug    ] opencode.generate.done         cached_tokens=0 input_tokens=4319 output_tokens=4 request_id=None
+2026-07-06 10:51:24 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=None
+2026-07-06 10:51:31 [debug    ] opencode.generate.done         cached_tokens=0 input_tokens=4336 output_tokens=4 request_id=None
+2026-07-06 10:51:31 [debug    ] opencode.generate.start        model=opencode/default repo_path=/home/edbert/work/freelance/MotoClub request_id=None
+2026-07-06 10:51:37 [debug    ] opencode.generate.done         cached_tokens=0 input_tokens=4337 output_tokens=4 request_id=None
+  ✓ VS Code MCP configured 
+(/home/edbert/work/freelance/MotoClub/.vscode/mcp.json)
+  ✓ VS Code extension recommended 
+(/home/edbert/work/freelance/MotoClub/.vscode/extensions.json)
+
+╭────────────────────── {^ ^}  repowise update complete ───────────────────────╮
+│                                                                              │
+│   Pages updated           14                                                 │
+│   Provider                opencode / opencode/default                        │
+│   Elapsed                 3m 36s                                             │
+│                                                                              │
+│   What's next:                                                               │
+│   repowise serve               browse the updated wiki at localhost:3000     │
+│   repowise search <query>      search the wiki                               │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+

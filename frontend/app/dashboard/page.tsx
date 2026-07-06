@@ -1,15 +1,40 @@
-import Link from "next/link";
-import { Megaphone, CalendarDays, Users } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+"use client";
 
-// TODO: Replace counts with real data from GET /announcements, GET /events, GET /members
-const stats = [
-  { href: "/dashboard/announcements", icon: Megaphone, label: "New Announcements", value: 3 },
-  { href: "/dashboard/events", icon: CalendarDays, label: "Upcoming Events", value: 5 },
-  { href: "/dashboard/members", icon: Users, label: "Club Members", value: 128 },
-];
+import { useCallback } from "react";
+import Link from "next/link";
+import { Megaphone, CalendarDays, User } from "lucide-react";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { api } from "@/lib/api";
+import { useApiData } from "@/hooks/useApiData";
 
 export default function DashboardHome() {
+  const { data } = useApiData(
+    useCallback(async () => {
+      const [events, announcements] = await Promise.all([
+        api.getEvents().catch(() => []),
+        api.getAnnouncements().catch(() => []),
+      ]);
+      return { events: events.length, announcements: announcements.length };
+    }, []),
+    []
+  );
+
+  const stats = [
+    {
+      href: "/dashboard/announcements",
+      icon: Megaphone,
+      label: "Announcements",
+      value: data?.announcements ?? "—",
+    },
+    {
+      href: "/dashboard/events",
+      icon: CalendarDays,
+      label: "Upcoming Events",
+      value: data?.events ?? "—",
+    },
+    { href: "/dashboard/profile", icon: User, label: "My Profile", value: "View" },
+  ];
+
   return (
     <div>
       <h1 className="font-heading text-3xl font-bold tracking-wide uppercase">

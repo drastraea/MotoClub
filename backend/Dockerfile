@@ -14,9 +14,13 @@ RUN CGO_ENABLED=0 GOBIN=/out go install github.com/pressly/goose/v3/cmd/goose@v3
 # ---- runtime stage ----
 FROM gcr.io/distroless/static-debian12:nonroot
 ENV TZ=Asia/Jakarta
+# The app reads config.yaml and selects the section named by APP_ENV.
+ENV CONFIG_PATH=/config.yaml
+ENV APP_ENV=local
 COPY --from=build /out/api /api
 COPY --from=build /out/goose /goose
 COPY db/migrations /db/migrations
+COPY config.yaml /config.yaml
 USER nonroot
 EXPOSE 8080
 ENTRYPOINT ["/api"]

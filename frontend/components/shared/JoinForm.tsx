@@ -1,12 +1,13 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
-import { LogIn, UploadCloud } from "lucide-react";
+import { UploadCloud, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +19,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { GoogleSignInButton } from "@/components/shared/GoogleSignInButton";
+import { api } from "@/lib/api";
+import { decodeJwtPayload } from "@/lib/session";
 import { cn } from "@/lib/utils";
 
 const bloodTypes = ["A", "B", "AB", "O"] as const;
@@ -29,7 +33,7 @@ const joinSchema = z.object({
   placeOfBirth: z.string().min(2, "Required"),
   dateOfBirth: z.string().min(1, "Required"),
   address: z.string().min(5, "Required"),
-  instagramUsername: z.string().optional(),
+  instagramUsername: z.string().min(1, "Required"),
   bloodType: z.enum(bloodTypes),
   emergencyContactName: z.string().min(2, "Required"),
   emergencyContactPhoneNumber: z.string().min(8, "Enter a valid phone number"),
@@ -81,7 +85,9 @@ function StepIndicator({ step }: { step: 1 | 2 }) {
 }
 
 export function JoinForm() {
+  const router = useRouter();
   const [account, setAccount] = useState<GoogleAccount | null>(null);
+  const [googleToken, setGoogleToken] = useState("");
   const [selfie, setSelfie] = useState<File | null>(null);
   const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
 
@@ -105,31 +111,66 @@ export function JoinForm() {
     formState: { errors, isSubmitting },
   } = useForm<JoinValues>({ resolver: zodResolver(joinSchema) });
 
-  // TODO: Replace with real Google Identity Services sign-in. The
-  // resulting ID token is what /register needs as `googleToken`.
-  const handleGoogleSignIn = () => {
-    const mockAccount = { name: "Jordan Rider", email: "jordan.rider@example.com" };
-    setAccount(mockAccount);
-    setValue("name", mockAccount.name);
-    setValue("email", mockAccount.email);
-    toast.success("Signed in with Google (mock)");
+  // Step 1: a real Google ID token is what /register needs as `googleToken`.
+  // Decode it for the email/name, advance to step 2, and prefill those fields.
+  const handleCredential = useCallback(
+    (idToken: string) => {
+      const claims = decodeJwtPayload<{ email: string; name?: string }>(idToken);
+      if (!claims?.email) {
+        toast.error("Could not read your Google account email.");
+        return;
+      }
+      setGoogleToken(idToken);
+      setAccount({ name: claims.name ?? "", email: claims.email });
+      setValue("email", claims.email, { shouldValidate: true });
+      if (claims.name) setValue("name", claims.name, { shouldValidate: true });
+    },
+    [setValue]
+  );
+
+  const switchAccount = () => {
+    setAccount(null);
+    setGoogleToken("");
   };
 
-  // TODO: Replace with POST /register. The real Go handler
-  // (backend/internal/handler/auth_handler.go) expects
-  // `motorbikeSelfieLinkPath` - a path/URL to an already-hosted image, not
-  // a raw upload - and /register itself is unauthenticated. There's no
-  // visible public endpoint yet for an unauthenticated applicant to upload
-  // a selfie and get that link back, so this can't be wired for real until
-  // the backend adds one. Currently base64-encoding the file client-side
-  // as a placeholder for that missing link.
+  // POST /register. The backend expects `motorbikeSelfieLinkPath` (a link to an
+  // already-hosted image). There is no public upload endpoint yet, so the image
+  // is sent as a base64 data URI placeholder for that link. `email` must match
+  // the verified Google token's email.
   const onSubmit = async (values: JoinValues) => {
-    const motorbikeSelfieLinkPath = selfie ? await fileToBase64(selfie) : "";
-    const payload = { ...values, motorbikeSelfieLinkPath, googleToken: "mock-google-id-token" };
-    console.log("Membership application", payload);
-    toast.success("Application submitted!");
+    if (!googleToken) {
+      toast.error("Sign in with Google before submitting.");
+      return;
+    }
+    if (!selfie) {
+      toast.error("Please upload a motorbike selfie.");
+      return;
+    }
+    const motorbikeSelfieLinkPath = await fileToBase64(selfie);
+    try {
+      await api.register({
+        name: values.name,
+        email: values.email,
+        phoneNumber: values.phoneNumber,
+        placeOfBirth: values.placeOfBirth,
+        dateofBirth: values.dateOfBirth,
+        address: values.address,
+        instagramUsername: values.instagramUsername,
+        bloodType: values.bloodType,
+        emergencyContactName: values.emergencyContactName,
+        emergencyContactPhoneNumber: values.emergencyContactPhoneNumber,
+        motorbikeName: values.motorbikeName,
+        motorbikeSelfieLinkPath,
+        googleToken,
+      });
+      toast.success("Application submitted! You can sign in once an admin approves it.");
+      router.push("/login");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Submission failed");
+    }
   };
 
+  // Step 1 — sign in with Google before showing the form.
   if (!account) {
     return (
       <div className="flex flex-col items-center gap-6 text-center">
@@ -143,29 +184,24 @@ export function JoinForm() {
             the membership form.
           </p>
         </div>
-        <Button onClick={handleGoogleSignIn}>
-          <LogIn className="size-4" />
-          Sign in with Google
-        </Button>
+        <GoogleSignInButton onCredential={handleCredential} text="continue_with" />
       </div>
     );
   }
 
+  // Step 2 — the details form.
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <StepIndicator step={2} />
-        <p className="text-sm text-muted-foreground">
+      <StepIndicator step={2} />
+
+      <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm">
+        <span className="flex items-center gap-2">
+          <CheckCircle2 className="size-4 text-primary" />
           Signed in as <span className="font-medium text-foreground">{account.email}</span>
-          {" · "}
-          <button
-            type="button"
-            className="font-medium text-primary hover:underline"
-            onClick={() => setAccount(null)}
-          >
-            Switch account
-          </button>
-        </p>
+        </span>
+        <Button type="button" variant="ghost" size="sm" onClick={switchAccount}>
+          Switch account
+        </Button>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
@@ -190,6 +226,7 @@ export function JoinForm() {
             <Input
               id="email"
               type="email"
+              readOnly
               aria-invalid={!!errors.email}
               aria-describedby={errors.email ? "email-error" : undefined}
               {...register("email")}
@@ -219,8 +256,19 @@ export function JoinForm() {
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="instagramUsername">Instagram Username</Label>
-            <Input id="instagramUsername" {...register("instagramUsername")} />
+            <Input
+              id="instagramUsername"
+              aria-invalid={!!errors.instagramUsername}
+              aria-describedby={errors.instagramUsername ? "instagramUsername-error" : undefined}
+              {...register("instagramUsername")}
+            />
+            {errors.instagramUsername && (
+              <p id="instagramUsername-error" className="text-sm text-destructive">
+                {errors.instagramUsername.message}
+              </p>
+            )}
           </div>
+
 
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="placeOfBirth">Place of Birth</Label>

@@ -11,7 +11,7 @@ export type EventCardProps = {
   id?: string;
   title: string;
   date: string;
-  location: string;
+  location?: string;
   href?: string;
 };
 
@@ -33,10 +33,12 @@ export function EventCard({ title, date, location, href }: EventCardProps) {
             <CalendarDays className="size-4" />
             {date}
           </span>
-          <span className="flex items-center gap-2">
-            <MapPin className="size-4" />
-            {location}
-          </span>
+          {location && (
+            <span className="flex items-center gap-2">
+              <MapPin className="size-4" />
+              {location}
+            </span>
+          )}
         </CardDescription>
       </CardHeader>
     </Card>

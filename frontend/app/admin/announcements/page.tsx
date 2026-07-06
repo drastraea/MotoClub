@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -9,18 +9,14 @@ import {
   AnnouncementFormDialog,
   type AnnouncementFormValues,
 } from "@/components/shared/AnnouncementFormDialog";
-
-type Announcement = AnnouncementFormValues & { id: string; date: string };
-
-// TODO: Replace with GET /announcements (see api_contract.json)
-const initialAnnouncements: Announcement[] = [
-  { id: "1", title: "New Merch Drop", description: "Club jackets and patches are back in stock at HQ.", date: "Jun 28, 2026" },
-  { id: "2", title: "Road Safety Briefing", description: "Mandatory briefing before the charity run this month.", date: "Jun 20, 2026" },
-  { id: "3", title: "Membership Dues Reminder", description: "Annual dues are due by the end of the month.", date: "Jun 10, 2026" },
-];
+import { api, type Announcement } from "@/lib/api";
+import { useApiData } from "@/hooks/useApiData";
 
 export default function AdminAnnouncementsPage() {
-  const [announcements, setAnnouncements] = useState(initialAnnouncements);
+  const { data: announcements, loading, error, reload } = useApiData(
+    useCallback(() => api.getAnnouncements(), []),
+    []
+  );
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Announcement | null>(null);
 
@@ -34,26 +30,29 @@ export default function AdminAnnouncementsPage() {
     setDialogOpen(true);
   };
 
-  // TODO: Replace with POST /announcements / PUT /announcements/:id
-  const handleSubmit = (values: AnnouncementFormValues) => {
-    if (editing) {
-      setAnnouncements((prev) =>
-        prev.map((a) => (a.id === editing.id ? { ...a, ...values } : a))
-      );
-      toast.success("Announcement updated");
-    } else {
-      setAnnouncements((prev) => [
-        { ...values, id: crypto.randomUUID(), date: new Date().toLocaleDateString() },
-        ...prev,
-      ]);
-      toast.success("Announcement created");
+  const handleSubmit = async (values: AnnouncementFormValues) => {
+    try {
+      if (editing) {
+        await api.updateAnnouncement(editing.id, values.title, values.description);
+        toast.success("Announcement updated");
+      } else {
+        await api.createAnnouncement(values.title, values.description);
+        toast.success("Announcement created");
+      }
+      await reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Save failed");
     }
   };
 
-  // TODO: Replace with DELETE /announcements/:id
-  const handleDelete = (id: string) => {
-    setAnnouncements((prev) => prev.filter((a) => a.id !== id));
-    toast.success("Announcement deleted");
+  const handleDelete = async (id: string) => {
+    try {
+      await api.deleteAnnouncement(id);
+      toast.success("Announcement deleted");
+      await reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Delete failed");
+    }
   };
 
   return (
@@ -68,14 +67,17 @@ export default function AdminAnnouncementsPage() {
         </Button>
       </div>
 
+      {loading && <p className="mt-4 text-sm text-muted-foreground">Loading…</p>}
+      {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
+
       <div className="mt-8 flex flex-col gap-4">
-        {announcements.map((a) => (
+        {announcements?.map((a) => (
           <Card key={a.id}>
             <CardHeader className="sm:grid-cols-[1fr_auto] sm:items-center">
               <div>
                 <CardTitle>{a.title}</CardTitle>
                 <CardDescription className="flex flex-col gap-1">
-                  <span>{a.date}</span>
+                  <span>{a.last_updated_at}</span>
                   <span>{a.description}</span>
                 </CardDescription>
               </div>
@@ -97,7 +99,9 @@ export default function AdminAnnouncementsPage() {
       <AnnouncementFormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        defaultValues={editing ?? undefined}
+        defaultValues={
+          editing ? { title: editing.title, description: editing.description } : undefined
+        }
         onSubmit={handleSubmit}
       />
     </div>

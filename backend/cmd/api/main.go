@@ -23,37 +23,38 @@ import (
 )
 
 func main() {
-	logger := newLogger()
+	cfg, err := config.LoadFromOS()
+	if err != nil {
+		slog.Error("failed to load config", "error", err.Error())
+		os.Exit(1)
+	}
+
+	logger := newLogger(cfg.LogLevel, cfg.LogFormat)
 	slog.SetDefault(logger)
 
-	if err := run(logger); err != nil {
+	if err := run(cfg, logger); err != nil {
 		logger.Error("fatal", "error", err.Error())
 		os.Exit(1)
 	}
 }
 
-// newLogger builds the structured logger. LOG_LEVEL (debug|info|warn|error) and
-// LOG_FORMAT (json|text) are read from the environment; defaults are info/json.
-func newLogger() *slog.Logger {
-	level := slog.LevelInfo
-	if v := os.Getenv("LOG_LEVEL"); v != "" {
-		_ = level.UnmarshalText([]byte(v))
+// newLogger builds the structured logger from the config's log level
+// (debug|info|warn|error) and format (json|text).
+func newLogger(level, format string) *slog.Logger {
+	var lvl slog.Level = slog.LevelInfo
+	if level != "" {
+		_ = lvl.UnmarshalText([]byte(level))
 	}
-	opts := &slog.HandlerOptions{Level: level}
+	opts := &slog.HandlerOptions{Level: lvl}
 
 	var h slog.Handler = slog.NewJSONHandler(os.Stdout, opts)
-	if os.Getenv("LOG_FORMAT") == "text" {
+	if format == "text" {
 		h = slog.NewTextHandler(os.Stdout, opts)
 	}
 	return slog.New(h)
 }
 
-func run(logger *slog.Logger) error {
-	cfg, err := config.LoadFromOS()
-	if err != nil {
-		return err
-	}
-
+func run(cfg config.Config, logger *slog.Logger) error {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
@@ -81,7 +82,7 @@ func run(logger *slog.Logger) error {
 	}
 
 	gin.SetMode(gin.ReleaseMode)
-	router := server.NewRouter(handlers, jwtMgr, repos.Tokens, logger)
+	router := server.NewRouter(handlers, jwtMgr, repos.Tokens, logger, cfg.AllowedOrigins)
 
 	logger.Info("listening", "port", cfg.Port)
 	return server.Run(ctx, ":"+cfg.Port, router)
