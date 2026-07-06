@@ -16,10 +16,12 @@ export default function DashboardLayout({
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   useEffect(() => {
-    if (ready && !user) router.replace("/login");
+    if (!ready) return;
+    if (!user) router.replace("/login");
+    else if (user.role === "visitor") router.replace("/status");
   }, [ready, user, router]);
 
-  if (!ready || !user) return null;
+  if (!ready || !user || user.role === "visitor") return null;
 
   return (
     <div className="flex min-h-screen flex-1">

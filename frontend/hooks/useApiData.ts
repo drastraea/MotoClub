@@ -12,7 +12,6 @@ export function useApiData<T>(fetcher: () => Promise<T>, deps: React.DependencyL
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const load = useCallback(() => {
     setLoading(true);
     setError(null);
@@ -20,6 +19,7 @@ export function useApiData<T>(fetcher: () => Promise<T>, deps: React.DependencyL
       .then((d) => setData(d))
       .catch((e: unknown) => setError(e instanceof Error ? e.message : "Something went wrong"))
       .finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/use-memo, react-hooks/exhaustive-deps
   }, deps);
 
   useEffect(() => {

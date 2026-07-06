@@ -5,6 +5,8 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { useAuth } from "@/hooks/useAuth";
+import { isAdmin } from "@/lib/session";
 
 const links = [
   { href: "/#about", label: "About" },
@@ -15,6 +17,16 @@ const links = [
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
+
+  const accountHref = !user
+    ? "/login"
+    : user.role === "visitor"
+      ? "/status"
+      : isAdmin(user.role)
+        ? "/admin"
+        : "/dashboard";
+  const accountLabel = !user ? "Login" : user.role === "visitor" ? "My Status" : "Dashboard";
 
   return (
     <header className="sticky top-0 z-50 border-b-2 border-primary/30 bg-background/95 backdrop-blur">
@@ -37,14 +49,16 @@ export function Navbar() {
             </Link>
           ))}
           <Link
-            href="/login"
+            href={accountHref}
             className="text-xs font-semibold tracking-widest text-muted-foreground uppercase transition-colors hover:text-primary"
           >
-            Login
+            {accountLabel}
           </Link>
-          <Button size="sm" nativeButton={false} render={<Link href="/join" />}>
-            Join Now
-          </Button>
+          {!user && (
+            <Button size="sm" nativeButton={false} render={<Link href="/join" />}>
+              Join Now
+            </Button>
+          )}
           <ThemeToggle />
         </div>
 
@@ -69,20 +83,22 @@ export function Navbar() {
             </Link>
           ))}
           <Link
-            href="/login"
+            href={accountHref}
             className="text-xs font-semibold tracking-widest text-muted-foreground uppercase hover:text-primary"
             onClick={() => setOpen(false)}
           >
-            Login
+            {accountLabel}
           </Link>
-          <Button
-            size="sm"
-            className="w-full"
-            nativeButton={false}
-            render={<Link href="/join" />}
-          >
-            Join Now
-          </Button>
+          {!user && (
+            <Button
+              size="sm"
+              className="w-full"
+              nativeButton={false}
+              render={<Link href="/join" />}
+            >
+              Join Now
+            </Button>
+          )}
         </div>
       )}
     </header>

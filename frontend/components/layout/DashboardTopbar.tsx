@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, Menu } from "lucide-react";
+import { Home, LogOut, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
@@ -28,6 +29,15 @@ export function DashboardTopbar({ onMenuClick }: { onMenuClick?: () => void }) {
         </span>
       </div>
       <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          nativeButton={false}
+          render={<Link href="/" />}
+        >
+          <Home className="size-4" />
+          <span className="hidden sm:inline">Back to Home</span>
+        </Button>
         <ThemeToggle />
         <Button variant="outline" size="sm" onClick={handleLogout}>
           <LogOut className="size-4" />

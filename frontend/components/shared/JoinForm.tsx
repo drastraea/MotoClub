@@ -20,8 +20,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { GoogleSignInButton } from "@/components/shared/GoogleSignInButton";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 import { decodeJwtPayload } from "@/lib/session";
+import { completeGoogleLogin } from "@/lib/auth-flow";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 const bloodTypes = ["A", "B", "AB", "O"] as const;
@@ -86,6 +88,7 @@ function StepIndicator({ step }: { step: 1 | 2 }) {
 
 export function JoinForm() {
   const router = useRouter();
+  const { login } = useAuth();
   const [account, setAccount] = useState<GoogleAccount | null>(null);
   const [googleToken, setGoogleToken] = useState("");
   const [selfie, setSelfie] = useState<File | null>(null);
@@ -166,6 +169,19 @@ export function JoinForm() {
       toast.success("Application submitted! You can sign in once an admin approves it.");
       router.push("/login");
     } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        // Already registered - we already have a verified Google credential
+        // from step 1, so just sign them in instead of making them click
+        // "Sign in with Google" again on a separate page.
+        toast.info("This Google account is already registered. Signing you in...");
+        try {
+          await completeGoogleLogin(values.email, googleToken, account?.name, login, router);
+        } catch (loginErr) {
+          toast.error(loginErr instanceof Error ? loginErr.message : "Sign in failed");
+          router.push("/login");
+        }
+        return;
+      }
       toast.error(err instanceof Error ? err.message : "Submission failed");
     }
   };

@@ -56,12 +56,10 @@ export function GoogleSignInButton({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const misconfigured = !config.googleClientId;
 
   useEffect(() => {
-    if (!config.googleClientId) {
-      setError("Google Sign-In is not configured (set NEXT_PUBLIC_GOOGLE_CLIENT_ID).");
-      return;
-    }
+    if (misconfigured) return;
     let cancelled = false;
     loadGsiScript()
       .then(() => {
@@ -81,8 +79,15 @@ export function GoogleSignInButton({
     return () => {
       cancelled = true;
     };
-  }, [onCredential, text]);
+  }, [onCredential, text, misconfigured]);
 
+  if (misconfigured) {
+    return (
+      <p className="text-sm text-destructive">
+        Google Sign-In is not configured (set NEXT_PUBLIC_GOOGLE_CLIENT_ID).
+      </p>
+    );
+  }
   if (error) {
     return <p className="text-sm text-destructive">{error}</p>;
   }

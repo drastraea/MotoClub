@@ -1,8 +1,10 @@
 "use client";
 
 import { useCallback } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 import {
   Card,
   CardHeader,
@@ -10,9 +12,11 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { GoogleSignInButton } from "@/components/shared/GoogleSignInButton";
-import { api, ApiError } from "@/lib/api";
-import { decodeJwtPayload, isAdmin, type Role } from "@/lib/session";
+import { ApiError } from "@/lib/api";
+import { decodeJwtPayload } from "@/lib/session";
+import { completeGoogleLogin } from "@/lib/auth-flow";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginPage() {
@@ -27,12 +31,7 @@ export default function LoginPage() {
         return;
       }
       try {
-        const { id, token } = await api.login(googleClaims.email, idToken);
-        const appClaims = decodeJwtPayload<{ role: Role }>(token);
-        const role = appClaims?.role ?? "member";
-        login({ id, token, role, name: googleClaims.name, email: googleClaims.email });
-        toast.success("Signed in");
-        router.push(isAdmin(role) ? "/admin" : "/dashboard");
+        await completeGoogleLogin(googleClaims.email, idToken, googleClaims.name, login, router);
       } catch (err) {
         const msg =
           err instanceof ApiError && err.status === 401
@@ -47,7 +46,7 @@ export default function LoginPage() {
   );
 
   return (
-    <div className="flex flex-1 items-center justify-center px-4 py-24">
+    <div className="flex flex-1 flex-col items-center justify-center gap-6 px-4 py-24">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <CardTitle className="font-heading text-2xl tracking-wide uppercase">
@@ -61,6 +60,11 @@ export default function LoginPage() {
           <GoogleSignInButton onCredential={handleCredential} text="signin_with" />
         </CardContent>
       </Card>
+
+      <Button variant="ghost" size="sm" nativeButton={false} render={<Link href="/" />}>
+        <ArrowLeft className="size-4" />
+        Back to Home
+      </Button>
     </div>
   );
 }
