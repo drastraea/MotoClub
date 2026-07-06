@@ -22,6 +22,7 @@ import {
 import { GoogleSignInButton } from "@/components/shared/GoogleSignInButton";
 import { api } from "@/lib/api";
 import { decodeJwtPayload } from "@/lib/session";
+import { cn } from "@/lib/utils";
 
 const bloodTypes = ["A", "B", "AB", "O"] as const;
 
@@ -50,12 +51,45 @@ function fileToBase64(file: File): Promise<string> {
   });
 }
 
+type GoogleAccount = { name: string; email: string };
+
+function StepIndicator({ step }: { step: 1 | 2 }) {
+  const steps = ["Sign in with Google", "Your details"];
+  return (
+    <ol className="flex items-center gap-4 text-sm font-medium">
+      {steps.map((label, i) => {
+        const n = (i + 1) as 1 | 2;
+        const active = n === step;
+        const done = n < step;
+        return (
+          <li key={label} className="flex items-center gap-2">
+            <span
+              className={cn(
+                "flex size-6 items-center justify-center rounded-full text-xs",
+                done && "bg-primary text-primary-foreground",
+                active && "bg-primary/10 text-primary ring-1 ring-primary",
+                !done && !active && "bg-muted text-muted-foreground"
+              )}
+            >
+              {n}
+            </span>
+            <span className={active ? "text-foreground" : "text-muted-foreground"}>
+              {label}
+            </span>
+            {i < steps.length - 1 && <span className="mx-2 h-px w-8 bg-border" />}
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 export function JoinForm() {
   const router = useRouter();
+  const [account, setAccount] = useState<GoogleAccount | null>(null);
+  const [googleToken, setGoogleToken] = useState("");
   const [selfie, setSelfie] = useState<File | null>(null);
   const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
-  const [googleToken, setGoogleToken] = useState("");
-  const [googleEmail, setGoogleEmail] = useState<string | null>(null);
 
   const onDrop = useCallback((accepted: File[]) => {
     const file = accepted[0];
@@ -77,18 +111,27 @@ export function JoinForm() {
     formState: { errors, isSubmitting },
   } = useForm<JoinValues>({ resolver: zodResolver(joinSchema) });
 
+  // Step 1: a real Google ID token is what /register needs as `googleToken`.
+  // Decode it for the email/name, advance to step 2, and prefill those fields.
   const handleCredential = useCallback(
     (idToken: string) => {
       const claims = decodeJwtPayload<{ email: string; name?: string }>(idToken);
-      setGoogleToken(idToken);
-      if (claims?.email) {
-        setGoogleEmail(claims.email);
-        setValue("email", claims.email, { shouldValidate: true });
+      if (!claims?.email) {
+        toast.error("Could not read your Google account email.");
+        return;
       }
-      if (claims?.name) setValue("name", claims.name, { shouldValidate: true });
+      setGoogleToken(idToken);
+      setAccount({ name: claims.name ?? "", email: claims.email });
+      setValue("email", claims.email, { shouldValidate: true });
+      if (claims.name) setValue("name", claims.name, { shouldValidate: true });
     },
     [setValue]
   );
+
+  const switchAccount = () => {
+    setAccount(null);
+    setGoogleToken("");
+  };
 
   // POST /register. The backend expects `motorbikeSelfieLinkPath` (a link to an
   // already-hosted image). There is no public upload endpoint yet, so the image
@@ -127,229 +170,254 @@ export function JoinForm() {
     }
   };
 
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-      {googleEmail ? (
-        <p className="flex items-center gap-2 self-start text-sm text-primary">
-          <CheckCircle2 className="size-4" />
-          Signed in as {googleEmail}
-        </p>
-      ) : (
+  // Step 1 — sign in with Google before showing the form.
+  if (!account) {
+    return (
+      <div className="flex flex-col items-center gap-6 text-center">
+        <StepIndicator step={1} />
+        <div>
+          <h2 className="font-heading text-xl font-semibold tracking-wide uppercase">
+            Sign in to start your application
+          </h2>
+          <p className="mt-2 max-w-sm text-muted-foreground">
+            We use your Google account to verify your identity before you fill out
+            the membership form.
+          </p>
+        </div>
         <GoogleSignInButton onCredential={handleCredential} text="continue_with" />
-      )}
+      </div>
+    );
+  }
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="name">Full Name</Label>
-          <Input
-            id="name"
-            aria-invalid={!!errors.name}
-            aria-describedby={errors.name ? "name-error" : undefined}
-            {...register("name")}
-          />
-          {errors.name && (
-            <p id="name-error" className="text-sm text-destructive">
-              {errors.name.message}
-            </p>
-          )}
-        </div>
+  // Step 2 — the details form.
+  return (
+    <div className="flex flex-col gap-6">
+      <StepIndicator step={2} />
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            readOnly={!!googleEmail}
-            aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? "email-error" : undefined}
-            {...register("email")}
-          />
-          {errors.email && (
-            <p id="email-error" className="text-sm text-destructive">
-              {errors.email.message}
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="phoneNumber">Phone Number</Label>
-          <Input
-            id="phoneNumber"
-            type="tel"
-            aria-invalid={!!errors.phoneNumber}
-            aria-describedby={errors.phoneNumber ? "phoneNumber-error" : undefined}
-            {...register("phoneNumber")}
-          />
-          {errors.phoneNumber && (
-            <p id="phoneNumber-error" className="text-sm text-destructive">
-              {errors.phoneNumber.message}
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="instagramUsername">Instagram Username</Label>
-          <Input
-            id="instagramUsername"
-            aria-invalid={!!errors.instagramUsername}
-            aria-describedby={errors.instagramUsername ? "instagramUsername-error" : undefined}
-            {...register("instagramUsername")}
-          />
-          {errors.instagramUsername && (
-            <p id="instagramUsername-error" className="text-sm text-destructive">
-              {errors.instagramUsername.message}
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="placeOfBirth">Place of Birth</Label>
-          <Input
-            id="placeOfBirth"
-            aria-invalid={!!errors.placeOfBirth}
-            aria-describedby={errors.placeOfBirth ? "placeOfBirth-error" : undefined}
-            {...register("placeOfBirth")}
-          />
-          {errors.placeOfBirth && (
-            <p id="placeOfBirth-error" className="text-sm text-destructive">
-              {errors.placeOfBirth.message}
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="dateOfBirth">Date of Birth</Label>
-          <Input
-            id="dateOfBirth"
-            type="date"
-            aria-invalid={!!errors.dateOfBirth}
-            aria-describedby={errors.dateOfBirth ? "dateOfBirth-error" : undefined}
-            {...register("dateOfBirth")}
-          />
-          {errors.dateOfBirth && (
-            <p id="dateOfBirth-error" className="text-sm text-destructive">
-              {errors.dateOfBirth.message}
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1.5 sm:col-span-2">
-          <Label htmlFor="address">Address</Label>
-          <Textarea
-            id="address"
-            rows={3}
-            aria-invalid={!!errors.address}
-            aria-describedby={errors.address ? "address-error" : undefined}
-            {...register("address")}
-          />
-          {errors.address && (
-            <p id="address-error" className="text-sm text-destructive">
-              {errors.address.message}
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="bloodType">Blood Type</Label>
-          <Select onValueChange={(v) => setValue("bloodType", v as JoinValues["bloodType"])}>
-            <SelectTrigger
-              id="bloodType"
-              className="w-full"
-              aria-invalid={!!errors.bloodType}
-              aria-describedby={errors.bloodType ? "bloodType-error" : undefined}
-            >
-              <SelectValue placeholder="Select blood type" />
-            </SelectTrigger>
-            <SelectContent>
-              {bloodTypes.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.bloodType && (
-            <p id="bloodType-error" className="text-sm text-destructive">
-              Required
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="motorbikeName">Motorbike Name</Label>
-          <Input
-            id="motorbikeName"
-            aria-invalid={!!errors.motorbikeName}
-            aria-describedby={errors.motorbikeName ? "motorbikeName-error" : undefined}
-            {...register("motorbikeName")}
-          />
-          {errors.motorbikeName && (
-            <p id="motorbikeName-error" className="text-sm text-destructive">
-              {errors.motorbikeName.message}
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="emergencyContactName">Emergency Contact Name</Label>
-          <Input
-            id="emergencyContactName"
-            aria-invalid={!!errors.emergencyContactName}
-            aria-describedby={errors.emergencyContactName ? "emergencyContactName-error" : undefined}
-            {...register("emergencyContactName")}
-          />
-          {errors.emergencyContactName && (
-            <p id="emergencyContactName-error" className="text-sm text-destructive">
-              {errors.emergencyContactName.message}
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="emergencyContactPhoneNumber">Emergency Contact Phone</Label>
-          <Input
-            id="emergencyContactPhoneNumber"
-            type="tel"
-            aria-invalid={!!errors.emergencyContactPhoneNumber}
-            aria-describedby={
-              errors.emergencyContactPhoneNumber ? "emergencyContactPhoneNumber-error" : undefined
-            }
-            {...register("emergencyContactPhoneNumber")}
-          />
-          {errors.emergencyContactPhoneNumber && (
-            <p id="emergencyContactPhoneNumber-error" className="text-sm text-destructive">
-              {errors.emergencyContactPhoneNumber.message}
-            </p>
-          )}
-        </div>
+      <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm">
+        <span className="flex items-center gap-2">
+          <CheckCircle2 className="size-4 text-primary" />
+          Signed in as <span className="font-medium text-foreground">{account.email}</span>
+        </span>
+        <Button type="button" variant="ghost" size="sm" onClick={switchAccount}>
+          Switch account
+        </Button>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <Label>Motorbike Selfie</Label>
-        <div
-          {...getRootProps()}
-          className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground hover:bg-muted"
-        >
-          <input {...getInputProps()} />
-          {selfiePreview ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={selfiePreview}
-              alt="Motorbike selfie preview"
-              className="h-32 w-32 rounded-lg object-cover"
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="name">Full Name</Label>
+            <Input
+              id="name"
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? "name-error" : undefined}
+              {...register("name")}
             />
-          ) : (
-            <>
-              <UploadCloud className="size-6" />
-              {isDragActive ? "Drop the photo here" : "Drag & drop or click to upload a photo"}
-            </>
-          )}
-        </div>
-      </div>
+            {errors.name && (
+              <p id="name-error" className="text-sm text-destructive">
+                {errors.name.message}
+              </p>
+            )}
+          </div>
 
-      <Button type="submit" disabled={isSubmitting} className="self-start">
-        {isSubmitting ? "Submitting..." : "Submit Application"}
-      </Button>
-    </form>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              readOnly
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "email-error" : undefined}
+              {...register("email")}
+            />
+            {errors.email && (
+              <p id="email-error" className="text-sm text-destructive">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="phoneNumber">Phone Number</Label>
+            <Input
+              id="phoneNumber"
+              type="tel"
+              aria-invalid={!!errors.phoneNumber}
+              aria-describedby={errors.phoneNumber ? "phoneNumber-error" : undefined}
+              {...register("phoneNumber")}
+            />
+            {errors.phoneNumber && (
+              <p id="phoneNumber-error" className="text-sm text-destructive">
+                {errors.phoneNumber.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="instagramUsername">Instagram Username</Label>
+            <Input
+              id="instagramUsername"
+              aria-invalid={!!errors.instagramUsername}
+              aria-describedby={errors.instagramUsername ? "instagramUsername-error" : undefined}
+              {...register("instagramUsername")}
+            />
+            {errors.instagramUsername && (
+              <p id="instagramUsername-error" className="text-sm text-destructive">
+                {errors.instagramUsername.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="placeOfBirth">Place of Birth</Label>
+            <Input
+              id="placeOfBirth"
+              aria-invalid={!!errors.placeOfBirth}
+              aria-describedby={errors.placeOfBirth ? "placeOfBirth-error" : undefined}
+              {...register("placeOfBirth")}
+            />
+            {errors.placeOfBirth && (
+              <p id="placeOfBirth-error" className="text-sm text-destructive">
+                {errors.placeOfBirth.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="dateOfBirth">Date of Birth</Label>
+            <Input
+              id="dateOfBirth"
+              type="date"
+              aria-invalid={!!errors.dateOfBirth}
+              aria-describedby={errors.dateOfBirth ? "dateOfBirth-error" : undefined}
+              {...register("dateOfBirth")}
+            />
+            {errors.dateOfBirth && (
+              <p id="dateOfBirth-error" className="text-sm text-destructive">
+                {errors.dateOfBirth.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <Label htmlFor="address">Address</Label>
+            <Textarea
+              id="address"
+              rows={3}
+              aria-invalid={!!errors.address}
+              aria-describedby={errors.address ? "address-error" : undefined}
+              {...register("address")}
+            />
+            {errors.address && (
+              <p id="address-error" className="text-sm text-destructive">
+                {errors.address.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="bloodType">Blood Type</Label>
+            <Select onValueChange={(v) => setValue("bloodType", v as JoinValues["bloodType"])}>
+              <SelectTrigger
+                id="bloodType"
+                className="w-full"
+                aria-invalid={!!errors.bloodType}
+                aria-describedby={errors.bloodType ? "bloodType-error" : undefined}
+              >
+                <SelectValue placeholder="Select blood type" />
+              </SelectTrigger>
+              <SelectContent>
+                {bloodTypes.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.bloodType && (
+              <p id="bloodType-error" className="text-sm text-destructive">
+                Required
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="motorbikeName">Motorbike Name</Label>
+            <Input
+              id="motorbikeName"
+              aria-invalid={!!errors.motorbikeName}
+              aria-describedby={errors.motorbikeName ? "motorbikeName-error" : undefined}
+              {...register("motorbikeName")}
+            />
+            {errors.motorbikeName && (
+              <p id="motorbikeName-error" className="text-sm text-destructive">
+                {errors.motorbikeName.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="emergencyContactName">Emergency Contact Name</Label>
+            <Input
+              id="emergencyContactName"
+              aria-invalid={!!errors.emergencyContactName}
+              aria-describedby={errors.emergencyContactName ? "emergencyContactName-error" : undefined}
+              {...register("emergencyContactName")}
+            />
+            {errors.emergencyContactName && (
+              <p id="emergencyContactName-error" className="text-sm text-destructive">
+                {errors.emergencyContactName.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="emergencyContactPhoneNumber">Emergency Contact Phone</Label>
+            <Input
+              id="emergencyContactPhoneNumber"
+              type="tel"
+              aria-invalid={!!errors.emergencyContactPhoneNumber}
+              aria-describedby={
+                errors.emergencyContactPhoneNumber ? "emergencyContactPhoneNumber-error" : undefined
+              }
+              {...register("emergencyContactPhoneNumber")}
+            />
+            {errors.emergencyContactPhoneNumber && (
+              <p id="emergencyContactPhoneNumber-error" className="text-sm text-destructive">
+                {errors.emergencyContactPhoneNumber.message}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <Label>Motorbike Selfie</Label>
+          <div
+            {...getRootProps()}
+            className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground hover:bg-muted"
+          >
+            <input {...getInputProps()} />
+            {selfiePreview ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={selfiePreview}
+                alt="Motorbike selfie preview"
+                className="h-32 w-32 rounded-lg object-cover"
+              />
+            ) : (
+              <>
+                <UploadCloud className="size-6" />
+                {isDragActive ? "Drop the photo here" : "Drag & drop or click to upload a photo"}
+              </>
+            )}
+          </div>
+        </div>
+
+        <Button type="submit" disabled={isSubmitting} className="self-start">
+          {isSubmitting ? "Submitting..." : "Submit Application"}
+        </Button>
+      </form>
+    </div>
   );
 }
