@@ -269,6 +269,7 @@ export function JoinForm() {
             )}
           </div>
 
+
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="placeOfBirth">Place of Birth</Label>
             <Input
