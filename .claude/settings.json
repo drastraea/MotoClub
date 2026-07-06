@@ -20,7 +20,9 @@
       "Bash(curl -s -i -X OPTIONS http://localhost:8080/gallery -H \"Origin: http://localhost:3000\")",
       "Bash(echo \"=== compose build \\(passes localhost:8080 as build arg override\\) ===\")",
       "Bash(curl -s -o /dev/null -w \"frontend / -> %{http_code}\\\\n\" http://localhost:3000)",
-      "Bash(podman exec *)"
+      "Bash(podman exec *)",
+      "Bash(echo \"=== backend still has the matching client id ===\")",
+      "Read(//home/edbert/work/freelance/backend/**)"
     ],
     "additionalDirectories": [
       "/home/edbert/work/freelance/MotoClub/frontend/lib"

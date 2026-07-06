@@ -14,7 +14,7 @@ local:
     name: motoclub
     sslmode: disable
   jwt_secret: dev-secret-change-me
-  google_client_id: "407408718192.apps.googleusercontent.com"
+  google_client_id: "271720379050-j4vh9raaoeo58gqlf5gli1moh8g38srt.apps.googleusercontent.com"
   token_ttl_hours: 24
   cors_allowed_origins:
     - http://localhost:3000
