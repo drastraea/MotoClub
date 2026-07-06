@@ -1,0 +1,8 @@
+commit_limit: 1000
+provider: opencode
+model: opencode/default
+embedder: mock
+reasoning: auto
+distill:
+  commands:
+    enabled: true
