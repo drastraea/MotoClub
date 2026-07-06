@@ -1,60 +1,56 @@
-import { Users, CalendarDays, ShieldCheck, Wrench } from "lucide-react";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+"use client";
 
-const benefits = [
-  {
-    icon: Users,
-    title: "Community",
-    description: "A brotherhood of riders who look out for each other on and off the road.",
-  },
-  {
-    icon: CalendarDays,
-    title: "Exclusive Events",
-    description: "Members-only rides, meetups, and annual gatherings.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Rider Support",
-    description: "Roadside assistance network and safety resources for members.",
-  },
-  {
-    icon: Wrench,
-    title: "Workshops",
-    description: "Maintenance clinics and gear discounts from partner shops.",
-  },
-];
+import { toast } from "sonner";
+import { Play } from "lucide-react";
+import { ImagePlaceholder } from "@/components/shared/ImagePlaceholder";
+import { useBenefits } from "@/hooks/useBenefits";
+import { benefitIconMap } from "@/lib/benefit-icons";
 
 export function BenefitsSection() {
+  const benefits = useBenefits();
+
   return (
     <section className="border-y border-border bg-secondary/20 py-16">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="text-center">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:items-center">
+        <div className="order-2 lg:order-1">
           <span className="text-xs font-semibold tracking-[0.3em] text-primary uppercase">
             Why Join
           </span>
           <h2 className="font-heading mt-2 text-3xl font-bold tracking-wide uppercase">
-            Membership Benefits
+            Ready to Ride With Us?
           </h2>
-        </div>
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {benefits.map(({ icon: Icon, title, description }) => (
-            <Card key={title}>
-              <CardHeader>
-                <div className="shape-corner-sm flex size-12 items-center justify-center bg-primary/10 ring-1 ring-primary/30">
-                  <Icon className="size-6 text-primary" />
+          <div className="mt-3 h-1 w-16 bg-primary" />
+
+          <div className="mt-6 flex flex-col gap-6">
+            {benefits.map(({ id, icon, title, description }) => {
+              const Icon = benefitIconMap[icon];
+              return (
+                <div key={id} className="flex gap-4 border-b border-border pb-6 last:border-0 last:pb-0">
+                  <div className="shape-corner-sm flex size-12 shrink-0 items-center justify-center bg-primary/10 ring-1 ring-primary/30">
+                    <Icon className="size-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-heading font-semibold tracking-wide uppercase">
+                      {title}
+                    </h3>
+                    <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+                  </div>
                 </div>
-                <CardTitle className="font-heading mt-3 tracking-wide uppercase">
-                  {title}
-                </CardTitle>
-                <CardDescription>{description}</CardDescription>
-              </CardHeader>
-            </Card>
-          ))}
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="relative order-1 lg:order-2">
+          <ImagePlaceholder className="aspect-video w-full" />
+          <button
+            type="button"
+            aria-label="Play club highlight video"
+            onClick={() => toast.info("Video coming soon")}
+            className="absolute top-1/2 left-1/2 flex size-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105"
+          >
+            <Play className="size-6 fill-current" />
+          </button>
         </div>
       </div>
     </section>

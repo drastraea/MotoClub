@@ -140,6 +140,25 @@
   .img-mono:hover {
     filter: grayscale(0);
   }
+
+  /* Infinite horizontal marquee, per the reference site's ticker sections.
+     Apply to a flex row whose content is duplicated once so the loop is
+     seamless (the animation only needs to travel 50% of the total width). */
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+  }
+  .animate-marquee-slow {
+    animation: marquee 60s linear infinite;
+  }
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 @layer base {
