@@ -21,8 +21,3 @@ func (r *TokenRepo) Revoke(ctx context.Context, jti string, memberID int64, expi
 func (r *TokenRepo) IsRevoked(ctx context.Context, jti string) (bool, error) {
 	return r.q.IsTokenRevoked(ctx, jti)
 }
-
-// PruneExpired deletes revocation rows whose tokens have already expired.
-func (r *TokenRepo) PruneExpired(ctx context.Context) (int64, error) {
-	return r.q.PruneExpiredTokens(ctx)
-}

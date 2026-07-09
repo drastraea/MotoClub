@@ -22,6 +22,7 @@ type AuthServicer interface {
 type MemberServicer interface {
 	GetProfile(ctx context.Context, id int64) (domain.Member, error)
 	CountPending(ctx context.Context) (int64, error)
+	CountMembers(ctx context.Context) (int64, error)
 	ListPending(ctx context.Context) ([]domain.Registration, error)
 	ListMembers(ctx context.Context) ([]domain.Member, error)
 	SetStatus(ctx context.Context, id int64, action StatusAction, remarks *string) error
@@ -32,6 +33,7 @@ type MemberServicer interface {
 // EventServicer is the event-facing behaviour used by handlers.
 type EventServicer interface {
 	List(ctx context.Context, startFrom *time.Time, publicOnly bool) ([]domain.Event, error)
+	Count(ctx context.Context) (int64, error)
 	Get(ctx context.Context, id int64, publicOnly bool) (domain.Event, error)
 	Create(ctx context.Context, in EventInput) (domain.Event, error)
 	Update(ctx context.Context, id int64, in EventInput) (domain.Event, error)
@@ -41,6 +43,7 @@ type EventServicer interface {
 // AnnouncementServicer is the announcement-facing behaviour used by handlers.
 type AnnouncementServicer interface {
 	List(ctx context.Context, startFrom *time.Time, publicOnly bool) ([]domain.Announcement, error)
+	Count(ctx context.Context) (int64, error)
 	Create(ctx context.Context, title, description string, isPublic bool) (domain.Announcement, error)
 	Update(ctx context.Context, id int64, title, description string, isPublic bool) (domain.Announcement, error)
 	Delete(ctx context.Context, id int64) error

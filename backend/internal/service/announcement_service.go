@@ -24,6 +24,11 @@ func (s *AnnouncementService) List(ctx context.Context, startFrom *time.Time, pu
 	return s.announcements.List(ctx, startFrom, publicOnly)
 }
 
+// Count returns the total number of announcements.
+func (s *AnnouncementService) Count(ctx context.Context) (int64, error) {
+	return s.announcements.Count(ctx)
+}
+
 // Create adds a new announcement.
 func (s *AnnouncementService) Create(ctx context.Context, title, description string, isPublic bool) (domain.Announcement, error) {
 	return s.announcements.Create(ctx, title, description, isPublic)

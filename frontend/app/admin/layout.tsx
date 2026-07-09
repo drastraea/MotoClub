@@ -19,7 +19,7 @@ export default function AdminLayout({
   useEffect(() => {
     if (!ready) return;
     if (!user) router.replace("/login");
-    else if (!isAdmin(user.role)) router.replace("/dashboard");
+    else if (!isAdmin(user.role)) router.replace("/dashboard/profile");
   }, [ready, user, router]);
 
   if (!ready || !user || !isAdmin(user.role)) return null;

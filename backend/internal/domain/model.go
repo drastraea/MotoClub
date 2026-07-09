@@ -94,6 +94,7 @@ type Event struct {
 	Description   string
 	Date          time.Time
 	Location      *string
+	ImageLink     *string
 	IsPublic      bool
 	CreatedAt     time.Time
 	LastUpdatedAt time.Time

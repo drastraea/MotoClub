@@ -3,7 +3,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,35 +15,29 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { ImageDropzone } from "@/components/shared/ImageDropzone";
 
 const eventSchema = z.object({
   title: z.string().min(2, "Title is too short"),
   description: z.string().min(5, "Description is too short"),
   date: z.string().min(1, "Required"),
   location: z.string().optional(),
+  image_link: z.string().optional(),
   is_public: z.boolean().default(false),
 });
 
 export type EventFormValues = z.output<typeof eventSchema>;
 
-// imageLink (banner) is still a browser-only stub — the backend Event model has
-// no image field yet. See lib/event-stubs.ts.
-export type EventStubValues = {
-  imageLink?: string;
-};
-
 export function EventFormDialog({
   open,
   onOpenChange,
   defaultValues,
-  defaultStubValues,
   onSubmit,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   defaultValues?: EventFormValues;
-  defaultStubValues?: EventStubValues;
-  onSubmit: (values: EventFormValues, stub: EventStubValues) => void;
+  onSubmit: (values: EventFormValues) => void;
 }) {
   const {
     register,
@@ -52,12 +45,13 @@ export function EventFormDialog({
     setValue,
     watch,
     formState: { errors },
-  } = useForm<z.input<typeof eventSchema> & EventStubValues, unknown, EventFormValues & EventStubValues>({
+  } = useForm<z.input<typeof eventSchema>, unknown, EventFormValues>({
     resolver: zodResolver(eventSchema),
-    values: defaultValues && { ...defaultValues, ...defaultStubValues },
+    values: defaultValues,
   });
 
   const isPublic = watch("is_public");
+  const imageLink = watch("image_link");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -67,8 +61,8 @@ export function EventFormDialog({
         </DialogHeader>
 
         <form
-          onSubmit={handleSubmit(({ imageLink, ...values }) => {
-            onSubmit(values, { imageLink });
+          onSubmit={handleSubmit((values) => {
+            onSubmit(values);
             onOpenChange(false);
           })}
           className="flex flex-col gap-4"
@@ -125,6 +119,14 @@ export function EventFormDialog({
             <Input id="location" {...register("location")} />
           </div>
 
+          <div className="flex flex-col gap-1.5">
+            <Label>Banner Image</Label>
+            <ImageDropzone
+              value={imageLink}
+              onChange={(url) => setValue("image_link", url)}
+            />
+          </div>
+
           <div className="flex items-center gap-2">
             <Switch
               id="is_public"
@@ -134,15 +136,6 @@ export function EventFormDialog({
             <Label htmlFor="is_public" className="font-normal">
               Public (visible to non-members on the landing page)
             </Label>
-          </div>
-
-          <div className="flex flex-col gap-1.5 rounded-lg border border-dashed border-border p-3">
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Info className="size-3.5" />
-              Banner image is stored in this browser only (not on the server yet)
-            </div>
-            <Label htmlFor="imageLink">Banner Image URL</Label>
-            <Input id="imageLink" placeholder="https://..." {...register("imageLink")} />
           </div>
 
           <DialogFooter>

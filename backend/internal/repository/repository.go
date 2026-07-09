@@ -43,6 +43,7 @@ type CreateEventInput struct {
 	Description string
 	Date        time.Time
 	Location    *string
+	ImageLink   *string
 	IsPublic    bool
 }
 
@@ -53,6 +54,7 @@ type UpdateEventInput struct {
 	Description string
 	Date        time.Time
 	Location    *string
+	ImageLink   *string
 	IsPublic    bool
 }
 
@@ -64,6 +66,7 @@ type MemberRepository interface {
 	GetByEmail(ctx context.Context, email string) (domain.Member, error)
 	BackfillGoogleSub(ctx context.Context, id int64, googleSub string) (domain.Member, error)
 	CountPending(ctx context.Context) (int64, error)
+	Count(ctx context.Context) (int64, error)
 	ListPending(ctx context.Context) ([]domain.Registration, error)
 	List(ctx context.Context) ([]domain.Member, error)
 	UpdateStatus(ctx context.Context, in UpdateStatusInput) (domain.Member, error)
@@ -75,6 +78,7 @@ type MemberRepository interface {
 // EventRepository persists events. publicOnly restricts reads to public rows.
 type EventRepository interface {
 	List(ctx context.Context, startFrom *time.Time, publicOnly bool) ([]domain.Event, error)
+	Count(ctx context.Context) (int64, error)
 	GetByID(ctx context.Context, id int64, publicOnly bool) (domain.Event, error)
 	Create(ctx context.Context, in CreateEventInput) (domain.Event, error)
 	Update(ctx context.Context, in UpdateEventInput) (domain.Event, error)
@@ -85,6 +89,7 @@ type EventRepository interface {
 // public rows.
 type AnnouncementRepository interface {
 	List(ctx context.Context, startFrom *time.Time, publicOnly bool) ([]domain.Announcement, error)
+	Count(ctx context.Context) (int64, error)
 	Create(ctx context.Context, title, description string, isPublic bool) (domain.Announcement, error)
 	Update(ctx context.Context, id int64, title, description string, isPublic bool) (domain.Announcement, error)
 	SoftDelete(ctx context.Context, id int64) error
@@ -103,5 +108,4 @@ type GalleryRepository interface {
 type TokenRepository interface {
 	Revoke(ctx context.Context, jti string, memberID int64, expiresAt time.Time) error
 	IsRevoked(ctx context.Context, jti string) (bool, error)
-	PruneExpired(ctx context.Context) (int64, error)
 }

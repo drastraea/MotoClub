@@ -80,62 +80,6 @@ func (_c *MockTokenRepository_IsRevoked_Call) RunAndReturn(run func(context.Cont
 	return _c
 }
 
-// PruneExpired provides a mock function with given fields: ctx
-func (_m *MockTokenRepository) PruneExpired(ctx context.Context) (int64, error) {
-	ret := _m.Called(ctx)
-
-	if len(ret) == 0 {
-		panic("no return value specified for PruneExpired")
-	}
-
-	var r0 int64
-	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) (int64, error)); ok {
-		return rf(ctx)
-	}
-	if rf, ok := ret.Get(0).(func(context.Context) int64); ok {
-		r0 = rf(ctx)
-	} else {
-		r0 = ret.Get(0).(int64)
-	}
-
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// MockTokenRepository_PruneExpired_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'PruneExpired'
-type MockTokenRepository_PruneExpired_Call struct {
-	*mock.Call
-}
-
-// PruneExpired is a helper method to define mock.On call
-//   - ctx context.Context
-func (_e *MockTokenRepository_Expecter) PruneExpired(ctx interface{}) *MockTokenRepository_PruneExpired_Call {
-	return &MockTokenRepository_PruneExpired_Call{Call: _e.mock.On("PruneExpired", ctx)}
-}
-
-func (_c *MockTokenRepository_PruneExpired_Call) Run(run func(ctx context.Context)) *MockTokenRepository_PruneExpired_Call {
-	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
-	})
-	return _c
-}
-
-func (_c *MockTokenRepository_PruneExpired_Call) Return(_a0 int64, _a1 error) *MockTokenRepository_PruneExpired_Call {
-	_c.Call.Return(_a0, _a1)
-	return _c
-}
-
-func (_c *MockTokenRepository_PruneExpired_Call) RunAndReturn(run func(context.Context) (int64, error)) *MockTokenRepository_PruneExpired_Call {
-	_c.Call.Return(run)
-	return _c
-}
-
 // Revoke provides a mock function with given fields: ctx, jti, memberID, expiresAt
 func (_m *MockTokenRepository) Revoke(ctx context.Context, jti string, memberID int64, expiresAt time.Time) error {
 	ret := _m.Called(ctx, jti, memberID, expiresAt)

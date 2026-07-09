@@ -38,6 +38,11 @@ func (s *MemberService) CountPending(ctx context.Context) (int64, error) {
 	return s.members.CountPending(ctx)
 }
 
+// CountMembers returns the total number of members.
+func (s *MemberService) CountMembers(ctx context.Context) (int64, error) {
+	return s.members.Count(ctx)
+}
+
 // ListPending returns the pending registrations.
 func (s *MemberService) ListPending(ctx context.Context) ([]domain.Registration, error) {
 	return s.members.ListPending(ctx)

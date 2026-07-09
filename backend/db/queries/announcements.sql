@@ -5,6 +5,10 @@ WHERE deleted_at IS NULL
   AND (NOT sqlc.arg('public_only')::boolean OR is_public)
 ORDER BY created_at DESC;
 
+-- name: CountAnnouncements :one
+SELECT count(*) FROM announcements
+WHERE deleted_at IS NULL;
+
 -- name: CreateAnnouncement :one
 INSERT INTO announcements (title, description, is_public)
 VALUES ($1, $2, $3)

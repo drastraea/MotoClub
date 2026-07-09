@@ -7,7 +7,3 @@ ON CONFLICT (jti) DO NOTHING;
 SELECT EXISTS (
     SELECT 1 FROM revoked_tokens WHERE jti = $1
 ) AS revoked;
-
--- name: PruneExpiredTokens :execrows
-DELETE FROM revoked_tokens
-WHERE expires_at < now();

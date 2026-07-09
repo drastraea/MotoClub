@@ -99,6 +99,7 @@ export type EventSummary = {
   id: string;
   title: string;
   date: string;
+  image_link: string | null;
   is_public: boolean;
   last_updated_at: string;
 };
@@ -108,6 +109,7 @@ export type EventDetail = {
   date: string;
   location: string | null;
   description: string;
+  image_link: string | null;
   is_public: boolean;
   last_updated_at: string;
 };
@@ -170,6 +172,7 @@ export type EventInput = {
   description: string;
   date: string; // YYYY-MM-DD
   location?: string | null;
+  image_link?: string | null;
   is_public: boolean;
 };
 
@@ -220,6 +223,11 @@ export const api = {
   // ---- admin: members ----
   getRegistrationCount: () =>
     apiFetch<{ count: number }>("/members/registration/count").then((r) => r.count),
+
+  getMemberCount: () => apiFetch<{ count: number }>("/members/count").then((r) => r.count),
+  getEventCount: () => apiFetch<{ count: number }>("/events/count").then((r) => r.count),
+  getAnnouncementCount: () =>
+    apiFetch<{ count: number }>("/announcements/count").then((r) => r.count),
 
   getRegistrations: () =>
     apiFetch<{ registrations: Registration[] }>("/members/registration").then((r) => r.registrations),

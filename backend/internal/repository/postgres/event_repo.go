@@ -21,6 +21,7 @@ func toDomainEvent(e sqlc.Event) domain.Event {
 		Description:   e.Description,
 		Date:          e.EventDate,
 		Location:      e.Location,
+		ImageLink:     e.ImageLink,
 		IsPublic:      e.IsPublic,
 		CreatedAt:     e.CreatedAt,
 		LastUpdatedAt: e.LastUpdatedAt,
@@ -41,6 +42,11 @@ func (r *EventRepo) List(ctx context.Context, startFrom *time.Time, publicOnly b
 	return out, nil
 }
 
+// Count returns the total number of non-deleted events.
+func (r *EventRepo) Count(ctx context.Context) (int64, error) {
+	return r.q.CountEvents(ctx)
+}
+
 // GetByID fetches an event by id (public rows only when publicOnly is set).
 func (r *EventRepo) GetByID(ctx context.Context, id int64, publicOnly bool) (domain.Event, error) {
 	e, err := r.q.GetEventByID(ctx, sqlc.GetEventByIDParams{ID: id, PublicOnly: publicOnly})
@@ -58,6 +64,7 @@ func (r *EventRepo) Create(ctx context.Context, in repository.CreateEventInput) 
 		EventDate:   in.Date,
 		Location:    in.Location,
 		IsPublic:    in.IsPublic,
+		ImageLink:   in.ImageLink,
 	})
 	if err != nil {
 		return domain.Event{}, err
@@ -74,6 +81,7 @@ func (r *EventRepo) Update(ctx context.Context, in repository.UpdateEventInput) 
 		EventDate:   in.Date,
 		Location:    in.Location,
 		IsPublic:    in.IsPublic,
+		ImageLink:   in.ImageLink,
 	})
 	if err != nil {
 		return domain.Event{}, mapGetErr(err)

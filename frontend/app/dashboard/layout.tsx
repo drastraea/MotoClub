@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { DashboardSidebar } from "@/components/layout/DashboardSidebar";
 import { DashboardTopbar } from "@/components/layout/DashboardTopbar";
 import { useAuth } from "@/hooks/useAuth";
-import { isAdmin } from "@/lib/session";
 
 export default function DashboardLayout({
   children,
@@ -13,23 +12,16 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }>) {
   const router = useRouter();
-  const pathname = usePathname();
   const { user, ready } = useAuth();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-
-  // Members are limited to their own profile; every other dashboard route is
-  // admin-only, so bounce non-admins to /dashboard/profile.
-  const memberOffProfile =
-    !!user && !isAdmin(user.role) && user.role !== "visitor" && !pathname.startsWith("/dashboard/profile");
 
   useEffect(() => {
     if (!ready) return;
     if (!user) router.replace("/login");
     else if (user.role === "visitor") router.replace("/status");
-    else if (memberOffProfile) router.replace("/dashboard/profile");
-  }, [ready, user, router, memberOffProfile]);
+  }, [ready, user, router]);
 
-  if (!ready || !user || user.role === "visitor" || memberOffProfile) return null;
+  if (!ready || !user || user.role === "visitor") return null;
 
   return (
     <div className="flex min-h-screen flex-1">

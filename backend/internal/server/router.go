@@ -45,10 +45,12 @@ func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middlewa
 	admin := authed.Group("/", middleware.RequireRole(domain.RoleAdmin, domain.RoleSuperadmin))
 	admin.GET("/members/registration/count", h.Member.GetRegistrationCount)
 	admin.GET("/members/registration", h.Member.ListRegistrations)
+	admin.GET("/members/count", h.Member.GetCount)
 	admin.GET("/members", h.Member.ListMembers)
 	admin.POST("/members/:id/status", h.Member.SetStatus)
 	admin.DELETE("/members/:id", h.Member.Delete)
 
+	admin.GET("/events/count", h.Event.Count)
 	admin.POST("/events", h.Event.Create)
 	admin.PUT("/events/:id", h.Event.Update)
 	admin.DELETE("/events/:id", h.Event.Delete)
@@ -57,6 +59,7 @@ func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middlewa
 	admin.PUT("/gallery/:id", h.Gallery.Update)
 	admin.DELETE("/gallery/:id", h.Gallery.Delete)
 
+	admin.GET("/announcements/count", h.Announcement.Count)
 	admin.POST("/announcements", h.Announcement.Create)
 	admin.PUT("/announcements/:id", h.Announcement.Update)
 	admin.DELETE("/announcements/:id", h.Announcement.Delete)

@@ -20,6 +20,7 @@ func TestMember_Passthroughs(t *testing.T) {
 	members := repomocks.NewMockMemberRepository(t)
 	members.On("GetByID", mock.Anything, int64(1)).Return(domain.Member{ID: 1}, nil)
 	members.On("CountPending", mock.Anything).Return(int64(3), nil)
+	members.On("Count", mock.Anything).Return(int64(7), nil)
 	members.On("ListPending", mock.Anything).Return([]domain.Registration{{MemberID: 1}}, nil)
 	members.On("List", mock.Anything).Return([]domain.Member{{ID: 1}}, nil)
 	s := NewMemberService(members, utilmocks.NewMockClock(t))
@@ -31,6 +32,10 @@ func TestMember_Passthroughs(t *testing.T) {
 	cnt, err := s.CountPending(context.Background())
 	require.NoError(t, err)
 	assert.Equal(t, int64(3), cnt)
+
+	total, err := s.CountMembers(context.Background())
+	require.NoError(t, err)
+	assert.Equal(t, int64(7), total)
 
 	regs, err := s.ListPending(context.Background())
 	require.NoError(t, err)

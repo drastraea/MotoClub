@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback } from "react";
-import { EventCardWithStub } from "@/components/cards/EventCardWithStub";
+import { EventCard } from "@/components/cards/EventCard";
 import { api } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
 
@@ -25,7 +25,12 @@ export function EventsSection() {
         {events.length > 0 ? (
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {events.map((event) => (
-              <EventCardWithStub key={event.id} id={event.id} title={event.title} date={event.date} />
+              <EventCard
+                key={event.id}
+                title={event.title}
+                date={event.date}
+                imageLink={event.image_link ?? undefined}
+              />
             ))}
           </div>
         ) : (

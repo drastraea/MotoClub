@@ -82,6 +82,62 @@ func (_c *MockMemberRepository_BackfillGoogleSub_Call) RunAndReturn(run func(con
 	return _c
 }
 
+// Count provides a mock function with given fields: ctx
+func (_m *MockMemberRepository) Count(ctx context.Context) (int64, error) {
+	ret := _m.Called(ctx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Count")
+	}
+
+	var r0 int64
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context) (int64, error)); ok {
+		return rf(ctx)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context) int64); ok {
+		r0 = rf(ctx)
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
+		r1 = rf(ctx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockMemberRepository_Count_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Count'
+type MockMemberRepository_Count_Call struct {
+	*mock.Call
+}
+
+// Count is a helper method to define mock.On call
+//   - ctx context.Context
+func (_e *MockMemberRepository_Expecter) Count(ctx interface{}) *MockMemberRepository_Count_Call {
+	return &MockMemberRepository_Count_Call{Call: _e.mock.On("Count", ctx)}
+}
+
+func (_c *MockMemberRepository_Count_Call) Run(run func(ctx context.Context)) *MockMemberRepository_Count_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context))
+	})
+	return _c
+}
+
+func (_c *MockMemberRepository_Count_Call) Return(_a0 int64, _a1 error) *MockMemberRepository_Count_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockMemberRepository_Count_Call) RunAndReturn(run func(context.Context) (int64, error)) *MockMemberRepository_Count_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // CountPending provides a mock function with given fields: ctx
 func (_m *MockMemberRepository) CountPending(ctx context.Context) (int64, error) {
 	ret := _m.Called(ctx)

@@ -10,6 +10,9 @@ import (
 
 type Querier interface {
 	BackfillGoogleSub(ctx context.Context, arg BackfillGoogleSubParams) (Member, error)
+	CountAnnouncements(ctx context.Context) (int64, error)
+	CountEvents(ctx context.Context) (int64, error)
+	CountMembers(ctx context.Context) (int64, error)
 	CountPendingRegistrations(ctx context.Context) (int64, error)
 	CountSuperadmins(ctx context.Context) (int64, error)
 	CreateAnnouncement(ctx context.Context, arg CreateAnnouncementParams) (Announcement, error)
@@ -26,7 +29,6 @@ type Querier interface {
 	ListGallery(ctx context.Context, publicOnly bool) ([]Gallery, error)
 	ListMembers(ctx context.Context) ([]Member, error)
 	ListPendingRegistrations(ctx context.Context) ([]ListPendingRegistrationsRow, error)
-	PruneExpiredTokens(ctx context.Context) (int64, error)
 	RevokeToken(ctx context.Context, arg RevokeTokenParams) error
 	SoftDeleteAnnouncement(ctx context.Context, id int64) (int64, error)
 	SoftDeleteEvent(ctx context.Context, id int64) (int64, error)

@@ -56,6 +56,21 @@ func TestRegistrationCountAndLists(t *testing.T) {
 		assert.Equal(t, http.StatusOK, w.Code)
 		assert.JSONEq(t, `{"count":5}`, w.Body.String())
 	})
+	t.Run("total count error", func(t *testing.T) {
+		svc := svcmocks.NewMockMemberServicer(t)
+		svc.On("CountMembers", mock.Anything).Return(int64(0), apperr.ErrNotFound)
+		c, w := ctxJSON(http.MethodGet, "/members/count", "")
+		NewMemberHandler(svc).GetCount(c)
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+	t.Run("total count success", func(t *testing.T) {
+		svc := svcmocks.NewMockMemberServicer(t)
+		svc.On("CountMembers", mock.Anything).Return(int64(12), nil)
+		c, w := ctxJSON(http.MethodGet, "/members/count", "")
+		NewMemberHandler(svc).GetCount(c)
+		assert.Equal(t, http.StatusOK, w.Code)
+		assert.JSONEq(t, `{"count":12}`, w.Body.String())
+	})
 	t.Run("registrations error", func(t *testing.T) {
 		svc := svcmocks.NewMockMemberServicer(t)
 		svc.On("ListPending", mock.Anything).Return(nil, apperr.ErrNotFound)

@@ -34,6 +34,16 @@ func (h *EventHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, toEventList(events))
 }
 
+// Count handles GET /events/count (total events).
+func (h *EventHandler) Count(c *gin.Context) {
+	count, err := h.svc.Count(c.Request.Context())
+	if err != nil {
+		httpx.Error(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, countResponse{Count: count})
+}
+
 // Get handles GET /event/{id}.
 func (h *EventHandler) Get(c *gin.Context) {
 	id, ok := parseIDParam(c)
@@ -53,6 +63,7 @@ type eventRequest struct {
 	Description string  `json:"description" binding:"required"`
 	Date        string  `json:"date" binding:"required"`
 	Location    *string `json:"location"`
+	ImageLink   *string `json:"image_link"`
 	IsPublic    bool    `json:"is_public"`
 }
 
@@ -67,6 +78,7 @@ func (r eventRequest) toInput(c *gin.Context) (service.EventInput, bool) {
 		Description: r.Description,
 		Date:        date,
 		Location:    r.Location,
+		ImageLink:   r.ImageLink,
 		IsPublic:    r.IsPublic,
 	}, true
 }

@@ -8,15 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
-
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
+import { uploadImage } from "@/lib/upload";
 
 export default function AdminGalleryPage() {
   const { data: images, loading, error, reload } = useApiData(
@@ -35,7 +27,7 @@ export default function AdminGalleryPage() {
       setUploading(true);
       try {
         for (const file of accepted) {
-          const link = await fileToBase64(file);
+          const link = await uploadImage(file);
           await api.createGalleryItem(link, false);
         }
         toast.success(`${accepted.length} image(s) added`);

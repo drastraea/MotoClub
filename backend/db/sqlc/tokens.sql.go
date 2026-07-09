@@ -23,19 +23,6 @@ func (q *Queries) IsTokenRevoked(ctx context.Context, jti string) (bool, error) 
 	return revoked, err
 }
 
-const pruneExpiredTokens = `-- name: PruneExpiredTokens :execrows
-DELETE FROM revoked_tokens
-WHERE expires_at < now()
-`
-
-func (q *Queries) PruneExpiredTokens(ctx context.Context) (int64, error) {
-	result, err := q.db.Exec(ctx, pruneExpiredTokens)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
 const revokeToken = `-- name: RevokeToken :exec
 INSERT INTO revoked_tokens (jti, member_id, expires_at)
 VALUES ($1, $2, $3)

@@ -10,6 +10,18 @@ import (
 	"time"
 )
 
+const countAnnouncements = `-- name: CountAnnouncements :one
+SELECT count(*) FROM announcements
+WHERE deleted_at IS NULL
+`
+
+func (q *Queries) CountAnnouncements(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countAnnouncements)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createAnnouncement = `-- name: CreateAnnouncement :one
 INSERT INTO announcements (title, description, is_public)
 VALUES ($1, $2, $3)

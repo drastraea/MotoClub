@@ -28,6 +28,7 @@ type Event struct {
 	LastUpdatedAt time.Time
 	DeletedAt     *time.Time
 	IsPublic      bool
+	ImageLink     *string
 }
 
 type Gallery struct {

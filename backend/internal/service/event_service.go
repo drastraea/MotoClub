@@ -14,6 +14,7 @@ type EventInput struct {
 	Description string
 	Date        time.Time
 	Location    *string
+	ImageLink   *string
 	IsPublic    bool
 }
 
@@ -33,6 +34,11 @@ func (s *EventService) List(ctx context.Context, startFrom *time.Time, publicOnl
 	return s.events.List(ctx, startFrom, publicOnly)
 }
 
+// Count returns the total number of events.
+func (s *EventService) Count(ctx context.Context) (int64, error) {
+	return s.events.Count(ctx)
+}
+
 // Get returns a single event by id (public rows only when publicOnly is set).
 func (s *EventService) Get(ctx context.Context, id int64, publicOnly bool) (domain.Event, error) {
 	return s.events.GetByID(ctx, id, publicOnly)
@@ -45,6 +51,7 @@ func (s *EventService) Create(ctx context.Context, in EventInput) (domain.Event,
 		Description: in.Description,
 		Date:        in.Date,
 		Location:    in.Location,
+		ImageLink:   in.ImageLink,
 		IsPublic:    in.IsPublic,
 	})
 }
@@ -57,6 +64,7 @@ func (s *EventService) Update(ctx context.Context, id int64, in EventInput) (dom
 		Description: in.Description,
 		Date:        in.Date,
 		Location:    in.Location,
+		ImageLink:   in.ImageLink,
 		IsPublic:    in.IsPublic,
 	})
 }

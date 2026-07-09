@@ -38,11 +38,12 @@ func toGalleryList(items []domain.GalleryItem) galleryListResponse {
 // --- Events ---
 
 type eventSummary struct {
-	ID            string `json:"id"`
-	Title         string `json:"title"`
-	Date          string `json:"date"`
-	IsPublic      bool   `json:"is_public"`
-	LastUpdatedAt string `json:"last_updated_at"`
+	ID            string  `json:"id"`
+	Title         string  `json:"title"`
+	Date          string  `json:"date"`
+	ImageLink     *string `json:"image_link"`
+	IsPublic      bool    `json:"is_public"`
+	LastUpdatedAt string  `json:"last_updated_at"`
 }
 
 type eventListResponse struct {
@@ -56,6 +57,7 @@ func toEventList(events []domain.Event) eventListResponse {
 			ID:            idString(e.ID),
 			Title:         e.Title,
 			Date:          util.FormatJakartaDate(e.Date),
+			ImageLink:     e.ImageLink,
 			IsPublic:      e.IsPublic,
 			LastUpdatedAt: util.FormatJakartaDate(e.LastUpdatedAt),
 		})
@@ -69,6 +71,7 @@ type eventDetail struct {
 	Date          string  `json:"date"`
 	Location      *string `json:"location"`
 	Description   string  `json:"description"`
+	ImageLink     *string `json:"image_link"`
 	IsPublic      bool    `json:"is_public"`
 	LastUpdatedAt string  `json:"last_updated_at"`
 }
@@ -80,6 +83,7 @@ func toEventDetail(e domain.Event) eventDetail {
 		Date:          util.FormatJakartaDate(e.Date),
 		Location:      e.Location,
 		Description:   e.Description,
+		ImageLink:     e.ImageLink,
 		IsPublic:      e.IsPublic,
 		LastUpdatedAt: util.FormatJakartaDate(e.LastUpdatedAt),
 	}

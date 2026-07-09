@@ -30,6 +30,10 @@ RETURNING *;
 SELECT count(*) FROM members
 WHERE status = 'PENDING_APPROVAL' AND deleted_at IS NULL;
 
+-- name: CountMembers :one
+SELECT count(*) FROM members
+WHERE deleted_at IS NULL;
+
 -- name: ListPendingRegistrations :many
 SELECT id, name, email, created_at FROM members
 WHERE status = 'PENDING_APPROVAL' AND deleted_at IS NULL

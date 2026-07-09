@@ -20,6 +20,7 @@ func TestEventService(t *testing.T) {
 
 	events := repomocks.NewMockEventRepository(t)
 	events.On("List", mock.Anything, &from, true).Return([]domain.Event{{ID: 1}}, nil)
+	events.On("Count", mock.Anything).Return(int64(5), nil)
 	events.On("GetByID", mock.Anything, int64(1), false).Return(domain.Event{ID: 1}, nil)
 	events.On("Create", mock.Anything, mock.MatchedBy(func(in repository.CreateEventInput) bool {
 		return in.Title == "t" && in.Location == &loc && in.IsPublic
@@ -34,6 +35,10 @@ func TestEventService(t *testing.T) {
 	list, err := s.List(context.Background(), &from, true)
 	require.NoError(t, err)
 	assert.Len(t, list, 1)
+
+	cnt, err := s.Count(context.Background())
+	require.NoError(t, err)
+	assert.Equal(t, int64(5), cnt)
 
 	got, err := s.Get(context.Background(), 1, false)
 	require.NoError(t, err)
@@ -53,6 +58,7 @@ func TestEventService(t *testing.T) {
 func TestAnnouncementService(t *testing.T) {
 	ann := repomocks.NewMockAnnouncementRepository(t)
 	ann.On("List", mock.Anything, (*time.Time)(nil), true).Return([]domain.Announcement{{ID: 1}}, nil)
+	ann.On("Count", mock.Anything).Return(int64(4), nil)
 	ann.On("Create", mock.Anything, "t", "d", true).Return(domain.Announcement{ID: 2}, nil)
 	ann.On("Update", mock.Anything, int64(3), "t2", "d2", false).Return(domain.Announcement{ID: 3}, nil)
 	ann.On("SoftDelete", mock.Anything, int64(4)).Return(nil)
@@ -62,6 +68,10 @@ func TestAnnouncementService(t *testing.T) {
 	list, err := s.List(context.Background(), nil, true)
 	require.NoError(t, err)
 	assert.Len(t, list, 1)
+
+	cnt, err := s.Count(context.Background())
+	require.NoError(t, err)
+	assert.Equal(t, int64(4), cnt)
 
 	created, err := s.Create(context.Background(), "t", "d", true)
 	require.NoError(t, err)

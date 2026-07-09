@@ -45,6 +45,16 @@ func (h *MemberHandler) GetRegistrationCount(c *gin.Context) {
 	c.JSON(http.StatusOK, countResponse{Count: count})
 }
 
+// GetCount handles GET /members/count (total members).
+func (h *MemberHandler) GetCount(c *gin.Context) {
+	count, err := h.svc.CountMembers(c.Request.Context())
+	if err != nil {
+		httpx.Error(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, countResponse{Count: count})
+}
+
 // ListRegistrations handles GET /members/registration.
 func (h *MemberHandler) ListRegistrations(c *gin.Context) {
 	regs, err := h.svc.ListPending(c.Request.Context())

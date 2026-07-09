@@ -38,6 +38,11 @@ func (r *AnnouncementRepo) List(ctx context.Context, startFrom *time.Time, publi
 	return out, nil
 }
 
+// Count returns the total number of non-deleted announcements.
+func (r *AnnouncementRepo) Count(ctx context.Context) (int64, error) {
+	return r.q.CountAnnouncements(ctx)
+}
+
 // Create inserts a new announcement.
 func (r *AnnouncementRepo) Create(ctx context.Context, title, description string, isPublic bool) (domain.Announcement, error) {
 	a, err := r.q.CreateAnnouncement(ctx, sqlc.CreateAnnouncementParams{Title: title, Description: description, IsPublic: isPublic})

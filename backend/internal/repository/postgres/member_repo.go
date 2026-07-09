@@ -103,6 +103,11 @@ func (r *MemberRepo) CountPending(ctx context.Context) (int64, error) {
 	return r.q.CountPendingRegistrations(ctx)
 }
 
+// Count returns the total number of non-deleted members.
+func (r *MemberRepo) Count(ctx context.Context) (int64, error) {
+	return r.q.CountMembers(ctx)
+}
+
 // ListPending returns the pending registrations.
 func (r *MemberRepo) ListPending(ctx context.Context) ([]domain.Registration, error) {
 	rows, err := r.q.ListPendingRegistrations(ctx)

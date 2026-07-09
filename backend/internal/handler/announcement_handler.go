@@ -33,6 +33,16 @@ func (h *AnnouncementHandler) List(c *gin.Context) {
 	c.JSON(http.StatusOK, toAnnouncementList(items))
 }
 
+// Count handles GET /announcements/count (total announcements).
+func (h *AnnouncementHandler) Count(c *gin.Context) {
+	count, err := h.svc.Count(c.Request.Context())
+	if err != nil {
+		httpx.Error(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, countResponse{Count: count})
+}
+
 type announcementRequest struct {
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description" binding:"required"`

@@ -68,6 +68,42 @@ func TestEventList(t *testing.T) {
 	})
 }
 
+func TestEventCount(t *testing.T) {
+	t.Run("error", func(t *testing.T) {
+		svc := svcmocks.NewMockEventServicer(t)
+		svc.On("Count", mock.Anything).Return(int64(0), apperr.ErrNotFound)
+		c, w := ctxJSON(http.MethodGet, "/events/count", "")
+		NewEventHandler(svc).Count(c)
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+	t.Run("success", func(t *testing.T) {
+		svc := svcmocks.NewMockEventServicer(t)
+		svc.On("Count", mock.Anything).Return(int64(9), nil)
+		c, w := ctxJSON(http.MethodGet, "/events/count", "")
+		NewEventHandler(svc).Count(c)
+		assert.Equal(t, http.StatusOK, w.Code)
+		assert.JSONEq(t, `{"count":9}`, w.Body.String())
+	})
+}
+
+func TestAnnouncementCount(t *testing.T) {
+	t.Run("error", func(t *testing.T) {
+		svc := svcmocks.NewMockAnnouncementServicer(t)
+		svc.On("Count", mock.Anything).Return(int64(0), apperr.ErrNotFound)
+		c, w := ctxJSON(http.MethodGet, "/announcements/count", "")
+		NewAnnouncementHandler(svc).Count(c)
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+	t.Run("success", func(t *testing.T) {
+		svc := svcmocks.NewMockAnnouncementServicer(t)
+		svc.On("Count", mock.Anything).Return(int64(3), nil)
+		c, w := ctxJSON(http.MethodGet, "/announcements/count", "")
+		NewAnnouncementHandler(svc).Count(c)
+		assert.Equal(t, http.StatusOK, w.Code)
+		assert.JSONEq(t, `{"count":3}`, w.Body.String())
+	})
+}
+
 func TestEventGet(t *testing.T) {
 	t.Run("bad id", func(t *testing.T) {
 		c, w := ctxJSON(http.MethodGet, "/event/x", "")
