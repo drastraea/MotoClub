@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Menu, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,7 +18,14 @@ const links = [
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    setOpen(false);
+    await logout();
+    router.push("/");
+  };
 
   const accountHref = !user
     ? "/login"
@@ -54,23 +62,36 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
-          <Link
-            href={accountHref}
-            className="text-xs font-semibold tracking-widest text-muted-foreground uppercase transition-colors hover:text-primary"
-          >
-            {accountLabel}
-          </Link>
-          {user ? (
+          {user && (
             <Link
               href={accountHref}
-              className="rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+              className="text-xs font-semibold tracking-widest text-muted-foreground uppercase transition-colors hover:text-primary"
             >
-              Hello, {user.name ?? "Rider"}
+              {accountLabel}
             </Link>
+          )}
+          {user ? (
+            <>
+              <Link
+                href={accountHref}
+                className="rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+              >
+                Hello, {user.name ?? "Rider"}
+              </Link>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="size-4" />
+                Logout
+              </Button>
+            </>
           ) : (
-            <Button size="sm" nativeButton={false} render={<Link href="/join" />}>
-              Join Now
-            </Button>
+            <>
+              <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/login" />}>
+                Login
+              </Button>
+              <Button size="sm" nativeButton={false} render={<Link href="/join" />}>
+                Join Now
+              </Button>
+            </>
           )}
           <ThemeToggle />
         </div>
@@ -95,30 +116,51 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
-          <Link
-            href={accountHref}
-            className="text-xs font-semibold tracking-widest text-muted-foreground uppercase hover:text-primary"
-            onClick={() => setOpen(false)}
-          >
-            {accountLabel}
-          </Link>
-          {user ? (
+          {user && (
             <Link
               href={accountHref}
+              className="text-xs font-semibold tracking-widest text-muted-foreground uppercase hover:text-primary"
               onClick={() => setOpen(false)}
-              className="self-start rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
             >
-              Hello, {user.name ?? "Rider"}
+              {accountLabel}
             </Link>
+          )}
+          {user ? (
+            <>
+              <Link
+                href={accountHref}
+                onClick={() => setOpen(false)}
+                className="self-start rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+              >
+                Hello, {user.name ?? "Rider"}
+              </Link>
+              <Button variant="outline" size="sm" className="w-full" onClick={handleLogout}>
+                <LogOut className="size-4" />
+                Logout
+              </Button>
+            </>
           ) : (
-            <Button
-              size="sm"
-              className="w-full"
-              nativeButton={false}
-              render={<Link href="/join" />}
-            >
-              Join Now
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                nativeButton={false}
+                render={<Link href="/login" />}
+                onClick={() => setOpen(false)}
+              >
+                Login
+              </Button>
+              <Button
+                size="sm"
+                className="w-full"
+                nativeButton={false}
+                render={<Link href="/join" />}
+                onClick={() => setOpen(false)}
+              >
+                Join Now
+              </Button>
+            </>
           )}
         </div>
       )}

@@ -1,32 +1,18 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { Check, X } from "lucide-react";
-import { toast } from "sonner";
+import { useCallback } from "react";
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { api } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
 
 export default function AdminMembersPage() {
-  const { data: registrations, loading, error, reload } = useApiData(
+  const { data: registrations, loading, error } = useApiData(
     useCallback(() => api.getRegistrations(), []),
     []
   );
-  const [busy, setBusy] = useState<string | null>(null);
-
-  const respond = async (id: string, name: string, action: "APPROVE" | "REJECT") => {
-    setBusy(id);
-    try {
-      await api.setMemberStatus(id, action);
-      toast.success(action === "APPROVE" ? `${name} approved` : `${name} rejected`);
-      await reload();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Action failed");
-    } finally {
-      setBusy(null);
-    }
-  };
 
   const count = registrations?.length ?? 0;
 
@@ -57,23 +43,15 @@ export default function AdminMembersPage() {
                   <span>Submitted {r.registered_at}</span>
                 </CardDescription>
               </div>
-              <div className="mt-4 flex gap-2 sm:mt-0">
-                <Button
-                  size="sm"
-                  disabled={busy === r.member_id}
-                  onClick={() => respond(r.member_id, r.name, "APPROVE")}
-                >
-                  <Check className="size-4" />
-                  Approve
-                </Button>
+              <div className="mt-4 sm:mt-0">
                 <Button
                   size="sm"
                   variant="outline"
-                  disabled={busy === r.member_id}
-                  onClick={() => respond(r.member_id, r.name, "REJECT")}
+                  nativeButton={false}
+                  render={<Link href={`/admin/members/${r.member_id}`} />}
                 >
-                  <X className="size-4" />
-                  Reject
+                  View Profile
+                  <ChevronRight className="size-4" />
                 </Button>
               </div>
             </CardHeader>

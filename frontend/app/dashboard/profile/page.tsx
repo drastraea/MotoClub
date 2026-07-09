@@ -3,9 +3,9 @@
 import { useCallback } from "react";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ProfileDetails } from "@/components/shared/ProfileDetails";
 import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useApiData } from "@/hooks/useApiData";
@@ -24,21 +24,6 @@ export default function ProfilePage() {
 
   if (loading) return <p className="text-sm text-muted-foreground">Loading…</p>;
   if (error || !profile) return <p className="text-sm text-destructive">{error ?? "Profile not found."}</p>;
-
-  const fields: [string, string][] = [
-    ["Full Name", profile.name],
-    ["Email", profile.email],
-    ["Phone Number", profile.phoneNumber],
-    ["Place of Birth", profile.placeOfBirth],
-    ["Date of Birth", profile.dateofBirth],
-    ["Address", profile.address],
-    ["Instagram", profile.instagramUsername],
-    ["Blood Type", profile.bloodType],
-    ["Emergency Contact", profile.emergencyContactName],
-    ["Emergency Contact Phone", profile.emergencyContactPhoneNumber],
-    ["Motorbike", profile.motorbikeName],
-    ["Member Since", profile.created_at],
-  ];
 
   return (
     <div>
@@ -60,20 +45,7 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      <Card className="mt-8">
-        <CardContent>
-          <dl className="grid gap-6 sm:grid-cols-2">
-            {fields.map(([label, value]) => (
-              <div key={label}>
-                <dt className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
-                  {label}
-                </dt>
-                <dd className="mt-1 text-sm">{value}</dd>
-              </div>
-            ))}
-          </dl>
-        </CardContent>
-      </Card>
+      <ProfileDetails profile={profile} />
     </div>
   );
 }
