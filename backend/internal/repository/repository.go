@@ -43,6 +43,7 @@ type CreateEventInput struct {
 	Description string
 	Date        time.Time
 	Location    *string
+	IsPublic    bool
 }
 
 // UpdateEventInput carries the fields for updating an event.
@@ -52,6 +53,7 @@ type UpdateEventInput struct {
 	Description string
 	Date        time.Time
 	Location    *string
+	IsPublic    bool
 }
 
 // MemberRepository persists members.
@@ -70,27 +72,30 @@ type MemberRepository interface {
 	CountSuperadmins(ctx context.Context) (int64, error)
 }
 
-// EventRepository persists events.
+// EventRepository persists events. publicOnly restricts reads to public rows.
 type EventRepository interface {
-	List(ctx context.Context, startFrom *time.Time) ([]domain.Event, error)
-	GetByID(ctx context.Context, id int64) (domain.Event, error)
+	List(ctx context.Context, startFrom *time.Time, publicOnly bool) ([]domain.Event, error)
+	GetByID(ctx context.Context, id int64, publicOnly bool) (domain.Event, error)
 	Create(ctx context.Context, in CreateEventInput) (domain.Event, error)
 	Update(ctx context.Context, in UpdateEventInput) (domain.Event, error)
 	SoftDelete(ctx context.Context, id int64) error
 }
 
-// AnnouncementRepository persists announcements.
+// AnnouncementRepository persists announcements. publicOnly restricts reads to
+// public rows.
 type AnnouncementRepository interface {
-	List(ctx context.Context, startFrom *time.Time) ([]domain.Announcement, error)
-	Create(ctx context.Context, title, description string) (domain.Announcement, error)
-	Update(ctx context.Context, id int64, title, description string) (domain.Announcement, error)
+	List(ctx context.Context, startFrom *time.Time, publicOnly bool) ([]domain.Announcement, error)
+	Create(ctx context.Context, title, description string, isPublic bool) (domain.Announcement, error)
+	Update(ctx context.Context, id int64, title, description string, isPublic bool) (domain.Announcement, error)
 	SoftDelete(ctx context.Context, id int64) error
 }
 
-// GalleryRepository persists gallery items.
+// GalleryRepository persists gallery items. publicOnly restricts reads to public
+// rows.
 type GalleryRepository interface {
-	List(ctx context.Context) ([]domain.GalleryItem, error)
-	Create(ctx context.Context, link string) (domain.GalleryItem, error)
+	List(ctx context.Context, publicOnly bool) ([]domain.GalleryItem, error)
+	Create(ctx context.Context, link string, isPublic bool) (domain.GalleryItem, error)
+	Update(ctx context.Context, id int64, isPublic bool) (domain.GalleryItem, error)
 	SoftDelete(ctx context.Context, id int64) error
 }
 

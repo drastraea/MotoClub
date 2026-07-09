@@ -25,8 +25,14 @@ export function Navbar() {
       ? "/status"
       : isAdmin(user.role)
         ? "/admin"
-        : "/dashboard";
-  const accountLabel = !user ? "Login" : user.role === "visitor" ? "My Status" : "Dashboard";
+        : "/dashboard/profile";
+  const accountLabel = !user
+    ? "Login"
+    : user.role === "visitor"
+      ? "My Status"
+      : isAdmin(user.role)
+        ? "Dashboard"
+        : "Profile";
 
   return (
     <header className="sticky top-0 z-50 border-b-2 border-primary/30 bg-background/95 backdrop-blur">
@@ -54,7 +60,14 @@ export function Navbar() {
           >
             {accountLabel}
           </Link>
-          {!user && (
+          {user ? (
+            <Link
+              href={accountHref}
+              className="rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+            >
+              Hello, {user.name ?? "Rider"}
+            </Link>
+          ) : (
             <Button size="sm" nativeButton={false} render={<Link href="/join" />}>
               Join Now
             </Button>
@@ -89,7 +102,15 @@ export function Navbar() {
           >
             {accountLabel}
           </Link>
-          {!user && (
+          {user ? (
+            <Link
+              href={accountHref}
+              onClick={() => setOpen(false)}
+              className="self-start rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+            >
+              Hello, {user.name ?? "Rider"}
+            </Link>
+          ) : (
             <Button
               size="sm"
               className="w-full"

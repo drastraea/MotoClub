@@ -70,7 +70,7 @@ func run(cfg config.Config, logger *slog.Logger) error {
 
 	repos := postgres.New(pool)
 	clock := util.RealClock{}
-	jwtMgr := auth.NewHMACManager(cfg.JWTSecret, cfg.TokenTTL, clock)
+	jwtMgr := auth.NewHMACManager(cfg.JWTSecret, cfg.AccessTTL, cfg.RefreshTTL, clock)
 	verifier := auth.NewGoogleVerifier(cfg.GoogleClientID)
 
 	handlers := &handler.Handlers{

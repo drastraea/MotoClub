@@ -18,14 +18,16 @@ func toDomainAnnouncement(a sqlc.Announcement) domain.Announcement {
 		ID:            a.ID,
 		Title:         a.Title,
 		Description:   a.Description,
+		IsPublic:      a.IsPublic,
 		CreatedAt:     a.CreatedAt,
 		LastUpdatedAt: a.LastUpdatedAt,
 	}
 }
 
-// List returns announcements created on or after startFrom (or all when nil).
-func (r *AnnouncementRepo) List(ctx context.Context, startFrom *time.Time) ([]domain.Announcement, error) {
-	rows, err := r.q.ListAnnouncements(ctx, startFrom)
+// List returns announcements created on or after startFrom (or all when nil),
+// restricted to public rows when publicOnly is set.
+func (r *AnnouncementRepo) List(ctx context.Context, startFrom *time.Time, publicOnly bool) ([]domain.Announcement, error) {
+	rows, err := r.q.ListAnnouncements(ctx, sqlc.ListAnnouncementsParams{StartFrom: startFrom, PublicOnly: publicOnly})
 	if err != nil {
 		return nil, err
 	}
@@ -37,8 +39,8 @@ func (r *AnnouncementRepo) List(ctx context.Context, startFrom *time.Time) ([]do
 }
 
 // Create inserts a new announcement.
-func (r *AnnouncementRepo) Create(ctx context.Context, title, description string) (domain.Announcement, error) {
-	a, err := r.q.CreateAnnouncement(ctx, sqlc.CreateAnnouncementParams{Title: title, Description: description})
+func (r *AnnouncementRepo) Create(ctx context.Context, title, description string, isPublic bool) (domain.Announcement, error) {
+	a, err := r.q.CreateAnnouncement(ctx, sqlc.CreateAnnouncementParams{Title: title, Description: description, IsPublic: isPublic})
 	if err != nil {
 		return domain.Announcement{}, err
 	}
@@ -46,8 +48,8 @@ func (r *AnnouncementRepo) Create(ctx context.Context, title, description string
 }
 
 // Update modifies an existing announcement.
-func (r *AnnouncementRepo) Update(ctx context.Context, id int64, title, description string) (domain.Announcement, error) {
-	a, err := r.q.UpdateAnnouncement(ctx, sqlc.UpdateAnnouncementParams{ID: id, Title: title, Description: description})
+func (r *AnnouncementRepo) Update(ctx context.Context, id int64, title, description string, isPublic bool) (domain.Announcement, error) {
+	a, err := r.q.UpdateAnnouncement(ctx, sqlc.UpdateAnnouncementParams{ID: id, Title: title, Description: description, IsPublic: isPublic})
 	if err != nil {
 		return domain.Announcement{}, mapGetErr(err)
 	}

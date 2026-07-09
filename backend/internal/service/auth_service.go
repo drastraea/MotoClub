@@ -33,8 +33,15 @@ type RegisterInput struct {
 
 // LoginResult is returned on a successful login.
 type LoginResult struct {
-	ID    int64
-	Token string
+	ID           int64
+	Token        string
+	RefreshToken string
+}
+
+// RefreshResult is returned on a successful token refresh.
+type RefreshResult struct {
+	Token        string
+	RefreshToken string
 }
 
 // AuthService implements registration, login and logout.
@@ -112,11 +119,48 @@ func (s *AuthService) Login(ctx context.Context, email, googleToken string) (Log
 		return LoginResult{}, err
 	}
 
-	token, _, _, err := s.jwt.Issue(member.ID, member.Role)
+	access, _, _, err := s.jwt.IssueAccess(member.ID, member.Role)
 	if err != nil {
 		return LoginResult{}, err
 	}
-	return LoginResult{ID: member.ID, Token: token}, nil
+	refresh, _, _, err := s.jwt.IssueRefresh(member.ID, member.Role)
+	if err != nil {
+		return LoginResult{}, err
+	}
+	return LoginResult{ID: member.ID, Token: access, RefreshToken: refresh}, nil
+}
+
+// Refresh validates a refresh token, rotates it (revoking the old one), and
+// issues a fresh access token. Rejects anything that is not a valid, unrevoked
+// refresh token.
+func (s *AuthService) Refresh(ctx context.Context, refreshToken string) (RefreshResult, error) {
+	claims, err := s.jwt.Parse(refreshToken)
+	if err != nil || claims.Type != auth.TokenTypeRefresh {
+		return RefreshResult{}, apperr.ErrUnauthorized
+	}
+
+	revoked, err := s.tokens.IsRevoked(ctx, claims.JTI)
+	if err != nil {
+		return RefreshResult{}, err
+	}
+	if revoked {
+		return RefreshResult{}, apperr.ErrUnauthorized
+	}
+
+	access, _, _, err := s.jwt.IssueAccess(claims.MemberID, claims.Role)
+	if err != nil {
+		return RefreshResult{}, err
+	}
+	newRefresh, _, _, err := s.jwt.IssueRefresh(claims.MemberID, claims.Role)
+	if err != nil {
+		return RefreshResult{}, err
+	}
+
+	// Rotate: revoke the presented refresh token so it cannot be replayed.
+	if err := s.tokens.Revoke(ctx, claims.JTI, claims.MemberID, claims.ExpiresAt); err != nil {
+		return RefreshResult{}, err
+	}
+	return RefreshResult{Token: access, RefreshToken: newRefresh}, nil
 }
 
 func (s *AuthService) resolveMember(ctx context.Context, identity auth.GoogleIdentity) (domain.Member, error) {
@@ -137,7 +181,19 @@ func (s *AuthService) resolveMember(ctx context.Context, identity auth.GoogleIde
 	return s.members.BackfillGoogleSub(ctx, member.ID, identity.Sub)
 }
 
-// Logout revokes the caller's current token until its natural expiry.
-func (s *AuthService) Logout(ctx context.Context, principal domain.Principal) error {
-	return s.tokens.Revoke(ctx, principal.JTI, principal.ID, principal.ExpiresAt)
+// Logout revokes the caller's access token, plus the paired refresh token when
+// one is supplied, until their natural expiry.
+func (s *AuthService) Logout(ctx context.Context, principal domain.Principal, refreshToken string) error {
+	if err := s.tokens.Revoke(ctx, principal.JTI, principal.ID, principal.ExpiresAt); err != nil {
+		return err
+	}
+	if refreshToken == "" {
+		return nil
+	}
+	// Best-effort: revoke the refresh token too if it is a valid refresh token.
+	claims, err := s.jwt.Parse(refreshToken)
+	if err != nil || claims.Type != auth.TokenTypeRefresh {
+		return nil
+	}
+	return s.tokens.Revoke(ctx, claims.JTI, claims.MemberID, claims.ExpiresAt)
 }

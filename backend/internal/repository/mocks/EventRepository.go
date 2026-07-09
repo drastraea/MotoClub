@@ -83,9 +83,9 @@ func (_c *MockEventRepository_Create_Call) RunAndReturn(run func(context.Context
 	return _c
 }
 
-// GetByID provides a mock function with given fields: ctx, id
-func (_m *MockEventRepository) GetByID(ctx context.Context, id int64) (domain.Event, error) {
-	ret := _m.Called(ctx, id)
+// GetByID provides a mock function with given fields: ctx, id, publicOnly
+func (_m *MockEventRepository) GetByID(ctx context.Context, id int64, publicOnly bool) (domain.Event, error) {
+	ret := _m.Called(ctx, id, publicOnly)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetByID")
@@ -93,17 +93,17 @@ func (_m *MockEventRepository) GetByID(ctx context.Context, id int64) (domain.Ev
 
 	var r0 domain.Event
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, int64) (domain.Event, error)); ok {
-		return rf(ctx, id)
+	if rf, ok := ret.Get(0).(func(context.Context, int64, bool) (domain.Event, error)); ok {
+		return rf(ctx, id, publicOnly)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, int64) domain.Event); ok {
-		r0 = rf(ctx, id)
+	if rf, ok := ret.Get(0).(func(context.Context, int64, bool) domain.Event); ok {
+		r0 = rf(ctx, id, publicOnly)
 	} else {
 		r0 = ret.Get(0).(domain.Event)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, int64) error); ok {
-		r1 = rf(ctx, id)
+	if rf, ok := ret.Get(1).(func(context.Context, int64, bool) error); ok {
+		r1 = rf(ctx, id, publicOnly)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -119,13 +119,14 @@ type MockEventRepository_GetByID_Call struct {
 // GetByID is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockEventRepository_Expecter) GetByID(ctx interface{}, id interface{}) *MockEventRepository_GetByID_Call {
-	return &MockEventRepository_GetByID_Call{Call: _e.mock.On("GetByID", ctx, id)}
+//   - publicOnly bool
+func (_e *MockEventRepository_Expecter) GetByID(ctx interface{}, id interface{}, publicOnly interface{}) *MockEventRepository_GetByID_Call {
+	return &MockEventRepository_GetByID_Call{Call: _e.mock.On("GetByID", ctx, id, publicOnly)}
 }
 
-func (_c *MockEventRepository_GetByID_Call) Run(run func(ctx context.Context, id int64)) *MockEventRepository_GetByID_Call {
+func (_c *MockEventRepository_GetByID_Call) Run(run func(ctx context.Context, id int64, publicOnly bool)) *MockEventRepository_GetByID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(int64))
+		run(args[0].(context.Context), args[1].(int64), args[2].(bool))
 	})
 	return _c
 }
@@ -135,14 +136,14 @@ func (_c *MockEventRepository_GetByID_Call) Return(_a0 domain.Event, _a1 error) 
 	return _c
 }
 
-func (_c *MockEventRepository_GetByID_Call) RunAndReturn(run func(context.Context, int64) (domain.Event, error)) *MockEventRepository_GetByID_Call {
+func (_c *MockEventRepository_GetByID_Call) RunAndReturn(run func(context.Context, int64, bool) (domain.Event, error)) *MockEventRepository_GetByID_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// List provides a mock function with given fields: ctx, startFrom
-func (_m *MockEventRepository) List(ctx context.Context, startFrom *time.Time) ([]domain.Event, error) {
-	ret := _m.Called(ctx, startFrom)
+// List provides a mock function with given fields: ctx, startFrom, publicOnly
+func (_m *MockEventRepository) List(ctx context.Context, startFrom *time.Time, publicOnly bool) ([]domain.Event, error) {
+	ret := _m.Called(ctx, startFrom, publicOnly)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -150,19 +151,19 @@ func (_m *MockEventRepository) List(ctx context.Context, startFrom *time.Time) (
 
 	var r0 []domain.Event
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *time.Time) ([]domain.Event, error)); ok {
-		return rf(ctx, startFrom)
+	if rf, ok := ret.Get(0).(func(context.Context, *time.Time, bool) ([]domain.Event, error)); ok {
+		return rf(ctx, startFrom, publicOnly)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *time.Time) []domain.Event); ok {
-		r0 = rf(ctx, startFrom)
+	if rf, ok := ret.Get(0).(func(context.Context, *time.Time, bool) []domain.Event); ok {
+		r0 = rf(ctx, startFrom, publicOnly)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]domain.Event)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *time.Time) error); ok {
-		r1 = rf(ctx, startFrom)
+	if rf, ok := ret.Get(1).(func(context.Context, *time.Time, bool) error); ok {
+		r1 = rf(ctx, startFrom, publicOnly)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -178,13 +179,14 @@ type MockEventRepository_List_Call struct {
 // List is a helper method to define mock.On call
 //   - ctx context.Context
 //   - startFrom *time.Time
-func (_e *MockEventRepository_Expecter) List(ctx interface{}, startFrom interface{}) *MockEventRepository_List_Call {
-	return &MockEventRepository_List_Call{Call: _e.mock.On("List", ctx, startFrom)}
+//   - publicOnly bool
+func (_e *MockEventRepository_Expecter) List(ctx interface{}, startFrom interface{}, publicOnly interface{}) *MockEventRepository_List_Call {
+	return &MockEventRepository_List_Call{Call: _e.mock.On("List", ctx, startFrom, publicOnly)}
 }
 
-func (_c *MockEventRepository_List_Call) Run(run func(ctx context.Context, startFrom *time.Time)) *MockEventRepository_List_Call {
+func (_c *MockEventRepository_List_Call) Run(run func(ctx context.Context, startFrom *time.Time, publicOnly bool)) *MockEventRepository_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*time.Time))
+		run(args[0].(context.Context), args[1].(*time.Time), args[2].(bool))
 	})
 	return _c
 }
@@ -194,7 +196,7 @@ func (_c *MockEventRepository_List_Call) Return(_a0 []domain.Event, _a1 error) *
 	return _c
 }
 
-func (_c *MockEventRepository_List_Call) RunAndReturn(run func(context.Context, *time.Time) ([]domain.Event, error)) *MockEventRepository_List_Call {
+func (_c *MockEventRepository_List_Call) RunAndReturn(run func(context.Context, *time.Time, bool) ([]domain.Event, error)) *MockEventRepository_List_Call {
 	_c.Call.Return(run)
 	return _c
 }

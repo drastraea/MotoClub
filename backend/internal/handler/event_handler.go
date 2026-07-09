@@ -26,7 +26,7 @@ func (h *EventHandler) List(c *gin.Context) {
 	if !ok {
 		return
 	}
-	events, err := h.svc.List(c.Request.Context(), startFrom)
+	events, err := h.svc.List(c.Request.Context(), startFrom, publicOnly(c))
 	if err != nil {
 		httpx.Error(c, err)
 		return
@@ -40,7 +40,7 @@ func (h *EventHandler) Get(c *gin.Context) {
 	if !ok {
 		return
 	}
-	event, err := h.svc.Get(c.Request.Context(), id)
+	event, err := h.svc.Get(c.Request.Context(), id, publicOnly(c))
 	if err != nil {
 		httpx.Error(c, err)
 		return
@@ -53,6 +53,7 @@ type eventRequest struct {
 	Description string  `json:"description" binding:"required"`
 	Date        string  `json:"date" binding:"required"`
 	Location    *string `json:"location"`
+	IsPublic    bool    `json:"is_public"`
 }
 
 func (r eventRequest) toInput(c *gin.Context) (service.EventInput, bool) {
@@ -66,6 +67,7 @@ func (r eventRequest) toInput(c *gin.Context) (service.EventInput, bool) {
 		Description: r.Description,
 		Date:        date,
 		Location:    r.Location,
+		IsPublic:    r.IsPublic,
 	}, true
 }
 

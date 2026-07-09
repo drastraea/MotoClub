@@ -24,12 +24,12 @@ func (_m *MockJWTManager) EXPECT() *MockJWTManager_Expecter {
 	return &MockJWTManager_Expecter{mock: &_m.Mock}
 }
 
-// Issue provides a mock function with given fields: memberID, role
-func (_m *MockJWTManager) Issue(memberID int64, role domain.Role) (string, string, time.Time, error) {
+// IssueAccess provides a mock function with given fields: memberID, role
+func (_m *MockJWTManager) IssueAccess(memberID int64, role domain.Role) (string, string, time.Time, error) {
 	ret := _m.Called(memberID, role)
 
 	if len(ret) == 0 {
-		panic("no return value specified for Issue")
+		panic("no return value specified for IssueAccess")
 	}
 
 	var r0 string
@@ -66,31 +66,102 @@ func (_m *MockJWTManager) Issue(memberID int64, role domain.Role) (string, strin
 	return r0, r1, r2, r3
 }
 
-// MockJWTManager_Issue_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Issue'
-type MockJWTManager_Issue_Call struct {
+// MockJWTManager_IssueAccess_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IssueAccess'
+type MockJWTManager_IssueAccess_Call struct {
 	*mock.Call
 }
 
-// Issue is a helper method to define mock.On call
+// IssueAccess is a helper method to define mock.On call
 //   - memberID int64
 //   - role domain.Role
-func (_e *MockJWTManager_Expecter) Issue(memberID interface{}, role interface{}) *MockJWTManager_Issue_Call {
-	return &MockJWTManager_Issue_Call{Call: _e.mock.On("Issue", memberID, role)}
+func (_e *MockJWTManager_Expecter) IssueAccess(memberID interface{}, role interface{}) *MockJWTManager_IssueAccess_Call {
+	return &MockJWTManager_IssueAccess_Call{Call: _e.mock.On("IssueAccess", memberID, role)}
 }
 
-func (_c *MockJWTManager_Issue_Call) Run(run func(memberID int64, role domain.Role)) *MockJWTManager_Issue_Call {
+func (_c *MockJWTManager_IssueAccess_Call) Run(run func(memberID int64, role domain.Role)) *MockJWTManager_IssueAccess_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(int64), args[1].(domain.Role))
 	})
 	return _c
 }
 
-func (_c *MockJWTManager_Issue_Call) Return(token string, jti string, expiresAt time.Time, err error) *MockJWTManager_Issue_Call {
+func (_c *MockJWTManager_IssueAccess_Call) Return(token string, jti string, expiresAt time.Time, err error) *MockJWTManager_IssueAccess_Call {
 	_c.Call.Return(token, jti, expiresAt, err)
 	return _c
 }
 
-func (_c *MockJWTManager_Issue_Call) RunAndReturn(run func(int64, domain.Role) (string, string, time.Time, error)) *MockJWTManager_Issue_Call {
+func (_c *MockJWTManager_IssueAccess_Call) RunAndReturn(run func(int64, domain.Role) (string, string, time.Time, error)) *MockJWTManager_IssueAccess_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// IssueRefresh provides a mock function with given fields: memberID, role
+func (_m *MockJWTManager) IssueRefresh(memberID int64, role domain.Role) (string, string, time.Time, error) {
+	ret := _m.Called(memberID, role)
+
+	if len(ret) == 0 {
+		panic("no return value specified for IssueRefresh")
+	}
+
+	var r0 string
+	var r1 string
+	var r2 time.Time
+	var r3 error
+	if rf, ok := ret.Get(0).(func(int64, domain.Role) (string, string, time.Time, error)); ok {
+		return rf(memberID, role)
+	}
+	if rf, ok := ret.Get(0).(func(int64, domain.Role) string); ok {
+		r0 = rf(memberID, role)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(int64, domain.Role) string); ok {
+		r1 = rf(memberID, role)
+	} else {
+		r1 = ret.Get(1).(string)
+	}
+
+	if rf, ok := ret.Get(2).(func(int64, domain.Role) time.Time); ok {
+		r2 = rf(memberID, role)
+	} else {
+		r2 = ret.Get(2).(time.Time)
+	}
+
+	if rf, ok := ret.Get(3).(func(int64, domain.Role) error); ok {
+		r3 = rf(memberID, role)
+	} else {
+		r3 = ret.Error(3)
+	}
+
+	return r0, r1, r2, r3
+}
+
+// MockJWTManager_IssueRefresh_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'IssueRefresh'
+type MockJWTManager_IssueRefresh_Call struct {
+	*mock.Call
+}
+
+// IssueRefresh is a helper method to define mock.On call
+//   - memberID int64
+//   - role domain.Role
+func (_e *MockJWTManager_Expecter) IssueRefresh(memberID interface{}, role interface{}) *MockJWTManager_IssueRefresh_Call {
+	return &MockJWTManager_IssueRefresh_Call{Call: _e.mock.On("IssueRefresh", memberID, role)}
+}
+
+func (_c *MockJWTManager_IssueRefresh_Call) Run(run func(memberID int64, role domain.Role)) *MockJWTManager_IssueRefresh_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(int64), args[1].(domain.Role))
+	})
+	return _c
+}
+
+func (_c *MockJWTManager_IssueRefresh_Call) Return(token string, jti string, expiresAt time.Time, err error) *MockJWTManager_IssueRefresh_Call {
+	_c.Call.Return(token, jti, expiresAt, err)
+	return _c
+}
+
+func (_c *MockJWTManager_IssueRefresh_Call) RunAndReturn(run func(int64, domain.Role) (string, string, time.Time, error)) *MockJWTManager_IssueRefresh_Call {
 	_c.Call.Return(run)
 	return _c
 }

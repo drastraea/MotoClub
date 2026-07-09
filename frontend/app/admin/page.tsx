@@ -1,17 +1,53 @@
+"use client";
+
+import { useCallback } from "react";
 import Link from "next/link";
 import { UserCheck, Users, CalendarDays, Megaphone } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-
-// TODO: Replace counts with real data (GET /members/registration/count,
-// GET /members, GET /events, GET /announcements)
-const stats = [
-  { href: "/admin/members", icon: UserCheck, label: "Pending Applications", value: 4 },
-  { href: "/admin/users", icon: Users, label: "Total Members", value: 128 },
-  { href: "/admin/events", icon: CalendarDays, label: "Upcoming Events", value: 5 },
-  { href: "/admin/announcements", icon: Megaphone, label: "Announcements", value: 3 },
-];
+import { api } from "@/lib/api";
+import { useApiData } from "@/hooks/useApiData";
 
 export default function AdminHome() {
+  const { data } = useApiData(
+    useCallback(async () => {
+      const [pending, members, events, announcements] = await Promise.all([
+        api.getRegistrationCount().catch(() => 0),
+        api.getMembers().catch(() => []),
+        api.getEvents().catch(() => []),
+        api.getAnnouncements().catch(() => []),
+      ]);
+      return {
+        pending,
+        members: members.length,
+        events: events.length,
+        announcements: announcements.length,
+      };
+    }, []),
+    []
+  );
+
+  const stats = [
+    {
+      href: "/admin/members",
+      icon: UserCheck,
+      label: "Pending Applications",
+      value: data?.pending ?? "—",
+    },
+    { href: "/admin/users", icon: Users, label: "Total Members", value: data?.members ?? "—" },
+    {
+      href: "/admin/events",
+      icon: CalendarDays,
+      label: "Upcoming Events",
+      value: data?.events ?? "—",
+    },
+    {
+      href: "/admin/announcements",
+      icon: Megaphone,
+      label: "Announcements",
+      value: data?.announcements ?? "—",
+    },
+  ];
+
   return (
     <div>
       <h1 className="font-heading text-3xl font-bold tracking-wide uppercase">

@@ -24,9 +24,9 @@ func (_m *MockAnnouncementRepository) EXPECT() *MockAnnouncementRepository_Expec
 	return &MockAnnouncementRepository_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: ctx, title, description
-func (_m *MockAnnouncementRepository) Create(ctx context.Context, title string, description string) (domain.Announcement, error) {
-	ret := _m.Called(ctx, title, description)
+// Create provides a mock function with given fields: ctx, title, description, isPublic
+func (_m *MockAnnouncementRepository) Create(ctx context.Context, title string, description string, isPublic bool) (domain.Announcement, error) {
+	ret := _m.Called(ctx, title, description, isPublic)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -34,17 +34,17 @@ func (_m *MockAnnouncementRepository) Create(ctx context.Context, title string, 
 
 	var r0 domain.Announcement
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) (domain.Announcement, error)); ok {
-		return rf(ctx, title, description)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, bool) (domain.Announcement, error)); ok {
+		return rf(ctx, title, description, isPublic)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) domain.Announcement); ok {
-		r0 = rf(ctx, title, description)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, bool) domain.Announcement); ok {
+		r0 = rf(ctx, title, description, isPublic)
 	} else {
 		r0 = ret.Get(0).(domain.Announcement)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
-		r1 = rf(ctx, title, description)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, bool) error); ok {
+		r1 = rf(ctx, title, description, isPublic)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -61,13 +61,14 @@ type MockAnnouncementRepository_Create_Call struct {
 //   - ctx context.Context
 //   - title string
 //   - description string
-func (_e *MockAnnouncementRepository_Expecter) Create(ctx interface{}, title interface{}, description interface{}) *MockAnnouncementRepository_Create_Call {
-	return &MockAnnouncementRepository_Create_Call{Call: _e.mock.On("Create", ctx, title, description)}
+//   - isPublic bool
+func (_e *MockAnnouncementRepository_Expecter) Create(ctx interface{}, title interface{}, description interface{}, isPublic interface{}) *MockAnnouncementRepository_Create_Call {
+	return &MockAnnouncementRepository_Create_Call{Call: _e.mock.On("Create", ctx, title, description, isPublic)}
 }
 
-func (_c *MockAnnouncementRepository_Create_Call) Run(run func(ctx context.Context, title string, description string)) *MockAnnouncementRepository_Create_Call {
+func (_c *MockAnnouncementRepository_Create_Call) Run(run func(ctx context.Context, title string, description string, isPublic bool)) *MockAnnouncementRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string), args[2].(string))
+		run(args[0].(context.Context), args[1].(string), args[2].(string), args[3].(bool))
 	})
 	return _c
 }
@@ -77,14 +78,14 @@ func (_c *MockAnnouncementRepository_Create_Call) Return(_a0 domain.Announcement
 	return _c
 }
 
-func (_c *MockAnnouncementRepository_Create_Call) RunAndReturn(run func(context.Context, string, string) (domain.Announcement, error)) *MockAnnouncementRepository_Create_Call {
+func (_c *MockAnnouncementRepository_Create_Call) RunAndReturn(run func(context.Context, string, string, bool) (domain.Announcement, error)) *MockAnnouncementRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// List provides a mock function with given fields: ctx, startFrom
-func (_m *MockAnnouncementRepository) List(ctx context.Context, startFrom *time.Time) ([]domain.Announcement, error) {
-	ret := _m.Called(ctx, startFrom)
+// List provides a mock function with given fields: ctx, startFrom, publicOnly
+func (_m *MockAnnouncementRepository) List(ctx context.Context, startFrom *time.Time, publicOnly bool) ([]domain.Announcement, error) {
+	ret := _m.Called(ctx, startFrom, publicOnly)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -92,19 +93,19 @@ func (_m *MockAnnouncementRepository) List(ctx context.Context, startFrom *time.
 
 	var r0 []domain.Announcement
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *time.Time) ([]domain.Announcement, error)); ok {
-		return rf(ctx, startFrom)
+	if rf, ok := ret.Get(0).(func(context.Context, *time.Time, bool) ([]domain.Announcement, error)); ok {
+		return rf(ctx, startFrom, publicOnly)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *time.Time) []domain.Announcement); ok {
-		r0 = rf(ctx, startFrom)
+	if rf, ok := ret.Get(0).(func(context.Context, *time.Time, bool) []domain.Announcement); ok {
+		r0 = rf(ctx, startFrom, publicOnly)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]domain.Announcement)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *time.Time) error); ok {
-		r1 = rf(ctx, startFrom)
+	if rf, ok := ret.Get(1).(func(context.Context, *time.Time, bool) error); ok {
+		r1 = rf(ctx, startFrom, publicOnly)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -120,13 +121,14 @@ type MockAnnouncementRepository_List_Call struct {
 // List is a helper method to define mock.On call
 //   - ctx context.Context
 //   - startFrom *time.Time
-func (_e *MockAnnouncementRepository_Expecter) List(ctx interface{}, startFrom interface{}) *MockAnnouncementRepository_List_Call {
-	return &MockAnnouncementRepository_List_Call{Call: _e.mock.On("List", ctx, startFrom)}
+//   - publicOnly bool
+func (_e *MockAnnouncementRepository_Expecter) List(ctx interface{}, startFrom interface{}, publicOnly interface{}) *MockAnnouncementRepository_List_Call {
+	return &MockAnnouncementRepository_List_Call{Call: _e.mock.On("List", ctx, startFrom, publicOnly)}
 }
 
-func (_c *MockAnnouncementRepository_List_Call) Run(run func(ctx context.Context, startFrom *time.Time)) *MockAnnouncementRepository_List_Call {
+func (_c *MockAnnouncementRepository_List_Call) Run(run func(ctx context.Context, startFrom *time.Time, publicOnly bool)) *MockAnnouncementRepository_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*time.Time))
+		run(args[0].(context.Context), args[1].(*time.Time), args[2].(bool))
 	})
 	return _c
 }
@@ -136,7 +138,7 @@ func (_c *MockAnnouncementRepository_List_Call) Return(_a0 []domain.Announcement
 	return _c
 }
 
-func (_c *MockAnnouncementRepository_List_Call) RunAndReturn(run func(context.Context, *time.Time) ([]domain.Announcement, error)) *MockAnnouncementRepository_List_Call {
+func (_c *MockAnnouncementRepository_List_Call) RunAndReturn(run func(context.Context, *time.Time, bool) ([]domain.Announcement, error)) *MockAnnouncementRepository_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -188,9 +190,9 @@ func (_c *MockAnnouncementRepository_SoftDelete_Call) RunAndReturn(run func(cont
 	return _c
 }
 
-// Update provides a mock function with given fields: ctx, id, title, description
-func (_m *MockAnnouncementRepository) Update(ctx context.Context, id int64, title string, description string) (domain.Announcement, error) {
-	ret := _m.Called(ctx, id, title, description)
+// Update provides a mock function with given fields: ctx, id, title, description, isPublic
+func (_m *MockAnnouncementRepository) Update(ctx context.Context, id int64, title string, description string, isPublic bool) (domain.Announcement, error) {
+	ret := _m.Called(ctx, id, title, description, isPublic)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Update")
@@ -198,17 +200,17 @@ func (_m *MockAnnouncementRepository) Update(ctx context.Context, id int64, titl
 
 	var r0 domain.Announcement
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, int64, string, string) (domain.Announcement, error)); ok {
-		return rf(ctx, id, title, description)
+	if rf, ok := ret.Get(0).(func(context.Context, int64, string, string, bool) (domain.Announcement, error)); ok {
+		return rf(ctx, id, title, description, isPublic)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, int64, string, string) domain.Announcement); ok {
-		r0 = rf(ctx, id, title, description)
+	if rf, ok := ret.Get(0).(func(context.Context, int64, string, string, bool) domain.Announcement); ok {
+		r0 = rf(ctx, id, title, description, isPublic)
 	} else {
 		r0 = ret.Get(0).(domain.Announcement)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, int64, string, string) error); ok {
-		r1 = rf(ctx, id, title, description)
+	if rf, ok := ret.Get(1).(func(context.Context, int64, string, string, bool) error); ok {
+		r1 = rf(ctx, id, title, description, isPublic)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -226,13 +228,14 @@ type MockAnnouncementRepository_Update_Call struct {
 //   - id int64
 //   - title string
 //   - description string
-func (_e *MockAnnouncementRepository_Expecter) Update(ctx interface{}, id interface{}, title interface{}, description interface{}) *MockAnnouncementRepository_Update_Call {
-	return &MockAnnouncementRepository_Update_Call{Call: _e.mock.On("Update", ctx, id, title, description)}
+//   - isPublic bool
+func (_e *MockAnnouncementRepository_Expecter) Update(ctx interface{}, id interface{}, title interface{}, description interface{}, isPublic interface{}) *MockAnnouncementRepository_Update_Call {
+	return &MockAnnouncementRepository_Update_Call{Call: _e.mock.On("Update", ctx, id, title, description, isPublic)}
 }
 
-func (_c *MockAnnouncementRepository_Update_Call) Run(run func(ctx context.Context, id int64, title string, description string)) *MockAnnouncementRepository_Update_Call {
+func (_c *MockAnnouncementRepository_Update_Call) Run(run func(ctx context.Context, id int64, title string, description string, isPublic bool)) *MockAnnouncementRepository_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(int64), args[2].(string), args[3].(string))
+		run(args[0].(context.Context), args[1].(int64), args[2].(string), args[3].(string), args[4].(bool))
 	})
 	return _c
 }
@@ -242,7 +245,7 @@ func (_c *MockAnnouncementRepository_Update_Call) Return(_a0 domain.Announcement
 	return _c
 }
 
-func (_c *MockAnnouncementRepository_Update_Call) RunAndReturn(run func(context.Context, int64, string, string) (domain.Announcement, error)) *MockAnnouncementRepository_Update_Call {
+func (_c *MockAnnouncementRepository_Update_Call) RunAndReturn(run func(context.Context, int64, string, string, bool) (domain.Announcement, error)) *MockAnnouncementRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

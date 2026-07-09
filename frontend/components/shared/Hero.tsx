@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ImagePlaceholder } from "@/components/shared/ImagePlaceholder";
+import { LoggedOutOnly } from "@/components/shared/LoggedOutOnly";
 
 const valueProps = ["Ride together every weekend", "Family that has your back"];
 
@@ -30,9 +31,11 @@ export function Hero() {
             ))}
           </ul>
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button size="lg" nativeButton={false} render={<Link href="/join" />}>
-              Join Now
-            </Button>
+            <LoggedOutOnly>
+              <Button size="lg" nativeButton={false} render={<Link href="/join" />}>
+                Join Now
+              </Button>
+            </LoggedOutOnly>
             <Button
               size="lg"
               variant="outline"

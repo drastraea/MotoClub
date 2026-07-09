@@ -94,6 +94,7 @@ type Event struct {
 	Description   string
 	Date          time.Time
 	Location      *string
+	IsPublic      bool
 	CreatedAt     time.Time
 	LastUpdatedAt time.Time
 }
@@ -103,6 +104,7 @@ type Announcement struct {
 	ID            int64
 	Title         string
 	Description   string
+	IsPublic      bool
 	CreatedAt     time.Time
 	LastUpdatedAt time.Time
 }
@@ -111,5 +113,6 @@ type Announcement struct {
 type GalleryItem struct {
 	ID        int64
 	Link      string
+	IsPublic  bool
 	CreatedAt time.Time
 }

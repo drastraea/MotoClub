@@ -22,7 +22,8 @@ local:
     sslmode: disable
   jwt_secret: dev-secret
   google_client_id: client-123
-  token_ttl_hours: 12
+  access_ttl_minutes: 30
+  refresh_ttl_hours: 72
   cors_allowed_origins:
     - http://localhost:3000
     - " "
@@ -50,7 +51,8 @@ func TestParse_Local(t *testing.T) {
 	assert.Equal(t, "postgres://motoclub:secret@db:5432/motoclub?sslmode=disable", cfg.DatabaseURL)
 	assert.Equal(t, "dev-secret", cfg.JWTSecret)
 	assert.Equal(t, "client-123", cfg.GoogleClientID)
-	assert.Equal(t, 12*time.Hour, cfg.TokenTTL)
+	assert.Equal(t, 30*time.Minute, cfg.AccessTTL)
+	assert.Equal(t, 72*time.Hour, cfg.RefreshTTL)
 	assert.Equal(t, []string{"http://localhost:3000"}, cfg.AllowedOrigins)
 	assert.Equal(t, "debug", cfg.LogLevel)
 	assert.Equal(t, "text", cfg.LogFormat)
@@ -61,7 +63,8 @@ func TestParse_MinimalDefaults(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "8080", cfg.Port)
 	assert.Equal(t, "postgres://u:p@h:5432/db?sslmode=disable", cfg.DatabaseURL)
-	assert.Equal(t, 24*time.Hour, cfg.TokenTTL) // default when unset
+	assert.Equal(t, 15*time.Minute, cfg.AccessTTL)   // default when unset
+	assert.Equal(t, 168*time.Hour, cfg.RefreshTTL) // default when unset
 	assert.Equal(t, "info", cfg.LogLevel)
 	assert.Equal(t, "json", cfg.LogFormat)
 }

@@ -130,9 +130,9 @@ func (_c *MockEventServicer_Delete_Call) RunAndReturn(run func(context.Context, 
 	return _c
 }
 
-// Get provides a mock function with given fields: ctx, id
-func (_m *MockEventServicer) Get(ctx context.Context, id int64) (domain.Event, error) {
-	ret := _m.Called(ctx, id)
+// Get provides a mock function with given fields: ctx, id, publicOnly
+func (_m *MockEventServicer) Get(ctx context.Context, id int64, publicOnly bool) (domain.Event, error) {
+	ret := _m.Called(ctx, id, publicOnly)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Get")
@@ -140,17 +140,17 @@ func (_m *MockEventServicer) Get(ctx context.Context, id int64) (domain.Event, e
 
 	var r0 domain.Event
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, int64) (domain.Event, error)); ok {
-		return rf(ctx, id)
+	if rf, ok := ret.Get(0).(func(context.Context, int64, bool) (domain.Event, error)); ok {
+		return rf(ctx, id, publicOnly)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, int64) domain.Event); ok {
-		r0 = rf(ctx, id)
+	if rf, ok := ret.Get(0).(func(context.Context, int64, bool) domain.Event); ok {
+		r0 = rf(ctx, id, publicOnly)
 	} else {
 		r0 = ret.Get(0).(domain.Event)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, int64) error); ok {
-		r1 = rf(ctx, id)
+	if rf, ok := ret.Get(1).(func(context.Context, int64, bool) error); ok {
+		r1 = rf(ctx, id, publicOnly)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -166,13 +166,14 @@ type MockEventServicer_Get_Call struct {
 // Get is a helper method to define mock.On call
 //   - ctx context.Context
 //   - id int64
-func (_e *MockEventServicer_Expecter) Get(ctx interface{}, id interface{}) *MockEventServicer_Get_Call {
-	return &MockEventServicer_Get_Call{Call: _e.mock.On("Get", ctx, id)}
+//   - publicOnly bool
+func (_e *MockEventServicer_Expecter) Get(ctx interface{}, id interface{}, publicOnly interface{}) *MockEventServicer_Get_Call {
+	return &MockEventServicer_Get_Call{Call: _e.mock.On("Get", ctx, id, publicOnly)}
 }
 
-func (_c *MockEventServicer_Get_Call) Run(run func(ctx context.Context, id int64)) *MockEventServicer_Get_Call {
+func (_c *MockEventServicer_Get_Call) Run(run func(ctx context.Context, id int64, publicOnly bool)) *MockEventServicer_Get_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(int64))
+		run(args[0].(context.Context), args[1].(int64), args[2].(bool))
 	})
 	return _c
 }
@@ -182,14 +183,14 @@ func (_c *MockEventServicer_Get_Call) Return(_a0 domain.Event, _a1 error) *MockE
 	return _c
 }
 
-func (_c *MockEventServicer_Get_Call) RunAndReturn(run func(context.Context, int64) (domain.Event, error)) *MockEventServicer_Get_Call {
+func (_c *MockEventServicer_Get_Call) RunAndReturn(run func(context.Context, int64, bool) (domain.Event, error)) *MockEventServicer_Get_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// List provides a mock function with given fields: ctx, startFrom
-func (_m *MockEventServicer) List(ctx context.Context, startFrom *time.Time) ([]domain.Event, error) {
-	ret := _m.Called(ctx, startFrom)
+// List provides a mock function with given fields: ctx, startFrom, publicOnly
+func (_m *MockEventServicer) List(ctx context.Context, startFrom *time.Time, publicOnly bool) ([]domain.Event, error) {
+	ret := _m.Called(ctx, startFrom, publicOnly)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -197,19 +198,19 @@ func (_m *MockEventServicer) List(ctx context.Context, startFrom *time.Time) ([]
 
 	var r0 []domain.Event
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, *time.Time) ([]domain.Event, error)); ok {
-		return rf(ctx, startFrom)
+	if rf, ok := ret.Get(0).(func(context.Context, *time.Time, bool) ([]domain.Event, error)); ok {
+		return rf(ctx, startFrom, publicOnly)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, *time.Time) []domain.Event); ok {
-		r0 = rf(ctx, startFrom)
+	if rf, ok := ret.Get(0).(func(context.Context, *time.Time, bool) []domain.Event); ok {
+		r0 = rf(ctx, startFrom, publicOnly)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]domain.Event)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, *time.Time) error); ok {
-		r1 = rf(ctx, startFrom)
+	if rf, ok := ret.Get(1).(func(context.Context, *time.Time, bool) error); ok {
+		r1 = rf(ctx, startFrom, publicOnly)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -225,13 +226,14 @@ type MockEventServicer_List_Call struct {
 // List is a helper method to define mock.On call
 //   - ctx context.Context
 //   - startFrom *time.Time
-func (_e *MockEventServicer_Expecter) List(ctx interface{}, startFrom interface{}) *MockEventServicer_List_Call {
-	return &MockEventServicer_List_Call{Call: _e.mock.On("List", ctx, startFrom)}
+//   - publicOnly bool
+func (_e *MockEventServicer_Expecter) List(ctx interface{}, startFrom interface{}, publicOnly interface{}) *MockEventServicer_List_Call {
+	return &MockEventServicer_List_Call{Call: _e.mock.On("List", ctx, startFrom, publicOnly)}
 }
 
-func (_c *MockEventServicer_List_Call) Run(run func(ctx context.Context, startFrom *time.Time)) *MockEventServicer_List_Call {
+func (_c *MockEventServicer_List_Call) Run(run func(ctx context.Context, startFrom *time.Time, publicOnly bool)) *MockEventServicer_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(*time.Time))
+		run(args[0].(context.Context), args[1].(*time.Time), args[2].(bool))
 	})
 	return _c
 }
@@ -241,7 +243,7 @@ func (_c *MockEventServicer_List_Call) Return(_a0 []domain.Event, _a1 error) *Mo
 	return _c
 }
 
-func (_c *MockEventServicer_List_Call) RunAndReturn(run func(context.Context, *time.Time) ([]domain.Event, error)) *MockEventServicer_List_Call {
+func (_c *MockEventServicer_List_Call) RunAndReturn(run func(context.Context, *time.Time, bool) ([]domain.Event, error)) *MockEventServicer_List_Call {
 	_c.Call.Return(run)
 	return _c
 }

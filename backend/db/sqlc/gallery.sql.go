@@ -10,13 +10,18 @@ import (
 )
 
 const createGalleryItem = `-- name: CreateGalleryItem :one
-INSERT INTO gallery (link)
-VALUES ($1)
-RETURNING id, link, created_at, last_updated_at, deleted_at
+INSERT INTO gallery (link, is_public)
+VALUES ($1, $2)
+RETURNING id, link, created_at, last_updated_at, deleted_at, is_public
 `
 
-func (q *Queries) CreateGalleryItem(ctx context.Context, link string) (Gallery, error) {
-	row := q.db.QueryRow(ctx, createGalleryItem, link)
+type CreateGalleryItemParams struct {
+	Link     string
+	IsPublic bool
+}
+
+func (q *Queries) CreateGalleryItem(ctx context.Context, arg CreateGalleryItemParams) (Gallery, error) {
+	row := q.db.QueryRow(ctx, createGalleryItem, arg.Link, arg.IsPublic)
 	var i Gallery
 	err := row.Scan(
 		&i.ID,
@@ -24,18 +29,20 @@ func (q *Queries) CreateGalleryItem(ctx context.Context, link string) (Gallery, 
 		&i.CreatedAt,
 		&i.LastUpdatedAt,
 		&i.DeletedAt,
+		&i.IsPublic,
 	)
 	return i, err
 }
 
 const listGallery = `-- name: ListGallery :many
-SELECT id, link, created_at, last_updated_at, deleted_at FROM gallery
+SELECT id, link, created_at, last_updated_at, deleted_at, is_public FROM gallery
 WHERE deleted_at IS NULL
+  AND (NOT $1::boolean OR is_public)
 ORDER BY created_at DESC
 `
 
-func (q *Queries) ListGallery(ctx context.Context) ([]Gallery, error) {
-	rows, err := q.db.Query(ctx, listGallery)
+func (q *Queries) ListGallery(ctx context.Context, publicOnly bool) ([]Gallery, error) {
+	rows, err := q.db.Query(ctx, listGallery, publicOnly)
 	if err != nil {
 		return nil, err
 	}
@@ -49,6 +56,7 @@ func (q *Queries) ListGallery(ctx context.Context) ([]Gallery, error) {
 			&i.CreatedAt,
 			&i.LastUpdatedAt,
 			&i.DeletedAt,
+			&i.IsPublic,
 		); err != nil {
 			return nil, err
 		}
@@ -72,4 +80,30 @@ func (q *Queries) SoftDeleteGalleryItem(ctx context.Context, id int64) (int64, e
 		return 0, err
 	}
 	return result.RowsAffected(), nil
+}
+
+const updateGalleryItem = `-- name: UpdateGalleryItem :one
+UPDATE gallery
+SET is_public = $2
+WHERE id = $1 AND deleted_at IS NULL
+RETURNING id, link, created_at, last_updated_at, deleted_at, is_public
+`
+
+type UpdateGalleryItemParams struct {
+	ID       int64
+	IsPublic bool
+}
+
+func (q *Queries) UpdateGalleryItem(ctx context.Context, arg UpdateGalleryItemParams) (Gallery, error) {
+	row := q.db.QueryRow(ctx, updateGalleryItem, arg.ID, arg.IsPublic)
+	var i Gallery
+	err := row.Scan(
+		&i.ID,
+		&i.Link,
+		&i.CreatedAt,
+		&i.LastUpdatedAt,
+		&i.DeletedAt,
+		&i.IsPublic,
+	)
+	return i, err
 }

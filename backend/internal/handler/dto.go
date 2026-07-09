@@ -14,6 +14,7 @@ func idString(id int64) string { return strconv.FormatInt(id, 10) }
 type galleryContent struct {
 	ID        string `json:"id"`
 	Link      string `json:"link"`
+	IsPublic  bool   `json:"is_public"`
 	CreatedAt string `json:"created_at"`
 }
 
@@ -27,6 +28,7 @@ func toGalleryList(items []domain.GalleryItem) galleryListResponse {
 		contents = append(contents, galleryContent{
 			ID:        idString(it.ID),
 			Link:      it.Link,
+			IsPublic:  it.IsPublic,
 			CreatedAt: util.FormatJakartaDate(it.CreatedAt),
 		})
 	}
@@ -39,6 +41,7 @@ type eventSummary struct {
 	ID            string `json:"id"`
 	Title         string `json:"title"`
 	Date          string `json:"date"`
+	IsPublic      bool   `json:"is_public"`
 	LastUpdatedAt string `json:"last_updated_at"`
 }
 
@@ -53,6 +56,7 @@ func toEventList(events []domain.Event) eventListResponse {
 			ID:            idString(e.ID),
 			Title:         e.Title,
 			Date:          util.FormatJakartaDate(e.Date),
+			IsPublic:      e.IsPublic,
 			LastUpdatedAt: util.FormatJakartaDate(e.LastUpdatedAt),
 		})
 	}
@@ -65,6 +69,7 @@ type eventDetail struct {
 	Date          string  `json:"date"`
 	Location      *string `json:"location"`
 	Description   string  `json:"description"`
+	IsPublic      bool    `json:"is_public"`
 	LastUpdatedAt string  `json:"last_updated_at"`
 }
 
@@ -75,6 +80,7 @@ func toEventDetail(e domain.Event) eventDetail {
 		Date:          util.FormatJakartaDate(e.Date),
 		Location:      e.Location,
 		Description:   e.Description,
+		IsPublic:      e.IsPublic,
 		LastUpdatedAt: util.FormatJakartaDate(e.LastUpdatedAt),
 	}
 }
@@ -89,6 +95,7 @@ type announcementItem struct {
 	ID            string `json:"id"`
 	Title         string `json:"title"`
 	Description   string `json:"description"`
+	IsPublic      bool   `json:"is_public"`
 	LastUpdatedAt string `json:"last_updated_at"`
 }
 
@@ -101,6 +108,7 @@ func toAnnouncementItem(a domain.Announcement) announcementItem {
 		ID:            idString(a.ID),
 		Title:         a.Title,
 		Description:   a.Description,
+		IsPublic:      a.IsPublic,
 		LastUpdatedAt: util.FormatJakartaDate(a.LastUpdatedAt),
 	}
 }

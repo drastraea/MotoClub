@@ -53,9 +53,18 @@ func TestJWTAuth_ParseError(t *testing.T) {
 	assert.Equal(t, http.StatusUnauthorized, w.Code)
 }
 
+func TestJWTAuth_WrongTokenType(t *testing.T) {
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("Parse", "tok").Return(auth.Claims{MemberID: 1, Role: domain.RoleMember, JTI: "j", Type: auth.TokenTypeRefresh}, nil)
+
+	c, w := ctxWithAuth("Bearer tok")
+	JWTAuth(jwtMgr, mwmocks.NewMockRevocationChecker(t))(c)
+	assert.Equal(t, http.StatusUnauthorized, w.Code)
+}
+
 func TestJWTAuth_RevocationError(t *testing.T) {
 	jwtMgr := authmocks.NewMockJWTManager(t)
-	jwtMgr.On("Parse", "tok").Return(auth.Claims{MemberID: 1, Role: domain.RoleMember, JTI: "j"}, nil)
+	jwtMgr.On("Parse", "tok").Return(auth.Claims{MemberID: 1, Role: domain.RoleMember, JTI: "j", Type: auth.TokenTypeAccess}, nil)
 	rev := mwmocks.NewMockRevocationChecker(t)
 	rev.On("IsRevoked", mock.Anything, "j").Return(false, errors.New("boom"))
 
@@ -66,7 +75,7 @@ func TestJWTAuth_RevocationError(t *testing.T) {
 
 func TestJWTAuth_Revoked(t *testing.T) {
 	jwtMgr := authmocks.NewMockJWTManager(t)
-	jwtMgr.On("Parse", "tok").Return(auth.Claims{MemberID: 1, Role: domain.RoleMember, JTI: "j"}, nil)
+	jwtMgr.On("Parse", "tok").Return(auth.Claims{MemberID: 1, Role: domain.RoleMember, JTI: "j", Type: auth.TokenTypeAccess}, nil)
 	rev := mwmocks.NewMockRevocationChecker(t)
 	rev.On("IsRevoked", mock.Anything, "j").Return(true, nil)
 
@@ -77,7 +86,7 @@ func TestJWTAuth_Revoked(t *testing.T) {
 
 func TestJWTAuth_Success(t *testing.T) {
 	jwtMgr := authmocks.NewMockJWTManager(t)
-	jwtMgr.On("Parse", "tok").Return(auth.Claims{MemberID: 9, Role: domain.RoleAdmin, JTI: "j"}, nil)
+	jwtMgr.On("Parse", "tok").Return(auth.Claims{MemberID: 9, Role: domain.RoleAdmin, JTI: "j", Type: auth.TokenTypeAccess}, nil)
 	rev := mwmocks.NewMockRevocationChecker(t)
 	rev.On("IsRevoked", mock.Anything, "j").Return(false, nil)
 
@@ -90,6 +99,77 @@ func TestJWTAuth_Success(t *testing.T) {
 	require.True(t, ok)
 	assert.Equal(t, int64(9), p.ID)
 	assert.Equal(t, domain.RoleAdmin, p.Role)
+}
+
+func TestOptionalAuth_NoHeader(t *testing.T) {
+	c, w := ctxWithAuth("")
+	OptionalAuth(authmocks.NewMockJWTManager(t), mwmocks.NewMockRevocationChecker(t))(c)
+	assert.False(t, c.IsAborted())
+	assert.Equal(t, http.StatusOK, w.Code)
+	_, ok := httpx.Principal(c)
+	assert.False(t, ok)
+}
+
+func TestOptionalAuth_ParseErrorIgnored(t *testing.T) {
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("Parse", "tok").Return(auth.Claims{}, auth.ErrInvalidToken)
+
+	c, w := ctxWithAuth("Bearer tok")
+	OptionalAuth(jwtMgr, mwmocks.NewMockRevocationChecker(t))(c)
+	assert.False(t, c.IsAborted())
+	_, ok := httpx.Principal(c)
+	assert.False(t, ok)
+	_ = w
+}
+
+func TestOptionalAuth_WrongTypeIgnored(t *testing.T) {
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("Parse", "tok").Return(auth.Claims{MemberID: 1, Role: domain.RoleMember, JTI: "j", Type: auth.TokenTypeRefresh}, nil)
+
+	c, _ := ctxWithAuth("Bearer tok")
+	OptionalAuth(jwtMgr, mwmocks.NewMockRevocationChecker(t))(c)
+	assert.False(t, c.IsAborted())
+	_, ok := httpx.Principal(c)
+	assert.False(t, ok)
+}
+
+func TestOptionalAuth_RevocationError(t *testing.T) {
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("Parse", "tok").Return(auth.Claims{MemberID: 1, Role: domain.RoleMember, JTI: "j", Type: auth.TokenTypeAccess}, nil)
+	rev := mwmocks.NewMockRevocationChecker(t)
+	rev.On("IsRevoked", mock.Anything, "j").Return(false, errors.New("boom"))
+
+	c, w := ctxWithAuth("Bearer tok")
+	OptionalAuth(jwtMgr, rev)(c)
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	assert.True(t, c.IsAborted())
+}
+
+func TestOptionalAuth_RevokedIgnored(t *testing.T) {
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("Parse", "tok").Return(auth.Claims{MemberID: 1, Role: domain.RoleMember, JTI: "j", Type: auth.TokenTypeAccess}, nil)
+	rev := mwmocks.NewMockRevocationChecker(t)
+	rev.On("IsRevoked", mock.Anything, "j").Return(true, nil)
+
+	c, _ := ctxWithAuth("Bearer tok")
+	OptionalAuth(jwtMgr, rev)(c)
+	assert.False(t, c.IsAborted())
+	_, ok := httpx.Principal(c)
+	assert.False(t, ok)
+}
+
+func TestOptionalAuth_Success(t *testing.T) {
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("Parse", "tok").Return(auth.Claims{MemberID: 9, Role: domain.RoleAdmin, JTI: "j", Type: auth.TokenTypeAccess}, nil)
+	rev := mwmocks.NewMockRevocationChecker(t)
+	rev.On("IsRevoked", mock.Anything, "j").Return(false, nil)
+
+	c, _ := ctxWithAuth("Bearer tok")
+	OptionalAuth(jwtMgr, rev)(c)
+	assert.False(t, c.IsAborted())
+	p, ok := httpx.Principal(c)
+	require.True(t, ok)
+	assert.Equal(t, int64(9), p.ID)
 }
 
 func TestRequireRole(t *testing.T) {

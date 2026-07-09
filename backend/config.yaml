@@ -15,7 +15,8 @@ local:
     sslmode: disable
   jwt_secret: dev-secret-change-me
   google_client_id: "271720379050-j4vh9raaoeo58gqlf5gli1moh8g38srt.apps.googleusercontent.com"
-  token_ttl_hours: 24
+  access_ttl_minutes: 15
+  refresh_ttl_hours: 168
   cors_allowed_origins:
     - http://localhost:3000
   log:
@@ -29,7 +30,8 @@ production:
     url: "${DATABASE_URL}"
   jwt_secret: "${JWT_SECRET}"
   google_client_id: "${GOOGLE_CLIENT_ID}"
-  token_ttl_hours: 24
+  access_ttl_minutes: 15
+  refresh_ttl_hours: 168
   cors_allowed_origins:
     - "${FRONTEND_ORIGIN}"
   log:

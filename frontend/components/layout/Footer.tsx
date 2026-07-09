@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MapPin, Phone, Clock, AtSign } from "lucide-react";
+import { LoggedOutOnly } from "@/components/shared/LoggedOutOnly";
 
 const contactInfo = [
   { icon: MapPin, title: "Our Location", body: "Club HQ, 123 Rider Street" },
@@ -36,9 +37,11 @@ export function Footer() {
           <Link href="/#contact" className="hover:text-primary">
             Contact
           </Link>
-          <Link href="/join" className="hover:text-primary">
-            Join Now
-          </Link>
+          <LoggedOutOnly>
+            <Link href="/join" className="hover:text-primary">
+              Join Now
+            </Link>
+          </LoggedOutOnly>
           {/* TODO: Replace with the real club Instagram profile URL. */}
           <a
             href="https://instagram.com"

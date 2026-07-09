@@ -76,8 +76,9 @@ type loginRequest struct {
 }
 
 type loginResponse struct {
-	ID    string `json:"id"`
-	Token string `json:"token"`
+	ID           string `json:"id"`
+	Token        string `json:"token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 // Login handles POST /login.
@@ -91,17 +92,49 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		httpx.Error(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, loginResponse{ID: idString(result.ID), Token: result.Token})
+	c.JSON(http.StatusOK, loginResponse{
+		ID:           idString(result.ID),
+		Token:        result.Token,
+		RefreshToken: result.RefreshToken,
+	})
 }
 
-// Logout handles POST /logout.
+type refreshRequest struct {
+	RefreshToken string `json:"refreshToken" binding:"required"`
+}
+
+type refreshResponse struct {
+	Token        string `json:"token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
+// Refresh handles POST /refresh: exchange a refresh token for a new token pair.
+func (h *AuthHandler) Refresh(c *gin.Context) {
+	var req refreshRequest
+	if !bindJSON(c, &req) {
+		return
+	}
+	result, err := h.svc.Refresh(c.Request.Context(), req.RefreshToken)
+	if err != nil {
+		httpx.Error(c, err)
+		return
+	}
+	c.JSON(http.StatusOK, refreshResponse{Token: result.Token, RefreshToken: result.RefreshToken})
+}
+
+// Logout handles POST /logout. The refresh token may be supplied in the body so
+// it can be revoked alongside the access token.
 func (h *AuthHandler) Logout(c *gin.Context) {
 	principal, ok := httpx.Principal(c)
 	if !ok {
 		httpx.AbortStatus(c, http.StatusUnauthorized, "unauthenticated")
 		return
 	}
-	if err := h.svc.Logout(c.Request.Context(), principal); err != nil {
+	var req struct {
+		RefreshToken string `json:"refreshToken"`
+	}
+	_ = c.ShouldBindJSON(&req) // body is optional
+	if err := h.svc.Logout(c.Request.Context(), principal, req.RefreshToken); err != nil {
 		httpx.Error(c, err)
 		return
 	}

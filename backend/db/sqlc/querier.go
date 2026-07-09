@@ -6,7 +6,6 @@ package sqlc
 
 import (
 	"context"
-	"time"
 )
 
 type Querier interface {
@@ -15,16 +14,16 @@ type Querier interface {
 	CountSuperadmins(ctx context.Context) (int64, error)
 	CreateAnnouncement(ctx context.Context, arg CreateAnnouncementParams) (Announcement, error)
 	CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error)
-	CreateGalleryItem(ctx context.Context, link string) (Gallery, error)
+	CreateGalleryItem(ctx context.Context, arg CreateGalleryItemParams) (Gallery, error)
 	CreateMember(ctx context.Context, arg CreateMemberParams) (Member, error)
-	GetEventByID(ctx context.Context, id int64) (Event, error)
+	GetEventByID(ctx context.Context, arg GetEventByIDParams) (Event, error)
 	GetMemberByEmail(ctx context.Context, email string) (Member, error)
 	GetMemberByGoogleSub(ctx context.Context, googleSub string) (Member, error)
 	GetMemberByID(ctx context.Context, id int64) (Member, error)
 	IsTokenRevoked(ctx context.Context, jti string) (bool, error)
-	ListAnnouncements(ctx context.Context, startFrom *time.Time) ([]Announcement, error)
-	ListEvents(ctx context.Context, startFrom *time.Time) ([]Event, error)
-	ListGallery(ctx context.Context) ([]Gallery, error)
+	ListAnnouncements(ctx context.Context, arg ListAnnouncementsParams) ([]Announcement, error)
+	ListEvents(ctx context.Context, arg ListEventsParams) ([]Event, error)
+	ListGallery(ctx context.Context, publicOnly bool) ([]Gallery, error)
 	ListMembers(ctx context.Context) ([]Member, error)
 	ListPendingRegistrations(ctx context.Context) ([]ListPendingRegistrationsRow, error)
 	PruneExpiredTokens(ctx context.Context) (int64, error)
@@ -35,6 +34,7 @@ type Querier interface {
 	SoftDeleteMember(ctx context.Context, id int64) (int64, error)
 	UpdateAnnouncement(ctx context.Context, arg UpdateAnnouncementParams) (Announcement, error)
 	UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event, error)
+	UpdateGalleryItem(ctx context.Context, arg UpdateGalleryItemParams) (Gallery, error)
 	UpdateMemberRole(ctx context.Context, arg UpdateMemberRoleParams) (Member, error)
 	UpdateMemberStatus(ctx context.Context, arg UpdateMemberStatusParams) (Member, error)
 }

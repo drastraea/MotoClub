@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
+	"github.com/edberto/motoclub-backend/internal/domain"
 	"github.com/edberto/motoclub-backend/internal/httpx"
 	"github.com/edberto/motoclub-backend/internal/util"
 )
@@ -21,6 +22,15 @@ type Handlers struct {
 	Event        *EventHandler
 	Announcement *AnnouncementHandler
 	Gallery      *GalleryHandler
+}
+
+// publicOnly reports whether reads should be restricted to public rows. Only
+// approved members and up (member/admin/superadmin) may see non-public items;
+// anonymous callers and visitors (registered-but-unapproved) are limited to
+// public. The optional-auth middleware sets a principal only for valid tokens.
+func publicOnly(c *gin.Context) bool {
+	p, ok := httpx.Principal(c)
+	return !ok || !p.HasRole(domain.RoleMember, domain.RoleAdmin, domain.RoleSuperadmin)
 }
 
 // parseIDParam reads the {id} path parameter as an int64, writing a 400 and

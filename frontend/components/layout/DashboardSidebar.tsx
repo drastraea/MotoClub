@@ -10,21 +10,27 @@ import {
   CalendarDays,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { isAdmin } from "@/lib/session";
 
+// Members only get their own profile; the rest is admin-only.
 const links = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, adminOnly: true },
   { href: "/dashboard/profile", label: "Profile", icon: User },
-  { href: "/dashboard/members", label: "Members", icon: Users },
-  { href: "/dashboard/announcements", label: "Announcements", icon: Megaphone },
-  { href: "/dashboard/events", label: "Events", icon: CalendarDays },
+  { href: "/dashboard/members", label: "Members", icon: Users, adminOnly: true },
+  { href: "/dashboard/announcements", label: "Announcements", icon: Megaphone, adminOnly: true },
+  { href: "/dashboard/events", label: "Events", icon: CalendarDays, adminOnly: true },
 ];
 
 export function DashboardSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const { user } = useAuth();
+  const admin = isAdmin(user?.role);
+  const visible = links.filter((l) => admin || !l.adminOnly);
 
   return (
     <nav className="flex w-56 shrink-0 flex-col gap-1 border-r border-border p-4">
-      {links.map(({ href, label, icon: Icon }) => {
+      {visible.map(({ href, label, icon: Icon }) => {
         const active = href === "/dashboard" ? pathname === href : pathname.startsWith(href);
         return (
           <Link

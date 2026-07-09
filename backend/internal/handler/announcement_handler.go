@@ -25,7 +25,7 @@ func (h *AnnouncementHandler) List(c *gin.Context) {
 	if !ok {
 		return
 	}
-	items, err := h.svc.List(c.Request.Context(), startFrom)
+	items, err := h.svc.List(c.Request.Context(), startFrom, publicOnly(c))
 	if err != nil {
 		httpx.Error(c, err)
 		return
@@ -36,6 +36,7 @@ func (h *AnnouncementHandler) List(c *gin.Context) {
 type announcementRequest struct {
 	Title       string `json:"title" binding:"required"`
 	Description string `json:"description" binding:"required"`
+	IsPublic    bool   `json:"is_public"`
 }
 
 // Create handles POST /announcements.
@@ -44,7 +45,7 @@ func (h *AnnouncementHandler) Create(c *gin.Context) {
 	if !bindJSON(c, &req) {
 		return
 	}
-	item, err := h.svc.Create(c.Request.Context(), req.Title, req.Description)
+	item, err := h.svc.Create(c.Request.Context(), req.Title, req.Description, req.IsPublic)
 	if err != nil {
 		httpx.Error(c, err)
 		return
@@ -62,7 +63,7 @@ func (h *AnnouncementHandler) Update(c *gin.Context) {
 	if !bindJSON(c, &req) {
 		return
 	}
-	if _, err := h.svc.Update(c.Request.Context(), id, req.Title, req.Description); err != nil {
+	if _, err := h.svc.Update(c.Request.Context(), id, req.Title, req.Description, req.IsPublic); err != nil {
 		httpx.Error(c, err)
 		return
 	}

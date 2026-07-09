@@ -19,10 +19,10 @@ func TestEventService(t *testing.T) {
 	from := time.Now()
 
 	events := repomocks.NewMockEventRepository(t)
-	events.On("List", mock.Anything, &from).Return([]domain.Event{{ID: 1}}, nil)
-	events.On("GetByID", mock.Anything, int64(1)).Return(domain.Event{ID: 1}, nil)
+	events.On("List", mock.Anything, &from, true).Return([]domain.Event{{ID: 1}}, nil)
+	events.On("GetByID", mock.Anything, int64(1), false).Return(domain.Event{ID: 1}, nil)
 	events.On("Create", mock.Anything, mock.MatchedBy(func(in repository.CreateEventInput) bool {
-		return in.Title == "t" && in.Location == &loc
+		return in.Title == "t" && in.Location == &loc && in.IsPublic
 	})).Return(domain.Event{ID: 2}, nil)
 	events.On("Update", mock.Anything, mock.MatchedBy(func(in repository.UpdateEventInput) bool {
 		return in.ID == 3 && in.Description == "d"
@@ -31,15 +31,15 @@ func TestEventService(t *testing.T) {
 
 	s := NewEventService(events)
 
-	list, err := s.List(context.Background(), &from)
+	list, err := s.List(context.Background(), &from, true)
 	require.NoError(t, err)
 	assert.Len(t, list, 1)
 
-	got, err := s.Get(context.Background(), 1)
+	got, err := s.Get(context.Background(), 1, false)
 	require.NoError(t, err)
 	assert.Equal(t, int64(1), got.ID)
 
-	created, err := s.Create(context.Background(), EventInput{Title: "t", Location: &loc})
+	created, err := s.Create(context.Background(), EventInput{Title: "t", Location: &loc, IsPublic: true})
 	require.NoError(t, err)
 	assert.Equal(t, int64(2), created.ID)
 
@@ -52,22 +52,22 @@ func TestEventService(t *testing.T) {
 
 func TestAnnouncementService(t *testing.T) {
 	ann := repomocks.NewMockAnnouncementRepository(t)
-	ann.On("List", mock.Anything, (*time.Time)(nil)).Return([]domain.Announcement{{ID: 1}}, nil)
-	ann.On("Create", mock.Anything, "t", "d").Return(domain.Announcement{ID: 2}, nil)
-	ann.On("Update", mock.Anything, int64(3), "t2", "d2").Return(domain.Announcement{ID: 3}, nil)
+	ann.On("List", mock.Anything, (*time.Time)(nil), true).Return([]domain.Announcement{{ID: 1}}, nil)
+	ann.On("Create", mock.Anything, "t", "d", true).Return(domain.Announcement{ID: 2}, nil)
+	ann.On("Update", mock.Anything, int64(3), "t2", "d2", false).Return(domain.Announcement{ID: 3}, nil)
 	ann.On("SoftDelete", mock.Anything, int64(4)).Return(nil)
 
 	s := NewAnnouncementService(ann)
 
-	list, err := s.List(context.Background(), nil)
+	list, err := s.List(context.Background(), nil, true)
 	require.NoError(t, err)
 	assert.Len(t, list, 1)
 
-	created, err := s.Create(context.Background(), "t", "d")
+	created, err := s.Create(context.Background(), "t", "d", true)
 	require.NoError(t, err)
 	assert.Equal(t, int64(2), created.ID)
 
-	updated, err := s.Update(context.Background(), 3, "t2", "d2")
+	updated, err := s.Update(context.Background(), 3, "t2", "d2", false)
 	require.NoError(t, err)
 	assert.Equal(t, int64(3), updated.ID)
 
@@ -76,19 +76,24 @@ func TestAnnouncementService(t *testing.T) {
 
 func TestGalleryService(t *testing.T) {
 	gal := repomocks.NewMockGalleryRepository(t)
-	gal.On("List", mock.Anything).Return([]domain.GalleryItem{{ID: 1}}, nil)
-	gal.On("Create", mock.Anything, "http://x").Return(domain.GalleryItem{ID: 2}, nil)
+	gal.On("List", mock.Anything, true).Return([]domain.GalleryItem{{ID: 1}}, nil)
+	gal.On("Create", mock.Anything, "http://x", true).Return(domain.GalleryItem{ID: 2}, nil)
+	gal.On("Update", mock.Anything, int64(5), false).Return(domain.GalleryItem{ID: 5}, nil)
 	gal.On("SoftDelete", mock.Anything, int64(3)).Return(nil)
 
 	s := NewGalleryService(gal)
 
-	list, err := s.List(context.Background())
+	list, err := s.List(context.Background(), true)
 	require.NoError(t, err)
 	assert.Len(t, list, 1)
 
-	created, err := s.Create(context.Background(), "http://x")
+	created, err := s.Create(context.Background(), "http://x", true)
 	require.NoError(t, err)
 	assert.Equal(t, int64(2), created.ID)
+
+	updated, err := s.Update(context.Background(), 5, false)
+	require.NoError(t, err)
+	assert.Equal(t, int64(5), updated.ID)
 
 	assert.NoError(t, s.Delete(context.Background(), 3))
 }

@@ -2,9 +2,10 @@
 
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { Trash2, UploadCloud } from "lucide-react";
+import { Eye, EyeOff, Trash2, UploadCloud } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
 
@@ -26,7 +27,8 @@ export default function AdminGalleryPage() {
 
   // POST /gallery { link }. The backend stores a link to an already-hosted
   // image (no upload endpoint), so dropped files are inlined as base64 data
-  // URIs to use as that link.
+  // URIs to use as that link. New items are private (is_public: false) until
+  // toggled public below.
   const onDrop = useCallback(
     async (accepted: File[]) => {
       if (accepted.length === 0) return;
@@ -34,7 +36,7 @@ export default function AdminGalleryPage() {
       try {
         for (const file of accepted) {
           const link = await fileToBase64(file);
-          await api.createGalleryItem(link);
+          await api.createGalleryItem(link, false);
         }
         toast.success(`${accepted.length} image(s) added`);
         await reload();
@@ -46,6 +48,16 @@ export default function AdminGalleryPage() {
     },
     [reload]
   );
+
+  const togglePublic = async (id: string, isPublic: boolean) => {
+    try {
+      await api.updateGalleryItem(id, isPublic);
+      toast.success(isPublic ? "Now public" : "Now private");
+      await reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Update failed");
+    }
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -93,15 +105,29 @@ export default function AdminGalleryPage() {
               alt="Gallery item"
               className="aspect-square w-full rounded-lg border border-border object-cover"
             />
-            <Button
-              size="icon-sm"
-              variant="destructive"
-              className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100"
-              onClick={() => handleDelete(img.id)}
-              aria-label="Delete image"
-            >
-              <Trash2 className="size-4" />
-            </Button>
+            {img.is_public && (
+              <Badge variant="secondary" className="absolute top-2 left-2">
+                Public
+              </Badge>
+            )}
+            <div className="absolute top-2 right-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+              <Button
+                size="icon-sm"
+                variant="secondary"
+                onClick={() => togglePublic(img.id, !img.is_public)}
+                aria-label={img.is_public ? "Make private" : "Make public"}
+              >
+                {img.is_public ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              </Button>
+              <Button
+                size="icon-sm"
+                variant="destructive"
+                onClick={() => handleDelete(img.id)}
+                aria-label="Delete image"
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            </div>
           </div>
         ))}
       </div>

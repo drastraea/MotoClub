@@ -17,14 +17,19 @@ func NewGalleryService(gallery repository.GalleryRepository) *GalleryService {
 	return &GalleryService{gallery: gallery}
 }
 
-// List returns all gallery items.
-func (s *GalleryService) List(ctx context.Context) ([]domain.GalleryItem, error) {
-	return s.gallery.List(ctx)
+// List returns all gallery items (public rows only when publicOnly is set).
+func (s *GalleryService) List(ctx context.Context, publicOnly bool) ([]domain.GalleryItem, error) {
+	return s.gallery.List(ctx, publicOnly)
 }
 
 // Create adds a new gallery item.
-func (s *GalleryService) Create(ctx context.Context, link string) (domain.GalleryItem, error) {
-	return s.gallery.Create(ctx, link)
+func (s *GalleryService) Create(ctx context.Context, link string, isPublic bool) (domain.GalleryItem, error) {
+	return s.gallery.Create(ctx, link, isPublic)
+}
+
+// Update sets the public visibility of a gallery item.
+func (s *GalleryService) Update(ctx context.Context, id int64, isPublic bool) (domain.GalleryItem, error) {
+	return s.gallery.Update(ctx, id, isPublic)
 }
 
 // Delete soft-deletes a gallery item.

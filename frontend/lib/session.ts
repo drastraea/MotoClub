@@ -7,6 +7,10 @@ export type Role = "visitor" | "member" | "admin" | "superadmin";
 export type Session = {
   id: string;
   token: string;
+  // Long-lived refresh token; exchanged for a new access token via POST /refresh
+  // when the access token expires. Optional so sessions saved before this field
+  // existed still parse.
+  refreshToken?: string;
   role: Role;
   name?: string;
   email?: string;

@@ -24,6 +24,15 @@ func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middlewa
 	// Public endpoints.
 	r.POST("/register", h.Auth.Register)
 	r.POST("/login", h.Auth.Login)
+	r.POST("/refresh", h.Auth.Refresh)
+
+	// Public reads with optional auth: anonymous callers get only public items;
+	// any authenticated caller gets everything (so admins see their drafts).
+	publicRead := r.Group("/", middleware.OptionalAuth(jwtMgr, revocations))
+	publicRead.GET("/gallery", h.Gallery.List)
+	publicRead.GET("/events", h.Event.List)
+	publicRead.GET("/event/:id", h.Event.Get)
+	publicRead.GET("/announcements", h.Announcement.List)
 
 	// Authenticated endpoints available to any role, including visitors
 	// (registered-but-unapproved members).
@@ -31,13 +40,6 @@ func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middlewa
 	authed.POST("/logout", h.Auth.Logout)
 	authed.GET("/members/:id/profile",
 		middleware.RequireSelfOrRole(domain.RoleAdmin, domain.RoleSuperadmin), h.Member.GetProfile)
-
-	// Member area — approved members and up (visitors are excluded).
-	memberArea := authed.Group("/", middleware.RequireRole(domain.RoleMember, domain.RoleAdmin, domain.RoleSuperadmin))
-	memberArea.GET("/gallery", h.Gallery.List)
-	memberArea.GET("/events", h.Event.List)
-	memberArea.GET("/event/:id", h.Event.Get)
-	memberArea.GET("/announcements", h.Announcement.List)
 
 	// Admin + superadmin endpoints.
 	admin := authed.Group("/", middleware.RequireRole(domain.RoleAdmin, domain.RoleSuperadmin))
@@ -52,6 +54,7 @@ func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middlewa
 	admin.DELETE("/events/:id", h.Event.Delete)
 
 	admin.POST("/gallery", h.Gallery.Create)
+	admin.PUT("/gallery/:id", h.Gallery.Update)
 	admin.DELETE("/gallery/:id", h.Gallery.Delete)
 
 	admin.POST("/announcements", h.Announcement.Create)

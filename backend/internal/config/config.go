@@ -21,7 +21,8 @@ type Config struct {
 	DatabaseURL    string
 	JWTSecret      string
 	GoogleClientID string
-	TokenTTL       time.Duration
+	AccessTTL      time.Duration
+	RefreshTTL     time.Duration
 	AllowedOrigins []string
 	LogLevel       string
 	LogFormat      string
@@ -48,11 +49,12 @@ type logSection struct {
 type envSection struct {
 	Port               string      `yaml:"port"`
 	Database           dbSection   `yaml:"database"`
-	JWTSecret          string      `yaml:"jwt_secret"`
-	GoogleClientID     string      `yaml:"google_client_id"`
-	TokenTTLHours      int         `yaml:"token_ttl_hours"`
-	CORSAllowedOrigins []string    `yaml:"cors_allowed_origins"`
-	Log                logSection  `yaml:"log"`
+	JWTSecret          string     `yaml:"jwt_secret"`
+	GoogleClientID     string     `yaml:"google_client_id"`
+	AccessTTLMinutes   int        `yaml:"access_ttl_minutes"`
+	RefreshTTLHours    int        `yaml:"refresh_ttl_hours"`
+	CORSAllowedOrigins []string   `yaml:"cors_allowed_origins"`
+	Log                logSection `yaml:"log"`
 }
 
 // Parse resolves the config for appEnv from raw YAML (already env-expanded).
@@ -72,7 +74,8 @@ func Parse(data []byte, appEnv string) (Config, error) {
 		DatabaseURL:    sec.Database.url(),
 		JWTSecret:      sec.JWTSecret,
 		GoogleClientID: sec.GoogleClientID,
-		TokenTTL:       ttl(sec.TokenTTLHours),
+		AccessTTL:      minutesOr(sec.AccessTTLMinutes, 15*time.Minute),
+		RefreshTTL:     hoursOr(sec.RefreshTTLHours, 168*time.Hour),
 		AllowedOrigins: cleanOrigins(sec.CORSAllowedOrigins),
 		LogLevel:       def(sec.Log.Level, "info"),
 		LogFormat:      def(sec.Log.Format, "json"),
@@ -112,9 +115,16 @@ func (d dbSection) url() string {
 	return fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=%s", d.User, d.Password, d.Host, port, d.Name, ssl)
 }
 
-func ttl(hours int) time.Duration {
+func minutesOr(minutes int, fallback time.Duration) time.Duration {
+	if minutes <= 0 {
+		return fallback
+	}
+	return time.Duration(minutes) * time.Minute
+}
+
+func hoursOr(hours int, fallback time.Duration) time.Duration {
 	if hours <= 0 {
-		return 24 * time.Hour
+		return fallback
 	}
 	return time.Duration(hours) * time.Hour
 }

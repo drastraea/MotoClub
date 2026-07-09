@@ -82,17 +82,17 @@ func (_c *MockAuthServicer_Login_Call) RunAndReturn(run func(context.Context, st
 	return _c
 }
 
-// Logout provides a mock function with given fields: ctx, principal
-func (_m *MockAuthServicer) Logout(ctx context.Context, principal domain.Principal) error {
-	ret := _m.Called(ctx, principal)
+// Logout provides a mock function with given fields: ctx, principal, refreshToken
+func (_m *MockAuthServicer) Logout(ctx context.Context, principal domain.Principal, refreshToken string) error {
+	ret := _m.Called(ctx, principal, refreshToken)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Logout")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, domain.Principal) error); ok {
-		r0 = rf(ctx, principal)
+	if rf, ok := ret.Get(0).(func(context.Context, domain.Principal, string) error); ok {
+		r0 = rf(ctx, principal, refreshToken)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -108,13 +108,14 @@ type MockAuthServicer_Logout_Call struct {
 // Logout is a helper method to define mock.On call
 //   - ctx context.Context
 //   - principal domain.Principal
-func (_e *MockAuthServicer_Expecter) Logout(ctx interface{}, principal interface{}) *MockAuthServicer_Logout_Call {
-	return &MockAuthServicer_Logout_Call{Call: _e.mock.On("Logout", ctx, principal)}
+//   - refreshToken string
+func (_e *MockAuthServicer_Expecter) Logout(ctx interface{}, principal interface{}, refreshToken interface{}) *MockAuthServicer_Logout_Call {
+	return &MockAuthServicer_Logout_Call{Call: _e.mock.On("Logout", ctx, principal, refreshToken)}
 }
 
-func (_c *MockAuthServicer_Logout_Call) Run(run func(ctx context.Context, principal domain.Principal)) *MockAuthServicer_Logout_Call {
+func (_c *MockAuthServicer_Logout_Call) Run(run func(ctx context.Context, principal domain.Principal, refreshToken string)) *MockAuthServicer_Logout_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(domain.Principal))
+		run(args[0].(context.Context), args[1].(domain.Principal), args[2].(string))
 	})
 	return _c
 }
@@ -124,7 +125,64 @@ func (_c *MockAuthServicer_Logout_Call) Return(_a0 error) *MockAuthServicer_Logo
 	return _c
 }
 
-func (_c *MockAuthServicer_Logout_Call) RunAndReturn(run func(context.Context, domain.Principal) error) *MockAuthServicer_Logout_Call {
+func (_c *MockAuthServicer_Logout_Call) RunAndReturn(run func(context.Context, domain.Principal, string) error) *MockAuthServicer_Logout_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Refresh provides a mock function with given fields: ctx, refreshToken
+func (_m *MockAuthServicer) Refresh(ctx context.Context, refreshToken string) (service.RefreshResult, error) {
+	ret := _m.Called(ctx, refreshToken)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Refresh")
+	}
+
+	var r0 service.RefreshResult
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (service.RefreshResult, error)); ok {
+		return rf(ctx, refreshToken)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) service.RefreshResult); ok {
+		r0 = rf(ctx, refreshToken)
+	} else {
+		r0 = ret.Get(0).(service.RefreshResult)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, refreshToken)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockAuthServicer_Refresh_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Refresh'
+type MockAuthServicer_Refresh_Call struct {
+	*mock.Call
+}
+
+// Refresh is a helper method to define mock.On call
+//   - ctx context.Context
+//   - refreshToken string
+func (_e *MockAuthServicer_Expecter) Refresh(ctx interface{}, refreshToken interface{}) *MockAuthServicer_Refresh_Call {
+	return &MockAuthServicer_Refresh_Call{Call: _e.mock.On("Refresh", ctx, refreshToken)}
+}
+
+func (_c *MockAuthServicer_Refresh_Call) Run(run func(ctx context.Context, refreshToken string)) *MockAuthServicer_Refresh_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(string))
+	})
+	return _c
+}
+
+func (_c *MockAuthServicer_Refresh_Call) Return(_a0 service.RefreshResult, _a1 error) *MockAuthServicer_Refresh_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockAuthServicer_Refresh_Call) RunAndReturn(run func(context.Context, string) (service.RefreshResult, error)) *MockAuthServicer_Refresh_Call {
 	_c.Call.Return(run)
 	return _c
 }

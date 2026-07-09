@@ -146,13 +146,15 @@ func TestLogin_FoundByGoogleSub(t *testing.T) {
 	members := repomocks.NewMockMemberRepository(t)
 	members.On("GetByGoogleSub", mock.Anything, "sub-1").Return(domain.Member{ID: 3, Role: domain.RoleMember}, nil)
 	jwtMgr := authmocks.NewMockJWTManager(t)
-	jwtMgr.On("Issue", int64(3), domain.RoleMember).Return("tok", "jti", time.Now(), nil)
+	jwtMgr.On("IssueAccess", int64(3), domain.RoleMember).Return("tok", "jti", time.Now(), nil)
+	jwtMgr.On("IssueRefresh", int64(3), domain.RoleMember).Return("rtok", "rjti", time.Now(), nil)
 	s := NewAuthService(members, nil, ver, jwtMgr)
 
 	res, err := s.Login(context.Background(), "a@b.com", validToken)
 	require.NoError(t, err)
 	assert.Equal(t, int64(3), res.ID)
 	assert.Equal(t, "tok", res.Token)
+	assert.Equal(t, "rtok", res.RefreshToken)
 }
 
 func TestLogin_GoogleSubLookupError(t *testing.T) {
@@ -175,7 +177,8 @@ func TestLogin_BackfillPath(t *testing.T) {
 	members.On("BackfillGoogleSub", mock.Anything, int64(4), "sub-1").
 		Return(domain.Member{ID: 4, Role: domain.RoleSuperadmin}, nil)
 	jwtMgr := authmocks.NewMockJWTManager(t)
-	jwtMgr.On("Issue", int64(4), domain.RoleSuperadmin).Return("tok", "jti", time.Now(), nil)
+	jwtMgr.On("IssueAccess", int64(4), domain.RoleSuperadmin).Return("tok", "jti", time.Now(), nil)
+	jwtMgr.On("IssueRefresh", int64(4), domain.RoleSuperadmin).Return("rtok", "rjti", time.Now(), nil)
 	s := NewAuthService(members, nil, ver, jwtMgr)
 
 	res, err := s.Login(context.Background(), "a@b.com", validToken)
@@ -214,19 +217,174 @@ func TestLogin_IssueError(t *testing.T) {
 	members := repomocks.NewMockMemberRepository(t)
 	members.On("GetByGoogleSub", mock.Anything, "sub-1").Return(domain.Member{ID: 3, Role: domain.RoleMember}, nil)
 	jwtMgr := authmocks.NewMockJWTManager(t)
-	jwtMgr.On("Issue", int64(3), domain.RoleMember).Return("", "", time.Time{}, errBoom)
+	jwtMgr.On("IssueAccess", int64(3), domain.RoleMember).Return("", "", time.Time{}, errBoom)
 	s := NewAuthService(members, nil, ver, jwtMgr)
 
 	_, err := s.Login(context.Background(), "a@b.com", validToken)
 	assert.ErrorIs(t, err, errBoom)
 }
 
-func TestLogout(t *testing.T) {
+func TestLogin_RefreshIssueError(t *testing.T) {
+	ver := authmocks.NewMockGoogleVerifier(t)
+	ver.On("Verify", mock.Anything, validToken).Return(identity(), nil)
+	members := repomocks.NewMockMemberRepository(t)
+	members.On("GetByGoogleSub", mock.Anything, "sub-1").Return(domain.Member{ID: 3, Role: domain.RoleMember}, nil)
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("IssueAccess", int64(3), domain.RoleMember).Return("tok", "jti", time.Now(), nil)
+	jwtMgr.On("IssueRefresh", int64(3), domain.RoleMember).Return("", "", time.Time{}, errBoom)
+	s := NewAuthService(members, nil, ver, jwtMgr)
+
+	_, err := s.Login(context.Background(), "a@b.com", validToken)
+	assert.ErrorIs(t, err, errBoom)
+}
+
+func refreshClaims(exp time.Time) auth.Claims {
+	return auth.Claims{MemberID: 5, Role: domain.RoleMember, JTI: "old-jti", Type: auth.TokenTypeRefresh, ExpiresAt: exp}
+}
+
+func TestRefresh_Success(t *testing.T) {
+	exp := time.Now().Add(time.Hour)
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("Parse", "rtok").Return(refreshClaims(exp), nil)
+	jwtMgr.On("IssueAccess", int64(5), domain.RoleMember).Return("new-access", "a-jti", time.Now(), nil)
+	jwtMgr.On("IssueRefresh", int64(5), domain.RoleMember).Return("new-refresh", "r-jti", time.Now(), nil)
+	tokens := repomocks.NewMockTokenRepository(t)
+	tokens.On("IsRevoked", mock.Anything, "old-jti").Return(false, nil)
+	tokens.On("Revoke", mock.Anything, "old-jti", int64(5), exp).Return(nil)
+	s := NewAuthService(nil, tokens, nil, jwtMgr)
+
+	res, err := s.Refresh(context.Background(), "rtok")
+	require.NoError(t, err)
+	assert.Equal(t, "new-access", res.Token)
+	assert.Equal(t, "new-refresh", res.RefreshToken)
+}
+
+func TestRefresh_ParseError(t *testing.T) {
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("Parse", "bad").Return(auth.Claims{}, auth.ErrInvalidToken)
+	s := NewAuthService(nil, nil, nil, jwtMgr)
+
+	_, err := s.Refresh(context.Background(), "bad")
+	assert.ErrorIs(t, err, apperr.ErrUnauthorized)
+}
+
+func TestRefresh_WrongType(t *testing.T) {
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("Parse", "atok").Return(auth.Claims{MemberID: 5, Type: auth.TokenTypeAccess}, nil)
+	s := NewAuthService(nil, nil, nil, jwtMgr)
+
+	_, err := s.Refresh(context.Background(), "atok")
+	assert.ErrorIs(t, err, apperr.ErrUnauthorized)
+}
+
+func TestRefresh_Revoked(t *testing.T) {
+	exp := time.Now().Add(time.Hour)
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("Parse", "rtok").Return(refreshClaims(exp), nil)
+	tokens := repomocks.NewMockTokenRepository(t)
+	tokens.On("IsRevoked", mock.Anything, "old-jti").Return(true, nil)
+	s := NewAuthService(nil, tokens, nil, jwtMgr)
+
+	_, err := s.Refresh(context.Background(), "rtok")
+	assert.ErrorIs(t, err, apperr.ErrUnauthorized)
+}
+
+func TestRefresh_IsRevokedError(t *testing.T) {
+	exp := time.Now().Add(time.Hour)
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("Parse", "rtok").Return(refreshClaims(exp), nil)
+	tokens := repomocks.NewMockTokenRepository(t)
+	tokens.On("IsRevoked", mock.Anything, "old-jti").Return(false, errBoom)
+	s := NewAuthService(nil, tokens, nil, jwtMgr)
+
+	_, err := s.Refresh(context.Background(), "rtok")
+	assert.ErrorIs(t, err, errBoom)
+}
+
+func TestRefresh_IssueAccessError(t *testing.T) {
+	exp := time.Now().Add(time.Hour)
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("Parse", "rtok").Return(refreshClaims(exp), nil)
+	jwtMgr.On("IssueAccess", int64(5), domain.RoleMember).Return("", "", time.Time{}, errBoom)
+	tokens := repomocks.NewMockTokenRepository(t)
+	tokens.On("IsRevoked", mock.Anything, "old-jti").Return(false, nil)
+	s := NewAuthService(nil, tokens, nil, jwtMgr)
+
+	_, err := s.Refresh(context.Background(), "rtok")
+	assert.ErrorIs(t, err, errBoom)
+}
+
+func TestRefresh_IssueRefreshError(t *testing.T) {
+	exp := time.Now().Add(time.Hour)
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("Parse", "rtok").Return(refreshClaims(exp), nil)
+	jwtMgr.On("IssueAccess", int64(5), domain.RoleMember).Return("new-access", "a-jti", time.Now(), nil)
+	jwtMgr.On("IssueRefresh", int64(5), domain.RoleMember).Return("", "", time.Time{}, errBoom)
+	tokens := repomocks.NewMockTokenRepository(t)
+	tokens.On("IsRevoked", mock.Anything, "old-jti").Return(false, nil)
+	s := NewAuthService(nil, tokens, nil, jwtMgr)
+
+	_, err := s.Refresh(context.Background(), "rtok")
+	assert.ErrorIs(t, err, errBoom)
+}
+
+func TestRefresh_RevokeError(t *testing.T) {
+	exp := time.Now().Add(time.Hour)
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("Parse", "rtok").Return(refreshClaims(exp), nil)
+	jwtMgr.On("IssueAccess", int64(5), domain.RoleMember).Return("new-access", "a-jti", time.Now(), nil)
+	jwtMgr.On("IssueRefresh", int64(5), domain.RoleMember).Return("new-refresh", "r-jti", time.Now(), nil)
+	tokens := repomocks.NewMockTokenRepository(t)
+	tokens.On("IsRevoked", mock.Anything, "old-jti").Return(false, nil)
+	tokens.On("Revoke", mock.Anything, "old-jti", int64(5), exp).Return(errBoom)
+	s := NewAuthService(nil, tokens, nil, jwtMgr)
+
+	_, err := s.Refresh(context.Background(), "rtok")
+	assert.ErrorIs(t, err, errBoom)
+}
+
+func TestLogout_AccessOnly(t *testing.T) {
 	tokens := repomocks.NewMockTokenRepository(t)
 	exp := time.Now().Add(time.Hour)
 	tokens.On("Revoke", mock.Anything, "jti", int64(5), exp).Return(nil)
-	s := NewAuthService(repomocks.NewMockMemberRepository(t), tokens, nil, nil)
+	s := NewAuthService(nil, tokens, nil, nil)
 
-	err := s.Logout(context.Background(), domain.Principal{ID: 5, JTI: "jti", ExpiresAt: exp})
+	err := s.Logout(context.Background(), domain.Principal{ID: 5, JTI: "jti", ExpiresAt: exp}, "")
+	assert.NoError(t, err)
+}
+
+func TestLogout_AccessRevokeError(t *testing.T) {
+	tokens := repomocks.NewMockTokenRepository(t)
+	exp := time.Now().Add(time.Hour)
+	tokens.On("Revoke", mock.Anything, "jti", int64(5), exp).Return(errBoom)
+	s := NewAuthService(nil, tokens, nil, nil)
+
+	err := s.Logout(context.Background(), domain.Principal{ID: 5, JTI: "jti", ExpiresAt: exp}, "")
+	assert.ErrorIs(t, err, errBoom)
+}
+
+func TestLogout_WithRefreshToken(t *testing.T) {
+	accessExp := time.Now().Add(time.Hour)
+	refreshExp := time.Now().Add(24 * time.Hour)
+	tokens := repomocks.NewMockTokenRepository(t)
+	tokens.On("Revoke", mock.Anything, "jti", int64(5), accessExp).Return(nil)
+	tokens.On("Revoke", mock.Anything, "rjti", int64(5), refreshExp).Return(nil)
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("Parse", "rtok").Return(auth.Claims{MemberID: 5, JTI: "rjti", Type: auth.TokenTypeRefresh, ExpiresAt: refreshExp}, nil)
+	s := NewAuthService(nil, tokens, nil, jwtMgr)
+
+	err := s.Logout(context.Background(), domain.Principal{ID: 5, JTI: "jti", ExpiresAt: accessExp}, "rtok")
+	assert.NoError(t, err)
+}
+
+func TestLogout_InvalidRefreshTokenIgnored(t *testing.T) {
+	accessExp := time.Now().Add(time.Hour)
+	tokens := repomocks.NewMockTokenRepository(t)
+	tokens.On("Revoke", mock.Anything, "jti", int64(5), accessExp).Return(nil)
+	jwtMgr := authmocks.NewMockJWTManager(t)
+	jwtMgr.On("Parse", "bad").Return(auth.Claims{}, auth.ErrInvalidToken)
+	s := NewAuthService(nil, tokens, nil, jwtMgr)
+
+	err := s.Logout(context.Background(), domain.Principal{ID: 5, JTI: "jti", ExpiresAt: accessExp}, "bad")
 	assert.NoError(t, err)
 }

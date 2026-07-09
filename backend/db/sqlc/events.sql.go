@@ -11,9 +11,9 @@ import (
 )
 
 const createEvent = `-- name: CreateEvent :one
-INSERT INTO events (title, description, event_date, location)
-VALUES ($1, $2, $3, $4)
-RETURNING id, title, description, event_date, location, created_at, last_updated_at, deleted_at
+INSERT INTO events (title, description, event_date, location, is_public)
+VALUES ($1, $2, $3, $4, $5)
+RETURNING id, title, description, event_date, location, created_at, last_updated_at, deleted_at, is_public
 `
 
 type CreateEventParams struct {
@@ -21,6 +21,7 @@ type CreateEventParams struct {
 	Description string
 	EventDate   time.Time
 	Location    *string
+	IsPublic    bool
 }
 
 func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event, error) {
@@ -29,6 +30,7 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event
 		arg.Description,
 		arg.EventDate,
 		arg.Location,
+		arg.IsPublic,
 	)
 	var i Event
 	err := row.Scan(
@@ -40,17 +42,24 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) (Event
 		&i.CreatedAt,
 		&i.LastUpdatedAt,
 		&i.DeletedAt,
+		&i.IsPublic,
 	)
 	return i, err
 }
 
 const getEventByID = `-- name: GetEventByID :one
-SELECT id, title, description, event_date, location, created_at, last_updated_at, deleted_at FROM events
+SELECT id, title, description, event_date, location, created_at, last_updated_at, deleted_at, is_public FROM events
 WHERE id = $1 AND deleted_at IS NULL
+  AND (NOT $2::boolean OR is_public)
 `
 
-func (q *Queries) GetEventByID(ctx context.Context, id int64) (Event, error) {
-	row := q.db.QueryRow(ctx, getEventByID, id)
+type GetEventByIDParams struct {
+	ID         int64
+	PublicOnly bool
+}
+
+func (q *Queries) GetEventByID(ctx context.Context, arg GetEventByIDParams) (Event, error) {
+	row := q.db.QueryRow(ctx, getEventByID, arg.ID, arg.PublicOnly)
 	var i Event
 	err := row.Scan(
 		&i.ID,
@@ -61,19 +70,26 @@ func (q *Queries) GetEventByID(ctx context.Context, id int64) (Event, error) {
 		&i.CreatedAt,
 		&i.LastUpdatedAt,
 		&i.DeletedAt,
+		&i.IsPublic,
 	)
 	return i, err
 }
 
 const listEvents = `-- name: ListEvents :many
-SELECT id, title, description, event_date, location, created_at, last_updated_at, deleted_at FROM events
+SELECT id, title, description, event_date, location, created_at, last_updated_at, deleted_at, is_public FROM events
 WHERE deleted_at IS NULL
   AND ($1::timestamptz IS NULL OR event_date >= $1)
+  AND (NOT $2::boolean OR is_public)
 ORDER BY event_date
 `
 
-func (q *Queries) ListEvents(ctx context.Context, startFrom *time.Time) ([]Event, error) {
-	rows, err := q.db.Query(ctx, listEvents, startFrom)
+type ListEventsParams struct {
+	StartFrom  *time.Time
+	PublicOnly bool
+}
+
+func (q *Queries) ListEvents(ctx context.Context, arg ListEventsParams) ([]Event, error) {
+	rows, err := q.db.Query(ctx, listEvents, arg.StartFrom, arg.PublicOnly)
 	if err != nil {
 		return nil, err
 	}
@@ -90,6 +106,7 @@ func (q *Queries) ListEvents(ctx context.Context, startFrom *time.Time) ([]Event
 			&i.CreatedAt,
 			&i.LastUpdatedAt,
 			&i.DeletedAt,
+			&i.IsPublic,
 		); err != nil {
 			return nil, err
 		}
@@ -117,9 +134,9 @@ func (q *Queries) SoftDeleteEvent(ctx context.Context, id int64) (int64, error) 
 
 const updateEvent = `-- name: UpdateEvent :one
 UPDATE events
-SET title = $2, description = $3, event_date = $4, location = $5
+SET title = $2, description = $3, event_date = $4, location = $5, is_public = $6
 WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, title, description, event_date, location, created_at, last_updated_at, deleted_at
+RETURNING id, title, description, event_date, location, created_at, last_updated_at, deleted_at, is_public
 `
 
 type UpdateEventParams struct {
@@ -128,6 +145,7 @@ type UpdateEventParams struct {
 	Description string
 	EventDate   time.Time
 	Location    *string
+	IsPublic    bool
 }
 
 func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event, error) {
@@ -137,6 +155,7 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event
 		arg.Description,
 		arg.EventDate,
 		arg.Location,
+		arg.IsPublic,
 	)
 	var i Event
 	err := row.Scan(
@@ -148,6 +167,7 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) (Event
 		&i.CreatedAt,
 		&i.LastUpdatedAt,
 		&i.DeletedAt,
+		&i.IsPublic,
 	)
 	return i, err
 }

@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   AnnouncementFormDialog,
@@ -33,10 +34,10 @@ export default function AdminAnnouncementsPage() {
   const handleSubmit = async (values: AnnouncementFormValues) => {
     try {
       if (editing) {
-        await api.updateAnnouncement(editing.id, values.title, values.description);
+        await api.updateAnnouncement(editing.id, values.title, values.description, values.is_public);
         toast.success("Announcement updated");
       } else {
-        await api.createAnnouncement(values.title, values.description);
+        await api.createAnnouncement(values.title, values.description, values.is_public);
         toast.success("Announcement created");
       }
       await reload();
@@ -75,7 +76,10 @@ export default function AdminAnnouncementsPage() {
           <Card key={a.id}>
             <CardHeader className="sm:grid-cols-[1fr_auto] sm:items-center">
               <div>
-                <CardTitle>{a.title}</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  {a.title}
+                  {a.is_public && <Badge variant="secondary">Public</Badge>}
+                </CardTitle>
                 <CardDescription className="flex flex-col gap-1">
                   <span>{a.last_updated_at}</span>
                   <span>{a.description}</span>
@@ -100,7 +104,13 @@ export default function AdminAnnouncementsPage() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         defaultValues={
-          editing ? { title: editing.title, description: editing.description } : undefined
+          editing
+            ? {
+                title: editing.title,
+                description: editing.description,
+                is_public: editing.is_public,
+              }
+            : undefined
         }
         onSubmit={handleSubmit}
       />

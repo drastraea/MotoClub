@@ -15,10 +15,10 @@ export async function completeGoogleLogin(
   login: (session: Session) => void,
   router: ReturnType<typeof useRouter>
 ) {
-  const { id, token } = await api.login(email, idToken);
+  const { id, token, refresh_token } = await api.login(email, idToken);
   const appClaims = decodeJwtPayload<{ role: Role }>(token);
   const role = appClaims?.role ?? "member";
-  login({ id, token, role, name, email });
+  login({ id, token, refreshToken: refresh_token, role, name, email });
 
   if (role === "visitor") {
     toast.info("Your membership application is still pending approval.");
@@ -27,5 +27,5 @@ export async function completeGoogleLogin(
   }
 
   toast.success("Signed in");
-  router.push(isAdmin(role) ? "/admin" : "/dashboard");
+  router.push(isAdmin(role) ? "/admin" : "/dashboard/profile");
 }

@@ -1,15 +1,11 @@
-// TODO: `imageLink` and `isPublic` don't exist on the backend Event model yet
-// (see backend/internal/domain/model.go) - no ImageLink/IsPublic field, no
-// migration, and GET /events has no way to serve a public subset to
-// anonymous callers. Stored per-browser in localStorage as a stand-in so the
-// admin UI is ready; swap for real fields once the backend adds them.
-// NOTE: because this is per-browser, "public" here does NOT actually make
-// events visible to anonymous/non-member visitors yet - it's a display-only
-// flag until the backend supports it.
+// TODO: `imageLink` (event banner) doesn't exist on the backend Event model yet
+// (see backend/internal/domain/model.go) - no ImageLink field and no migration.
+// Stored per-browser in localStorage as a stand-in so the admin UI is ready;
+// swap for a real field once the backend adds it. (`isPublic` used to live here
+// too but is now a real backend field on Event — see lib/api.ts EventInput.)
 
 export type EventStub = {
   imageLink?: string;
-  isPublic?: boolean;
 };
 
 const STORAGE_KEY = "moto-club-event-stubs";

@@ -71,11 +71,35 @@ func TestLogin(t *testing.T) {
 	})
 	t.Run("success", func(t *testing.T) {
 		svc := svcmocks.NewMockAuthServicer(t)
-		svc.On("Login", mock.Anything, "a@b.com", "tok").Return(service.LoginResult{ID: 3, Token: "jwt"}, nil)
+		svc.On("Login", mock.Anything, "a@b.com", "tok").Return(service.LoginResult{ID: 3, Token: "jwt", RefreshToken: "rjwt"}, nil)
 		c, w := ctxJSON(http.MethodPost, "/login", `{"email":"a@b.com","googleToken":"tok"}`)
 		NewAuthHandler(svc).Login(c)
 		assert.Equal(t, http.StatusOK, w.Code)
-		assert.JSONEq(t, `{"id":"3","token":"jwt"}`, w.Body.String())
+		assert.JSONEq(t, `{"id":"3","token":"jwt","refresh_token":"rjwt"}`, w.Body.String())
+	})
+}
+
+func TestRefresh(t *testing.T) {
+	t.Run("bind error", func(t *testing.T) {
+		svc := svcmocks.NewMockAuthServicer(t)
+		c, w := ctxJSON(http.MethodPost, "/refresh", `{}`)
+		NewAuthHandler(svc).Refresh(c)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+	t.Run("service error", func(t *testing.T) {
+		svc := svcmocks.NewMockAuthServicer(t)
+		svc.On("Refresh", mock.Anything, "rtok").Return(service.RefreshResult{}, apperr.ErrUnauthorized)
+		c, w := ctxJSON(http.MethodPost, "/refresh", `{"refreshToken":"rtok"}`)
+		NewAuthHandler(svc).Refresh(c)
+		assert.Equal(t, http.StatusUnauthorized, w.Code)
+	})
+	t.Run("success", func(t *testing.T) {
+		svc := svcmocks.NewMockAuthServicer(t)
+		svc.On("Refresh", mock.Anything, "rtok").Return(service.RefreshResult{Token: "a", RefreshToken: "r"}, nil)
+		c, w := ctxJSON(http.MethodPost, "/refresh", `{"refreshToken":"rtok"}`)
+		NewAuthHandler(svc).Refresh(c)
+		assert.Equal(t, http.StatusOK, w.Code)
+		assert.JSONEq(t, `{"token":"a","refresh_token":"r"}`, w.Body.String())
 	})
 }
 
@@ -88,7 +112,7 @@ func TestLogout(t *testing.T) {
 	})
 	t.Run("service error", func(t *testing.T) {
 		svc := svcmocks.NewMockAuthServicer(t)
-		svc.On("Logout", mock.Anything, mock.Anything).Return(errors.New("x"))
+		svc.On("Logout", mock.Anything, mock.Anything, mock.Anything).Return(errors.New("x"))
 		c, w := ctxJSON(http.MethodPost, "/logout", "")
 		httpx.SetPrincipal(c, domain.Principal{ID: 1})
 		NewAuthHandler(svc).Logout(c)
@@ -96,7 +120,7 @@ func TestLogout(t *testing.T) {
 	})
 	t.Run("success", func(t *testing.T) {
 		svc := svcmocks.NewMockAuthServicer(t)
-		svc.On("Logout", mock.Anything, mock.Anything).Return(nil)
+		svc.On("Logout", mock.Anything, mock.Anything, mock.Anything).Return(nil)
 		c, _ := ctxJSON(http.MethodPost, "/logout", "")
 		httpx.SetPrincipal(c, domain.Principal{ID: 1})
 		NewAuthHandler(svc).Logout(c)

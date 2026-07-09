@@ -16,13 +16,14 @@ func toDomainGallery(g sqlc.Gallery) domain.GalleryItem {
 	return domain.GalleryItem{
 		ID:        g.ID,
 		Link:      g.Link,
+		IsPublic:  g.IsPublic,
 		CreatedAt: g.CreatedAt,
 	}
 }
 
-// List returns all gallery items.
-func (r *GalleryRepo) List(ctx context.Context) ([]domain.GalleryItem, error) {
-	rows, err := r.q.ListGallery(ctx)
+// List returns all gallery items (public rows only when publicOnly is set).
+func (r *GalleryRepo) List(ctx context.Context, publicOnly bool) ([]domain.GalleryItem, error) {
+	rows, err := r.q.ListGallery(ctx, publicOnly)
 	if err != nil {
 		return nil, err
 	}
@@ -34,10 +35,19 @@ func (r *GalleryRepo) List(ctx context.Context) ([]domain.GalleryItem, error) {
 }
 
 // Create inserts a new gallery item.
-func (r *GalleryRepo) Create(ctx context.Context, link string) (domain.GalleryItem, error) {
-	g, err := r.q.CreateGalleryItem(ctx, link)
+func (r *GalleryRepo) Create(ctx context.Context, link string, isPublic bool) (domain.GalleryItem, error) {
+	g, err := r.q.CreateGalleryItem(ctx, sqlc.CreateGalleryItemParams{Link: link, IsPublic: isPublic})
 	if err != nil {
 		return domain.GalleryItem{}, err
+	}
+	return toDomainGallery(g), nil
+}
+
+// Update sets the public visibility of a gallery item.
+func (r *GalleryRepo) Update(ctx context.Context, id int64, isPublic bool) (domain.GalleryItem, error) {
+	g, err := r.q.UpdateGalleryItem(ctx, sqlc.UpdateGalleryItemParams{ID: id, IsPublic: isPublic})
+	if err != nil {
+		return domain.GalleryItem{}, mapGetErr(err)
 	}
 	return toDomainGallery(g), nil
 }

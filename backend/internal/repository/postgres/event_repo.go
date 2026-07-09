@@ -21,14 +21,16 @@ func toDomainEvent(e sqlc.Event) domain.Event {
 		Description:   e.Description,
 		Date:          e.EventDate,
 		Location:      e.Location,
+		IsPublic:      e.IsPublic,
 		CreatedAt:     e.CreatedAt,
 		LastUpdatedAt: e.LastUpdatedAt,
 	}
 }
 
-// List returns events on or after startFrom (or all when startFrom is nil).
-func (r *EventRepo) List(ctx context.Context, startFrom *time.Time) ([]domain.Event, error) {
-	rows, err := r.q.ListEvents(ctx, startFrom)
+// List returns events on or after startFrom (or all when startFrom is nil),
+// restricted to public rows when publicOnly is set.
+func (r *EventRepo) List(ctx context.Context, startFrom *time.Time, publicOnly bool) ([]domain.Event, error) {
+	rows, err := r.q.ListEvents(ctx, sqlc.ListEventsParams{StartFrom: startFrom, PublicOnly: publicOnly})
 	if err != nil {
 		return nil, err
 	}
@@ -39,9 +41,9 @@ func (r *EventRepo) List(ctx context.Context, startFrom *time.Time) ([]domain.Ev
 	return out, nil
 }
 
-// GetByID fetches an event by id.
-func (r *EventRepo) GetByID(ctx context.Context, id int64) (domain.Event, error) {
-	e, err := r.q.GetEventByID(ctx, id)
+// GetByID fetches an event by id (public rows only when publicOnly is set).
+func (r *EventRepo) GetByID(ctx context.Context, id int64, publicOnly bool) (domain.Event, error) {
+	e, err := r.q.GetEventByID(ctx, sqlc.GetEventByIDParams{ID: id, PublicOnly: publicOnly})
 	if err != nil {
 		return domain.Event{}, mapGetErr(err)
 	}
@@ -55,6 +57,7 @@ func (r *EventRepo) Create(ctx context.Context, in repository.CreateEventInput) 
 		Description: in.Description,
 		EventDate:   in.Date,
 		Location:    in.Location,
+		IsPublic:    in.IsPublic,
 	})
 	if err != nil {
 		return domain.Event{}, err
@@ -70,6 +73,7 @@ func (r *EventRepo) Update(ctx context.Context, in repository.UpdateEventInput) 
 		Description: in.Description,
 		EventDate:   in.Date,
 		Location:    in.Location,
+		IsPublic:    in.IsPublic,
 	})
 	if err != nil {
 		return domain.Event{}, mapGetErr(err)

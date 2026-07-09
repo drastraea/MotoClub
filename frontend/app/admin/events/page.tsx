@@ -11,17 +11,17 @@ import {
   type EventFormValues,
   type EventStubValues,
 } from "@/components/shared/EventFormDialog";
-import { api } from "@/lib/api";
+import { api, type EventSummary } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
 import { getEventStub, setEventStub, deleteEventStub } from "@/lib/event-stubs";
 import { useEventStub } from "@/hooks/useEventStub";
 
-function EventStubBadges({ eventId }: { eventId: string }) {
-  const stub = useEventStub(eventId);
-  if (!stub.isPublic && !stub.imageLink) return null;
+function EventBadges({ event }: { event: EventSummary }) {
+  const stub = useEventStub(event.id);
+  if (!event.is_public && !stub.imageLink) return null;
   return (
     <div className="mt-2 flex gap-2">
-      {stub.isPublic && <Badge variant="secondary">Public (local only)</Badge>}
+      {event.is_public && <Badge variant="secondary">Public</Badge>}
       {stub.imageLink && (
         <Badge variant="secondary">
           <ImageIcon className="size-3" /> Has banner
@@ -57,6 +57,7 @@ export default function AdminEventsPage() {
         description: detail.description,
         date: detail.date,
         location: detail.location ?? undefined,
+        is_public: detail.is_public,
       });
       setEditingStub(getEventStub(id));
       setDialogOpen(true);
@@ -116,7 +117,7 @@ export default function AdminEventsPage() {
               <div>
                 <CardTitle>{event.title}</CardTitle>
                 <CardDescription>{event.date}</CardDescription>
-                <EventStubBadges eventId={event.id} />
+                <EventBadges event={event} />
               </div>
               <div className="mt-4 flex gap-2 sm:mt-0">
                 <Button size="sm" variant="outline" onClick={() => openEdit(event.id)}>

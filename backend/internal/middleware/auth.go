@@ -31,7 +31,7 @@ func JWTAuth(jwtMgr auth.JWTManager, revocations RevocationChecker) gin.HandlerF
 		}
 
 		claims, err := jwtMgr.Parse(token)
-		if err != nil {
+		if err != nil || claims.Type != auth.TokenTypeAccess {
 			httpx.AbortStatus(c, http.StatusUnauthorized, "invalid token")
 			return
 		}

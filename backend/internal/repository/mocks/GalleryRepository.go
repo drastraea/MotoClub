@@ -22,9 +22,9 @@ func (_m *MockGalleryRepository) EXPECT() *MockGalleryRepository_Expecter {
 	return &MockGalleryRepository_Expecter{mock: &_m.Mock}
 }
 
-// Create provides a mock function with given fields: ctx, link
-func (_m *MockGalleryRepository) Create(ctx context.Context, link string) (domain.GalleryItem, error) {
-	ret := _m.Called(ctx, link)
+// Create provides a mock function with given fields: ctx, link, isPublic
+func (_m *MockGalleryRepository) Create(ctx context.Context, link string, isPublic bool) (domain.GalleryItem, error) {
+	ret := _m.Called(ctx, link, isPublic)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Create")
@@ -32,17 +32,17 @@ func (_m *MockGalleryRepository) Create(ctx context.Context, link string) (domai
 
 	var r0 domain.GalleryItem
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (domain.GalleryItem, error)); ok {
-		return rf(ctx, link)
+	if rf, ok := ret.Get(0).(func(context.Context, string, bool) (domain.GalleryItem, error)); ok {
+		return rf(ctx, link, isPublic)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) domain.GalleryItem); ok {
-		r0 = rf(ctx, link)
+	if rf, ok := ret.Get(0).(func(context.Context, string, bool) domain.GalleryItem); ok {
+		r0 = rf(ctx, link, isPublic)
 	} else {
 		r0 = ret.Get(0).(domain.GalleryItem)
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, link)
+	if rf, ok := ret.Get(1).(func(context.Context, string, bool) error); ok {
+		r1 = rf(ctx, link, isPublic)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -58,13 +58,14 @@ type MockGalleryRepository_Create_Call struct {
 // Create is a helper method to define mock.On call
 //   - ctx context.Context
 //   - link string
-func (_e *MockGalleryRepository_Expecter) Create(ctx interface{}, link interface{}) *MockGalleryRepository_Create_Call {
-	return &MockGalleryRepository_Create_Call{Call: _e.mock.On("Create", ctx, link)}
+//   - isPublic bool
+func (_e *MockGalleryRepository_Expecter) Create(ctx interface{}, link interface{}, isPublic interface{}) *MockGalleryRepository_Create_Call {
+	return &MockGalleryRepository_Create_Call{Call: _e.mock.On("Create", ctx, link, isPublic)}
 }
 
-func (_c *MockGalleryRepository_Create_Call) Run(run func(ctx context.Context, link string)) *MockGalleryRepository_Create_Call {
+func (_c *MockGalleryRepository_Create_Call) Run(run func(ctx context.Context, link string, isPublic bool)) *MockGalleryRepository_Create_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(string))
+		run(args[0].(context.Context), args[1].(string), args[2].(bool))
 	})
 	return _c
 }
@@ -74,14 +75,14 @@ func (_c *MockGalleryRepository_Create_Call) Return(_a0 domain.GalleryItem, _a1 
 	return _c
 }
 
-func (_c *MockGalleryRepository_Create_Call) RunAndReturn(run func(context.Context, string) (domain.GalleryItem, error)) *MockGalleryRepository_Create_Call {
+func (_c *MockGalleryRepository_Create_Call) RunAndReturn(run func(context.Context, string, bool) (domain.GalleryItem, error)) *MockGalleryRepository_Create_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// List provides a mock function with given fields: ctx
-func (_m *MockGalleryRepository) List(ctx context.Context) ([]domain.GalleryItem, error) {
-	ret := _m.Called(ctx)
+// List provides a mock function with given fields: ctx, publicOnly
+func (_m *MockGalleryRepository) List(ctx context.Context, publicOnly bool) ([]domain.GalleryItem, error) {
+	ret := _m.Called(ctx, publicOnly)
 
 	if len(ret) == 0 {
 		panic("no return value specified for List")
@@ -89,19 +90,19 @@ func (_m *MockGalleryRepository) List(ctx context.Context) ([]domain.GalleryItem
 
 	var r0 []domain.GalleryItem
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]domain.GalleryItem, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, bool) ([]domain.GalleryItem, error)); ok {
+		return rf(ctx, publicOnly)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []domain.GalleryItem); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, bool) []domain.GalleryItem); ok {
+		r0 = rf(ctx, publicOnly)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]domain.GalleryItem)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, bool) error); ok {
+		r1 = rf(ctx, publicOnly)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -116,13 +117,14 @@ type MockGalleryRepository_List_Call struct {
 
 // List is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *MockGalleryRepository_Expecter) List(ctx interface{}) *MockGalleryRepository_List_Call {
-	return &MockGalleryRepository_List_Call{Call: _e.mock.On("List", ctx)}
+//   - publicOnly bool
+func (_e *MockGalleryRepository_Expecter) List(ctx interface{}, publicOnly interface{}) *MockGalleryRepository_List_Call {
+	return &MockGalleryRepository_List_Call{Call: _e.mock.On("List", ctx, publicOnly)}
 }
 
-func (_c *MockGalleryRepository_List_Call) Run(run func(ctx context.Context)) *MockGalleryRepository_List_Call {
+func (_c *MockGalleryRepository_List_Call) Run(run func(ctx context.Context, publicOnly bool)) *MockGalleryRepository_List_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		run(args[0].(context.Context), args[1].(bool))
 	})
 	return _c
 }
@@ -132,7 +134,7 @@ func (_c *MockGalleryRepository_List_Call) Return(_a0 []domain.GalleryItem, _a1 
 	return _c
 }
 
-func (_c *MockGalleryRepository_List_Call) RunAndReturn(run func(context.Context) ([]domain.GalleryItem, error)) *MockGalleryRepository_List_Call {
+func (_c *MockGalleryRepository_List_Call) RunAndReturn(run func(context.Context, bool) ([]domain.GalleryItem, error)) *MockGalleryRepository_List_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -180,6 +182,64 @@ func (_c *MockGalleryRepository_SoftDelete_Call) Return(_a0 error) *MockGalleryR
 }
 
 func (_c *MockGalleryRepository_SoftDelete_Call) RunAndReturn(run func(context.Context, int64) error) *MockGalleryRepository_SoftDelete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// Update provides a mock function with given fields: ctx, id, isPublic
+func (_m *MockGalleryRepository) Update(ctx context.Context, id int64, isPublic bool) (domain.GalleryItem, error) {
+	ret := _m.Called(ctx, id, isPublic)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Update")
+	}
+
+	var r0 domain.GalleryItem
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int64, bool) (domain.GalleryItem, error)); ok {
+		return rf(ctx, id, isPublic)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int64, bool) domain.GalleryItem); ok {
+		r0 = rf(ctx, id, isPublic)
+	} else {
+		r0 = ret.Get(0).(domain.GalleryItem)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int64, bool) error); ok {
+		r1 = rf(ctx, id, isPublic)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockGalleryRepository_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
+type MockGalleryRepository_Update_Call struct {
+	*mock.Call
+}
+
+// Update is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id int64
+//   - isPublic bool
+func (_e *MockGalleryRepository_Expecter) Update(ctx interface{}, id interface{}, isPublic interface{}) *MockGalleryRepository_Update_Call {
+	return &MockGalleryRepository_Update_Call{Call: _e.mock.On("Update", ctx, id, isPublic)}
+}
+
+func (_c *MockGalleryRepository_Update_Call) Run(run func(ctx context.Context, id int64, isPublic bool)) *MockGalleryRepository_Update_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int64), args[2].(bool))
+	})
+	return _c
+}
+
+func (_c *MockGalleryRepository_Update_Call) Return(_a0 domain.GalleryItem, _a1 error) *MockGalleryRepository_Update_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockGalleryRepository_Update_Call) RunAndReturn(run func(context.Context, int64, bool) (domain.GalleryItem, error)) *MockGalleryRepository_Update_Call {
 	_c.Call.Return(run)
 	return _c
 }

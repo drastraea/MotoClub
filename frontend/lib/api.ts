@@ -3,7 +3,7 @@
 // automatically; the base URL comes from config (env-driven).
 
 import { config } from "@/lib/config";
-import { getToken, type Role } from "@/lib/session";
+import { clearSession, getSession, getToken, setSession, type Role } from "@/lib/session";
 
 export class ApiError extends Error {
   status: number;
@@ -19,7 +19,41 @@ type FetchOptions = {
   body?: unknown;
   auth?: boolean; // attach bearer token (default true)
   signal?: AbortSignal;
+  _noRetry?: boolean; // internal: suppress the refresh-on-401 retry
 };
+
+// A single in-flight refresh shared by all concurrent 401s, so a burst of
+// expired-token requests triggers exactly one POST /refresh. Resolves to the
+// new access token, or null when refresh is impossible/failed (session cleared).
+let refreshInFlight: Promise<string | null> | null = null;
+
+async function refreshAccessToken(): Promise<string | null> {
+  const session = getSession();
+  if (!session?.refreshToken) return null;
+
+  if (!refreshInFlight) {
+    refreshInFlight = (async () => {
+      try {
+        const res = await apiFetch<{ token: string; refresh_token: string }>("/refresh", {
+          method: "POST",
+          body: { refreshToken: session.refreshToken },
+          auth: false,
+          _noRetry: true,
+        });
+        const current = getSession();
+        if (!current) return null;
+        setSession({ ...current, token: res.token, refreshToken: res.refresh_token });
+        return res.token;
+      } catch {
+        clearSession(); // refresh token invalid/expired/revoked — force re-login
+        return null;
+      } finally {
+        refreshInFlight = null;
+      }
+    })();
+  }
+  return refreshInFlight;
+}
 
 async function apiFetch<T>(path: string, opts: FetchOptions = {}): Promise<T> {
   const { method = "GET", body, auth = true, signal } = opts;
@@ -38,6 +72,12 @@ async function apiFetch<T>(path: string, opts: FetchOptions = {}): Promise<T> {
     signal,
   });
 
+  // Access token expired: transparently refresh once, then retry the request.
+  if (res.status === 401 && auth && !opts._noRetry && getSession()?.refreshToken) {
+    const newToken = await refreshAccessToken();
+    if (newToken) return apiFetch<T>(path, { ...opts, _noRetry: true });
+  }
+
   if (res.status === 204) return undefined as T;
 
   const text = await res.text();
@@ -54,20 +94,28 @@ async function apiFetch<T>(path: string, opts: FetchOptions = {}): Promise<T> {
 
 // ---- response/request shapes (mirror the Go DTOs) ----
 
-export type GalleryItem = { id: string; link: string; created_at: string };
-export type EventSummary = { id: string; title: string; date: string; last_updated_at: string };
+export type GalleryItem = { id: string; link: string; is_public: boolean; created_at: string };
+export type EventSummary = {
+  id: string;
+  title: string;
+  date: string;
+  is_public: boolean;
+  last_updated_at: string;
+};
 export type EventDetail = {
   id: string;
   title: string;
   date: string;
   location: string | null;
   description: string;
+  is_public: boolean;
   last_updated_at: string;
 };
 export type Announcement = {
   id: string;
   title: string;
   description: string;
+  is_public: boolean;
   last_updated_at: string;
 };
 export type Profile = {
@@ -122,6 +170,7 @@ export type EventInput = {
   description: string;
   date: string; // YYYY-MM-DD
   location?: string | null;
+  is_public: boolean;
 };
 
 // ---- auth ----
@@ -131,13 +180,24 @@ export const api = {
     apiFetch<{ id: string }>("/register", { method: "POST", body, auth: false }),
 
   login: (email: string, googleToken: string) =>
-    apiFetch<{ id: string; token: string }>("/login", {
+    apiFetch<{ id: string; token: string; refresh_token: string }>("/login", {
       method: "POST",
       body: { email, googleToken },
       auth: false,
     }),
 
-  logout: () => apiFetch<void>("/logout", { method: "POST" }),
+  refresh: (refreshToken: string) =>
+    apiFetch<{ token: string; refresh_token: string }>("/refresh", {
+      method: "POST",
+      body: { refreshToken },
+      auth: false,
+    }),
+
+  logout: () =>
+    apiFetch<void>("/logout", {
+      method: "POST",
+      body: { refreshToken: getSession()?.refreshToken ?? "" },
+    }),
 
   // ---- landing / member area ----
   getGallery: () => apiFetch<{ contents: GalleryItem[] }>("/gallery").then((r) => r.contents),
@@ -181,15 +241,23 @@ export const api = {
   deleteEvent: (id: string) => apiFetch<void>(`/events/${id}`, { method: "DELETE" }),
 
   // ---- admin: announcements ----
-  createAnnouncement: (title: string, description: string) =>
-    apiFetch<{ id: string }>("/announcements", { method: "POST", body: { title, description } }),
-  updateAnnouncement: (id: string, title: string, description: string) =>
-    apiFetch<void>(`/announcements/${id}`, { method: "PUT", body: { title, description } }),
+  createAnnouncement: (title: string, description: string, isPublic: boolean) =>
+    apiFetch<{ id: string }>("/announcements", {
+      method: "POST",
+      body: { title, description, is_public: isPublic },
+    }),
+  updateAnnouncement: (id: string, title: string, description: string, isPublic: boolean) =>
+    apiFetch<void>(`/announcements/${id}`, {
+      method: "PUT",
+      body: { title, description, is_public: isPublic },
+    }),
   deleteAnnouncement: (id: string) =>
     apiFetch<void>(`/announcements/${id}`, { method: "DELETE" }),
 
   // ---- admin: gallery ----
-  createGalleryItem: (link: string) =>
-    apiFetch<{ id: string }>("/gallery", { method: "POST", body: { link } }),
+  createGalleryItem: (link: string, isPublic: boolean) =>
+    apiFetch<{ id: string }>("/gallery", { method: "POST", body: { link, is_public: isPublic } }),
+  updateGalleryItem: (id: string, isPublic: boolean) =>
+    apiFetch<void>(`/gallery/${id}`, { method: "PUT", body: { is_public: isPublic } }),
   deleteGalleryItem: (id: string) => apiFetch<void>(`/gallery/${id}`, { method: "DELETE" }),
 };

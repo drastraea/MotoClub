@@ -21,7 +21,7 @@ func NewGalleryHandler(svc service.GalleryServicer) *GalleryHandler {
 
 // List handles GET /gallery.
 func (h *GalleryHandler) List(c *gin.Context) {
-	items, err := h.svc.List(c.Request.Context())
+	items, err := h.svc.List(c.Request.Context(), publicOnly(c))
 	if err != nil {
 		httpx.Error(c, err)
 		return
@@ -30,7 +30,8 @@ func (h *GalleryHandler) List(c *gin.Context) {
 }
 
 type galleryRequest struct {
-	Link string `json:"link" binding:"required"`
+	Link     string `json:"link" binding:"required"`
+	IsPublic bool   `json:"is_public"`
 }
 
 // Create handles POST /gallery.
@@ -39,12 +40,33 @@ func (h *GalleryHandler) Create(c *gin.Context) {
 	if !bindJSON(c, &req) {
 		return
 	}
-	item, err := h.svc.Create(c.Request.Context(), req.Link)
+	item, err := h.svc.Create(c.Request.Context(), req.Link, req.IsPublic)
 	if err != nil {
 		httpx.Error(c, err)
 		return
 	}
 	c.JSON(http.StatusCreated, idResponse{ID: idString(item.ID)})
+}
+
+type galleryUpdateRequest struct {
+	IsPublic bool `json:"is_public"`
+}
+
+// Update handles PUT /gallery/{id}: toggle a gallery item's public visibility.
+func (h *GalleryHandler) Update(c *gin.Context) {
+	id, ok := parseIDParam(c)
+	if !ok {
+		return
+	}
+	var req galleryUpdateRequest
+	if !bindJSON(c, &req) {
+		return
+	}
+	if _, err := h.svc.Update(c.Request.Context(), id, req.IsPublic); err != nil {
+		httpx.Error(c, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
 }
 
 // Delete handles DELETE /gallery/{id}.

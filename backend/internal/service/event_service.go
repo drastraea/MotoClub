@@ -14,6 +14,7 @@ type EventInput struct {
 	Description string
 	Date        time.Time
 	Location    *string
+	IsPublic    bool
 }
 
 // EventService implements event management.
@@ -26,14 +27,15 @@ func NewEventService(events repository.EventRepository) *EventService {
 	return &EventService{events: events}
 }
 
-// List returns events on or after startFrom (nil = all).
-func (s *EventService) List(ctx context.Context, startFrom *time.Time) ([]domain.Event, error) {
-	return s.events.List(ctx, startFrom)
+// List returns events on or after startFrom (nil = all), restricted to public
+// rows when publicOnly is set.
+func (s *EventService) List(ctx context.Context, startFrom *time.Time, publicOnly bool) ([]domain.Event, error) {
+	return s.events.List(ctx, startFrom, publicOnly)
 }
 
-// Get returns a single event by id.
-func (s *EventService) Get(ctx context.Context, id int64) (domain.Event, error) {
-	return s.events.GetByID(ctx, id)
+// Get returns a single event by id (public rows only when publicOnly is set).
+func (s *EventService) Get(ctx context.Context, id int64, publicOnly bool) (domain.Event, error) {
+	return s.events.GetByID(ctx, id, publicOnly)
 }
 
 // Create adds a new event.
@@ -43,6 +45,7 @@ func (s *EventService) Create(ctx context.Context, in EventInput) (domain.Event,
 		Description: in.Description,
 		Date:        in.Date,
 		Location:    in.Location,
+		IsPublic:    in.IsPublic,
 	})
 }
 
@@ -54,6 +57,7 @@ func (s *EventService) Update(ctx context.Context, id int64, in EventInput) (dom
 		Description: in.Description,
 		Date:        in.Date,
 		Location:    in.Location,
+		IsPublic:    in.IsPublic,
 	})
 }
 

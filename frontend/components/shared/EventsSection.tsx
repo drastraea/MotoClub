@@ -4,16 +4,12 @@ import { useCallback } from "react";
 import { EventCardWithStub } from "@/components/cards/EventCardWithStub";
 import { api } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
-import { mockEvents } from "@/lib/mock-events";
 
-// Fallback preview shown to logged-out visitors, since GET /events currently
-// requires a member+ session. Real events replace this once loaded.
+// GET /events is public: anonymous visitors see events flagged public; logged-in
+// members see all. Empty → a subtle prompt rather than fake events.
 export function EventsSection() {
   const { data } = useApiData(useCallback(() => api.getEvents(), []), []);
-  const events =
-    data && data.length > 0
-      ? data.map((e) => ({ id: e.id, title: e.title, date: e.date, location: undefined }))
-      : mockEvents.map((e) => ({ id: e.id, title: e.title, date: e.dateLabel, location: e.location }));
+  const events = data ?? [];
 
   return (
     <section id="events" className="scroll-mt-24 border-y border-border bg-secondary/20 py-16">
@@ -26,11 +22,17 @@ export function EventsSection() {
             Upcoming Events
           </h2>
         </div>
-        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {events.map((event) => (
-            <EventCardWithStub key={event.id} {...event} />
-          ))}
-        </div>
+        {events.length > 0 ? (
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {events.map((event) => (
+              <EventCardWithStub key={event.id} id={event.id} title={event.title} date={event.date} />
+            ))}
+          </div>
+        ) : (
+          <p className="mt-8 text-center text-sm text-muted-foreground">
+            No upcoming rides posted yet — sign in as a member to see the full calendar.
+          </p>
+        )}
       </div>
     </section>
   );

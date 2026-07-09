@@ -15,6 +15,7 @@ type Announcement struct {
 	CreatedAt     time.Time
 	LastUpdatedAt time.Time
 	DeletedAt     *time.Time
+	IsPublic      bool
 }
 
 type Event struct {
@@ -26,6 +27,7 @@ type Event struct {
 	CreatedAt     time.Time
 	LastUpdatedAt time.Time
 	DeletedAt     *time.Time
+	IsPublic      bool
 }
 
 type Gallery struct {
@@ -34,6 +36,7 @@ type Gallery struct {
 	CreatedAt     time.Time
 	LastUpdatedAt time.Time
 	DeletedAt     *time.Time
+	IsPublic      bool
 }
 
 type Member struct {

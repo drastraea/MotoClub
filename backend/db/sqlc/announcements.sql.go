@@ -11,18 +11,19 @@ import (
 )
 
 const createAnnouncement = `-- name: CreateAnnouncement :one
-INSERT INTO announcements (title, description)
-VALUES ($1, $2)
-RETURNING id, title, description, created_at, last_updated_at, deleted_at
+INSERT INTO announcements (title, description, is_public)
+VALUES ($1, $2, $3)
+RETURNING id, title, description, created_at, last_updated_at, deleted_at, is_public
 `
 
 type CreateAnnouncementParams struct {
 	Title       string
 	Description string
+	IsPublic    bool
 }
 
 func (q *Queries) CreateAnnouncement(ctx context.Context, arg CreateAnnouncementParams) (Announcement, error) {
-	row := q.db.QueryRow(ctx, createAnnouncement, arg.Title, arg.Description)
+	row := q.db.QueryRow(ctx, createAnnouncement, arg.Title, arg.Description, arg.IsPublic)
 	var i Announcement
 	err := row.Scan(
 		&i.ID,
@@ -31,19 +32,26 @@ func (q *Queries) CreateAnnouncement(ctx context.Context, arg CreateAnnouncement
 		&i.CreatedAt,
 		&i.LastUpdatedAt,
 		&i.DeletedAt,
+		&i.IsPublic,
 	)
 	return i, err
 }
 
 const listAnnouncements = `-- name: ListAnnouncements :many
-SELECT id, title, description, created_at, last_updated_at, deleted_at FROM announcements
+SELECT id, title, description, created_at, last_updated_at, deleted_at, is_public FROM announcements
 WHERE deleted_at IS NULL
   AND ($1::timestamptz IS NULL OR created_at >= $1)
+  AND (NOT $2::boolean OR is_public)
 ORDER BY created_at DESC
 `
 
-func (q *Queries) ListAnnouncements(ctx context.Context, startFrom *time.Time) ([]Announcement, error) {
-	rows, err := q.db.Query(ctx, listAnnouncements, startFrom)
+type ListAnnouncementsParams struct {
+	StartFrom  *time.Time
+	PublicOnly bool
+}
+
+func (q *Queries) ListAnnouncements(ctx context.Context, arg ListAnnouncementsParams) ([]Announcement, error) {
+	rows, err := q.db.Query(ctx, listAnnouncements, arg.StartFrom, arg.PublicOnly)
 	if err != nil {
 		return nil, err
 	}
@@ -58,6 +66,7 @@ func (q *Queries) ListAnnouncements(ctx context.Context, startFrom *time.Time) (
 			&i.CreatedAt,
 			&i.LastUpdatedAt,
 			&i.DeletedAt,
+			&i.IsPublic,
 		); err != nil {
 			return nil, err
 		}
@@ -85,19 +94,25 @@ func (q *Queries) SoftDeleteAnnouncement(ctx context.Context, id int64) (int64, 
 
 const updateAnnouncement = `-- name: UpdateAnnouncement :one
 UPDATE announcements
-SET title = $2, description = $3
+SET title = $2, description = $3, is_public = $4
 WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, title, description, created_at, last_updated_at, deleted_at
+RETURNING id, title, description, created_at, last_updated_at, deleted_at, is_public
 `
 
 type UpdateAnnouncementParams struct {
 	ID          int64
 	Title       string
 	Description string
+	IsPublic    bool
 }
 
 func (q *Queries) UpdateAnnouncement(ctx context.Context, arg UpdateAnnouncementParams) (Announcement, error) {
-	row := q.db.QueryRow(ctx, updateAnnouncement, arg.ID, arg.Title, arg.Description)
+	row := q.db.QueryRow(ctx, updateAnnouncement,
+		arg.ID,
+		arg.Title,
+		arg.Description,
+		arg.IsPublic,
+	)
 	var i Announcement
 	err := row.Scan(
 		&i.ID,
@@ -106,6 +121,7 @@ func (q *Queries) UpdateAnnouncement(ctx context.Context, arg UpdateAnnouncement
 		&i.CreatedAt,
 		&i.LastUpdatedAt,
 		&i.DeletedAt,
+		&i.IsPublic,
 	)
 	return i, err
 }
