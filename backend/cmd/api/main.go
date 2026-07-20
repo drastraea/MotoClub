@@ -54,6 +54,10 @@ func newLogger(level, format string) *slog.Logger {
 	return slog.New(h)
 }
 
+// uploadDir is the filesystem path (inside the container) that backs the
+// /uploads static route; mount a persistent volume there in production.
+const uploadDir = "/data/uploads"
+
 func run(cfg config.Config, logger *slog.Logger) error {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
@@ -79,10 +83,11 @@ func run(cfg config.Config, logger *slog.Logger) error {
 		Event:        handler.NewEventHandler(service.NewEventService(repos.Events)),
 		Announcement: handler.NewAnnouncementHandler(service.NewAnnouncementService(repos.Announcements)),
 		Gallery:      handler.NewGalleryHandler(service.NewGalleryService(repos.Gallery)),
+		Upload:       handler.NewUploadHandler(uploadDir),
 	}
 
 	gin.SetMode(gin.ReleaseMode)
-	router := server.NewRouter(handlers, jwtMgr, repos.Tokens, logger, cfg.AllowedOrigins)
+	router := server.NewRouter(handlers, jwtMgr, repos.Tokens, logger, cfg.AllowedOrigins, uploadDir)
 
 	logger.Info("listening", "port", cfg.Port)
 	return server.Run(ctx, ":"+cfg.Port, router)

@@ -1,14 +1,16 @@
-// Turn a picked image file into the URL the backend stores on the record.
-//
-// ponytail: there is no dedicated upload service yet, so the file is inlined as
-// a base64 data URI client-side and returned as the "URL". When the real upload
-// endpoint lands, swap the body to POST the file and return its hosted URL —
-// every caller already just stores the returned string, so nothing else changes.
-export function uploadImage(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
+import { config } from "@/lib/config";
+
+// Uploads a picked image file to the backend and returns its hosted URL, which
+// every caller just stores wherever a link/imageLink field is needed.
+export async function uploadImage(file: File): Promise<string> {
+  const body = new FormData();
+  body.append("file", file);
+
+  const res = await fetch(`${config.apiBaseUrl}/uploads`, { method: "POST", body });
+  const data = await res.json().catch(() => undefined);
+  if (!res.ok) {
+    const message = (data && typeof data === "object" && "error" in data && String(data.error)) || "Upload failed";
+    throw new Error(message);
+  }
+  return (data as { link: string }).link;
 }

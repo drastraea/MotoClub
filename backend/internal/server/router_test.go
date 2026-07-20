@@ -24,12 +24,13 @@ func TestNewRouter_NoConflictAndHealthz(t *testing.T) {
 		Event:        handler.NewEventHandler(nil),
 		Announcement: handler.NewAnnouncementHandler(nil),
 		Gallery:      handler.NewGalleryHandler(nil),
+		Upload:       handler.NewUploadHandler(t.TempDir()),
 	}
 
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
 	var r *gin.Engine
 	require.NotPanics(t, func() {
-		r = NewRouter(handlers, auth.JWTManager(nil), nil, logger, []string{"http://localhost:3000"})
+		r = NewRouter(handlers, auth.JWTManager(nil), nil, logger, []string{"http://localhost:3000"}, t.TempDir())
 	})
 
 	req := httptest.NewRequest(http.MethodGet, "/healthz", nil)

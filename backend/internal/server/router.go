@@ -14,7 +14,7 @@ import (
 )
 
 // NewRouter builds the full route table with its middleware chain.
-func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middleware.RevocationChecker, logger *slog.Logger, allowedOrigins []string) *gin.Engine {
+func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middleware.RevocationChecker, logger *slog.Logger, allowedOrigins []string, uploadDir string) *gin.Engine {
 	r := gin.New()
 	r.Use(middleware.RequestLogger(logger), gin.Recovery(), middleware.CORS(allowedOrigins))
 	r.HandleMethodNotAllowed = true
@@ -25,6 +25,8 @@ func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middlewa
 	r.POST("/register", h.Auth.Register)
 	r.POST("/login", h.Auth.Login)
 	r.POST("/refresh", h.Auth.Refresh)
+	r.POST("/uploads", h.Upload.Create)
+	r.Static("/uploads", uploadDir)
 
 	// Public reads with optional auth: anonymous callers get only public items;
 	// any authenticated caller gets everything (so admins see their drafts).

@@ -22,6 +22,7 @@ type Handlers struct {
 	Event        *EventHandler
 	Announcement *AnnouncementHandler
 	Gallery      *GalleryHandler
+	Upload       *UploadHandler
 }
 
 // publicOnly reports whether reads should be restricted to public rows. Only
