@@ -30,7 +30,7 @@ export function Footer() {
           href="/"
           className="font-heading text-xl font-bold tracking-widest uppercase"
         >
-          Moto<span className="text-primary">Club</span>
+          Brosqi<span className="text-primary">.id</span>
         </Link>
 
         <div className="flex flex-col items-center gap-4 text-xs tracking-wide text-muted-foreground uppercase sm:flex-row sm:gap-6">
@@ -55,7 +55,7 @@ export function Footer() {
         </div>
 
         <p className="text-xs tracking-wide text-muted-foreground uppercase">
-          &copy; {new Date().getFullYear()} MotoClub. All rights reserved.
+          &copy; {new Date().getFullYear()} Brosqi.id. All rights reserved.
         </p>
       </div>
     </footer>

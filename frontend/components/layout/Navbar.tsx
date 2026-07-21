@@ -49,7 +49,7 @@ export function Navbar() {
           href="/"
           className="font-heading text-xl font-bold tracking-widest uppercase"
         >
-          Moto<span className="text-primary">Club</span>
+          Brosqi<span className="text-primary">.id</span>
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">

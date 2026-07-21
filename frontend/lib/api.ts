@@ -1,4 +1,4 @@
-// Typed client for the MotoClub Go backend. Every function maps 1:1 to an
+// Typed client for the Brosqi.id Go backend. Every function maps 1:1 to an
 // endpoint in the API contract. The JWT from the current session is attached
 // automatically; the base URL comes from config (env-driven).
 

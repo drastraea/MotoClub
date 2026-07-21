@@ -21,7 +21,7 @@ const oswald = Oswald({
 });
 
 export const metadata: Metadata = {
-  title: "Motorcycle Club",
+  title: "Brosqi.id",
   description: "A community of riders sharing the road and the brotherhood.",
 };
 

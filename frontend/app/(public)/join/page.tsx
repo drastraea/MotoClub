@@ -4,7 +4,7 @@ import { JoinForm } from "@/components/shared/JoinForm";
 import { PageHeader } from "@/components/shared/PageHeader";
 
 export const metadata: Metadata = {
-  title: "Join Now - Motorcycle Club",
+  title: "Join Now - Brosqi.id",
 };
 
 export default function JoinPage() {
