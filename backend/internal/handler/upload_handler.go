@@ -16,7 +16,7 @@ import (
 	"github.com/edberto/motoclub-backend/internal/httpx"
 )
 
-const maxUploadSize = 5 << 20 // 5MB
+const maxUploadSize = 20 << 20 // 20MB
 
 var allowedUploadExt = map[string]bool{
 	".jpg": true, ".jpeg": true, ".png": true, ".webp": true, ".gif": true,
@@ -36,14 +36,12 @@ func NewUploadHandler(dir string) *UploadHandler {
 
 // Create handles POST /uploads. Public/no-auth: the registration selfie must
 // upload before an account (and JWT) exists, so this can't be an authed-only
-// route; abuse is bounded by the size/type checks below rather than a role
-// check.
-//
-// ponytail: no rate limiting yet — add per-IP throttling if this gets abused.
+// route; abuse is bounded by per-IP rate limiting (see middleware.RateLimit)
+// plus the size/type checks below.
 func (h *UploadHandler) Create(c *gin.Context) {
 	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxUploadSize)
 	if err := c.Request.ParseMultipartForm(maxUploadSize); err != nil {
-		httpx.Error(c, fmt.Errorf("%w: %s (max 5MB, multipart/form-data with a \"file\" field)", apperr.ErrValidation, err.Error()))
+		httpx.Error(c, fmt.Errorf("%w: %s (max 20MB, multipart/form-data with a \"file\" field)", apperr.ErrValidation, err.Error()))
 		return
 	}
 	file, header, err := c.Request.FormFile("file")
