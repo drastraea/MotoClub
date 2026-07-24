@@ -23,6 +23,7 @@ import { GoogleSignInButton } from "@/components/shared/GoogleSignInButton";
 import { api, ApiError } from "@/lib/api";
 import { decodeJwtPayload } from "@/lib/session";
 import { completeGoogleLogin } from "@/lib/auth-flow";
+import { uploadImage } from "@/lib/upload";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
@@ -43,15 +44,6 @@ const joinSchema = z.object({
 });
 
 type JoinValues = z.infer<typeof joinSchema>;
-
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
 
 type GoogleAccount = { name: string; email: string };
 
@@ -137,9 +129,8 @@ export function JoinForm() {
   };
 
   // POST /register. The backend expects `motorbikeSelfieLinkPath` (a link to an
-  // already-hosted image). There is no public upload endpoint yet, so the image
-  // is sent as a base64 data URI placeholder for that link. `email` must match
-  // the verified Google token's email.
+  // already-hosted image) — upload the file first to get that link, then submit.
+  // `email` must match the verified Google token's email.
   const onSubmit = async (values: JoinValues) => {
     if (!googleToken) {
       toast.error("Sign in with Google before submitting.");
@@ -149,7 +140,13 @@ export function JoinForm() {
       toast.error("Please upload a motorbike selfie.");
       return;
     }
-    const motorbikeSelfieLinkPath = await fileToBase64(selfie);
+    let motorbikeSelfieLinkPath: string;
+    try {
+      motorbikeSelfieLinkPath = await uploadImage(selfie);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Selfie upload failed");
+      return;
+    }
     try {
       await api.register({
         name: values.name,
