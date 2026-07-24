@@ -31,9 +31,17 @@ services:
     build: .
     environment:
       # All app settings (DB credentials, JWT secret, Google client, CORS, log)
-      # live in config.yaml under this environment's section.
+      # live in config.yaml under this environment's section. In production,
+      # config.yaml references ${VAR} for these, so they must be forwarded
+      # from the host into the container here.
       APP_ENV: "${APP_ENV:-local}"
       TZ: "Asia/Jakarta"
+      PORT: "${PORT:-}"
+      DATABASE_URL: "${DATABASE_URL:-}"
+      JWT_SECRET: "${JWT_SECRET:-}"
+      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID:-}"
+      FRONTEND_ORIGIN: "${FRONTEND_ORIGIN:-}"
+      LOG_LEVEL: "${LOG_LEVEL:-}"
     ports:
       - "8080:8080"
     volumes:
