@@ -45,7 +45,7 @@ export default function DashboardLayout({
       <div className="flex flex-1 flex-col">
         <DashboardTopbar onMenuClick={() => setMobileNavOpen(true)} />
         <main id="main-content" className="flex-1 p-4 sm:p-6">
-          {children}
+          <div className="mx-auto max-w-4xl">{children}</div>
         </main>
       </div>
     </div>

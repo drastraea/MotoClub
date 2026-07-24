@@ -17,7 +17,7 @@ export function DashboardTopbar({ onMenuClick }: { onMenuClick?: () => void }) {
   };
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-border px-4 sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur sm:px-6">
       <div className="flex items-center gap-3">
         {onMenuClick && (
           <button onClick={onMenuClick} aria-label="Toggle navigation" className="lg:hidden">

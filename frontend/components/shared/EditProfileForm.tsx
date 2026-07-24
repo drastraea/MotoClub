@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -98,101 +99,124 @@ function InnerForm({ defaults }: { defaults: EditProfileValues }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="name">Full Name</Label>
-          <Input id="name" aria-invalid={!!errors.name} {...register("name")} />
-          {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xs tracking-widest uppercase">Personal Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="name">Full Name</Label>
+              <Input id="name" aria-invalid={!!errors.name} {...register("name")} />
+              {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+            </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" aria-invalid={!!errors.email} {...register("email")} />
-          {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
-        </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" type="email" aria-invalid={!!errors.email} {...register("email")} />
+              {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+            </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="phoneNumber">Phone Number</Label>
-          <Input id="phoneNumber" type="tel" aria-invalid={!!errors.phoneNumber} {...register("phoneNumber")} />
-          {errors.phoneNumber && <p className="text-sm text-destructive">{errors.phoneNumber.message}</p>}
-        </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <Input id="phoneNumber" type="tel" aria-invalid={!!errors.phoneNumber} {...register("phoneNumber")} />
+              {errors.phoneNumber && <p className="text-sm text-destructive">{errors.phoneNumber.message}</p>}
+            </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="instagramUsername">Instagram Username</Label>
-          <Input id="instagramUsername" {...register("instagramUsername")} />
-        </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="instagramUsername">Instagram Username</Label>
+              <Input id="instagramUsername" {...register("instagramUsername")} />
+            </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="placeOfBirth">Place of Birth</Label>
-          <Input id="placeOfBirth" aria-invalid={!!errors.placeOfBirth} {...register("placeOfBirth")} />
-          {errors.placeOfBirth && <p className="text-sm text-destructive">{errors.placeOfBirth.message}</p>}
-        </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="placeOfBirth">Place of Birth</Label>
+              <Input id="placeOfBirth" aria-invalid={!!errors.placeOfBirth} {...register("placeOfBirth")} />
+              {errors.placeOfBirth && <p className="text-sm text-destructive">{errors.placeOfBirth.message}</p>}
+            </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="dateOfBirth">Date of Birth</Label>
-          <Input id="dateOfBirth" type="date" aria-invalid={!!errors.dateOfBirth} {...register("dateOfBirth")} />
-          {errors.dateOfBirth && <p className="text-sm text-destructive">{errors.dateOfBirth.message}</p>}
-        </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="dateOfBirth">Date of Birth</Label>
+              <Input id="dateOfBirth" type="date" aria-invalid={!!errors.dateOfBirth} {...register("dateOfBirth")} />
+              {errors.dateOfBirth && <p className="text-sm text-destructive">{errors.dateOfBirth.message}</p>}
+            </div>
 
-        <div className="flex flex-col gap-1.5 sm:col-span-2">
-          <Label htmlFor="address">Address</Label>
-          <Textarea id="address" rows={3} aria-invalid={!!errors.address} {...register("address")} />
-          {errors.address && <p className="text-sm text-destructive">{errors.address.message}</p>}
-        </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="bloodType">Blood Type</Label>
+              <Select
+                defaultValue={defaults.bloodType}
+                onValueChange={(v) => setValue("bloodType", v as EditProfileValues["bloodType"])}
+              >
+                <SelectTrigger id="bloodType" className="w-full" aria-invalid={!!errors.bloodType}>
+                  <SelectValue placeholder="Select blood type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {bloodTypes.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.bloodType && <p className="text-sm text-destructive">Required</p>}
+            </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="bloodType">Blood Type</Label>
-          <Select
-            defaultValue={defaults.bloodType}
-            onValueChange={(v) => setValue("bloodType", v as EditProfileValues["bloodType"])}
-          >
-            <SelectTrigger id="bloodType" className="w-full" aria-invalid={!!errors.bloodType}>
-              <SelectValue placeholder="Select blood type" />
-            </SelectTrigger>
-            <SelectContent>
-              {bloodTypes.map((type) => (
-                <SelectItem key={type} value={type}>
-                  {type}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.bloodType && <p className="text-sm text-destructive">Required</p>}
-        </div>
+            <div className="flex flex-col gap-1.5 sm:col-span-2">
+              <Label htmlFor="address">Address</Label>
+              <Textarea id="address" rows={3} aria-invalid={!!errors.address} {...register("address")} />
+              {errors.address && <p className="text-sm text-destructive">{errors.address.message}</p>}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="motorbikeName">Motorbike Name</Label>
-          <Input id="motorbikeName" aria-invalid={!!errors.motorbikeName} {...register("motorbikeName")} />
-          {errors.motorbikeName && <p className="text-sm text-destructive">{errors.motorbikeName.message}</p>}
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xs tracking-widest uppercase">Emergency Contact</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="emergencyContactName">Emergency Contact Name</Label>
+              <Input
+                id="emergencyContactName"
+                aria-invalid={!!errors.emergencyContactName}
+                {...register("emergencyContactName")}
+              />
+              {errors.emergencyContactName && (
+                <p className="text-sm text-destructive">{errors.emergencyContactName.message}</p>
+              )}
+            </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="emergencyContactName">Emergency Contact Name</Label>
-          <Input
-            id="emergencyContactName"
-            aria-invalid={!!errors.emergencyContactName}
-            {...register("emergencyContactName")}
-          />
-          {errors.emergencyContactName && (
-            <p className="text-sm text-destructive">{errors.emergencyContactName.message}</p>
-          )}
-        </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="emergencyContactPhoneNumber">Emergency Contact Phone</Label>
+              <Input
+                id="emergencyContactPhoneNumber"
+                type="tel"
+                aria-invalid={!!errors.emergencyContactPhoneNumber}
+                {...register("emergencyContactPhoneNumber")}
+              />
+              {errors.emergencyContactPhoneNumber && (
+                <p className="text-sm text-destructive">{errors.emergencyContactPhoneNumber.message}</p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="emergencyContactPhoneNumber">Emergency Contact Phone</Label>
-          <Input
-            id="emergencyContactPhoneNumber"
-            type="tel"
-            aria-invalid={!!errors.emergencyContactPhoneNumber}
-            {...register("emergencyContactPhoneNumber")}
-          />
-          {errors.emergencyContactPhoneNumber && (
-            <p className="text-sm text-destructive">{errors.emergencyContactPhoneNumber.message}</p>
-          )}
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xs tracking-widest uppercase">Motorbike</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="motorbikeName">Motorbike Name</Label>
+            <Input id="motorbikeName" aria-invalid={!!errors.motorbikeName} {...register("motorbikeName")} />
+            {errors.motorbikeName && <p className="text-sm text-destructive">{errors.motorbikeName.message}</p>}
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="flex gap-3">
+      <div className="sticky bottom-4 flex gap-3 sm:static">
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Saving..." : "Save Changes"}
         </Button>
