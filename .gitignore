@@ -2,6 +2,9 @@
 .DS_Store
 *.pem
 
+# real secrets — never commit (frontend/backend have their own scoped .env rules)
+.env
+
 # planning docs (internal, not part of shipped project)
 ARCHITECTURE.md
 INITIALIZE.md
