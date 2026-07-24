@@ -48,7 +48,7 @@ export default function AdminMembersPage() {
                   size="sm"
                   variant="outline"
                   nativeButton={false}
-                  render={<Link href={`/admin/members/${r.member_id}`} />}
+                  render={<Link href={`/admin/members/${r.member_id}?from=applications`} />}
                 >
                   View Profile
                   <ChevronRight className="size-4" />
