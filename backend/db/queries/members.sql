@@ -2,9 +2,11 @@
 INSERT INTO members (
     google_sub, email, name, phone_number, place_of_birth, date_of_birth,
     address, instagram_username, blood_type, emergency_contact_name,
-    emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path
+    emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path,
+    motorbike_brand, motorbike_type, plate_number, rider_photo_link_path
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
+    $14, $15, $16, $17
 )
 RETURNING *;
 
@@ -46,7 +48,14 @@ ORDER BY created_at;
 
 -- name: UpdateMemberStatus :one
 UPDATE members
-SET status = $2, remarks = $3, approved_at = $4, role = $5
+SET status = $2, remarks = $3, approved_at = $4, role = $5,
+    membership_expires_at = $6
+WHERE id = $1 AND deleted_at IS NULL
+RETURNING *;
+
+-- name: SetMembershipExpiry :one
+UPDATE members
+SET membership_expires_at = $2
 WHERE id = $1 AND deleted_at IS NULL
 RETURNING *;
 

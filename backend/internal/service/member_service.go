@@ -9,6 +9,10 @@ import (
 	"github.com/edberto/motoclub-backend/internal/util"
 )
 
+// membershipTerm is how long a membership lasts from approval (or from an
+// extension). Renewals add another term on top.
+const membershipTermYears = 3
+
 // StatusAction is an approve/reject instruction for a pending registration.
 type StatusAction string
 
@@ -48,9 +52,39 @@ func (s *MemberService) ListPending(ctx context.Context) ([]domain.Registration,
 	return s.members.ListPending(ctx)
 }
 
-// ListMembers returns all members.
-func (s *MemberService) ListMembers(ctx context.Context) ([]domain.Member, error) {
-	return s.members.List(ctx)
+// ListMembers returns all members. When status is non-nil, only members whose
+// effective status (EXPIRED is computed from the expiry date) matches are
+// returned.
+func (s *MemberService) ListMembers(ctx context.Context, status *domain.Status) ([]domain.Member, error) {
+	members, err := s.members.List(ctx)
+	if err != nil || status == nil {
+		return members, err
+	}
+	now := s.clock.Now()
+	out := make([]domain.Member, 0, len(members))
+	for _, m := range members {
+		if m.EffectiveStatus(now) == *status {
+			out = append(out, m)
+		}
+	}
+	return out, nil
+}
+
+// ExtendMembership pushes a member's expiry out by one membership term. It
+// extends from the later of now and the current expiry, so renewing early
+// doesn't lose remaining time.
+func (s *MemberService) ExtendMembership(ctx context.Context, id int64) error {
+	member, err := s.members.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+	base := s.clock.Now()
+	if member.MembershipExpiresAt != nil && member.MembershipExpiresAt.After(base) {
+		base = *member.MembershipExpiresAt
+	}
+	until := base.AddDate(membershipTermYears, 0, 0)
+	_, err = s.members.SetMembershipExpiry(ctx, id, &until)
+	return err
 }
 
 // SetStatus approves or rejects a registration. Approval promotes the member
@@ -60,8 +94,10 @@ func (s *MemberService) SetStatus(ctx context.Context, id int64, action StatusAc
 	switch action {
 	case ActionApprove:
 		now := s.clock.Now()
+		expires := now.AddDate(membershipTermYears, 0, 0)
 		in.Status = domain.StatusApproved
 		in.ApprovedAt = &now
+		in.MembershipExpiresAt = &expires
 		in.Role = domain.RoleMember
 	case ActionReject:
 		in.Status = domain.StatusRejected

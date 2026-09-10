@@ -24,10 +24,18 @@ type MemberServicer interface {
 	CountPending(ctx context.Context) (int64, error)
 	CountMembers(ctx context.Context) (int64, error)
 	ListPending(ctx context.Context) ([]domain.Registration, error)
-	ListMembers(ctx context.Context) ([]domain.Member, error)
+	ListMembers(ctx context.Context, status *domain.Status) ([]domain.Member, error)
 	SetStatus(ctx context.Context, id int64, action StatusAction, remarks *string) error
+	ExtendMembership(ctx context.Context, id int64) error
 	UpdateRole(ctx context.Context, id int64, role domain.Role) error
 	Delete(ctx context.Context, actor domain.Principal, targetID int64) error
+}
+
+// SiteContentServicer is the landing-page content behaviour used by handlers.
+// The content is an opaque JSON document.
+type SiteContentServicer interface {
+	Get(ctx context.Context) ([]byte, error)
+	Update(ctx context.Context, data []byte) error
 }
 
 // EventServicer is the event-facing behaviour used by handlers.
@@ -63,4 +71,5 @@ var (
 	_ EventServicer        = (*EventService)(nil)
 	_ AnnouncementServicer = (*AnnouncementService)(nil)
 	_ GalleryServicer      = (*GalleryService)(nil)
+	_ SiteContentServicer  = (*SiteContentService)(nil)
 )

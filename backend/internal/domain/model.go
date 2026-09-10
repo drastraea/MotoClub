@@ -34,6 +34,9 @@ const (
 	StatusPending  Status = "PENDING_APPROVAL"
 	StatusApproved Status = "APPROVED"
 	StatusRejected Status = "REJECTED"
+	// StatusExpired is never stored: it is derived from MembershipExpiresAt at
+	// read time (see Member.EffectiveStatus).
+	StatusExpired Status = "EXPIRED"
 )
 
 // Principal is the authenticated identity extracted from a JWT and carried
@@ -70,13 +73,28 @@ type Member struct {
 	EmergencyContactName        string
 	EmergencyContactPhoneNumber string
 	MotorbikeName               string
+	MotorbikeBrand              string
+	MotorbikeType               string
+	PlateNumber                 string
 	MotorbikeSelfieLinkPath     string
+	RiderPhotoLinkPath          string
 	Role                        Role
 	Status                      Status
 	Remarks                     *string
 	ApprovedAt                  *time.Time
+	MembershipExpiresAt         *time.Time
 	CreatedAt                   time.Time
 	LastUpdatedAt               time.Time
+}
+
+// EffectiveStatus resolves the member's status as seen by the API: an approved
+// member whose 3-year term has elapsed reads as EXPIRED. All other states are
+// returned as stored.
+func (m Member) EffectiveStatus(now time.Time) Status {
+	if m.Status == StatusApproved && m.MembershipExpiresAt != nil && m.MembershipExpiresAt.Before(now) {
+		return StatusExpired
+	}
+	return m.Status
 }
 
 // Registration is the reduced view of a pending member used by the admin panel.

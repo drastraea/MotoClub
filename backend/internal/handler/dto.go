@@ -2,12 +2,19 @@ package handler
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/edberto/motoclub-backend/internal/domain"
 	"github.com/edberto/motoclub-backend/internal/util"
 )
 
 func idString(id int64) string { return strconv.FormatInt(id, 10) }
+
+// effectiveStatus resolves a member's status for API responses, collapsing an
+// elapsed membership term to EXPIRED.
+func effectiveStatus(m domain.Member) string {
+	return string(m.EffectiveStatus(time.Now()))
+}
 
 // --- Gallery ---
 
@@ -139,8 +146,13 @@ type profileResponse struct {
 	EmergencyContactName        string  `json:"emergencyContactName"`
 	EmergencyContactPhoneNumber string  `json:"emergencyContactPhoneNumber"`
 	MotorbikeName               string  `json:"motorbikeName"`
+	MotorbikeBrand              string  `json:"motorbikeBrand"`
+	MotorbikeType               string  `json:"motorbikeType"`
+	PlateNumber                 string  `json:"plateNumber"`
 	MotorbikeSelfieLinkPath     string  `json:"motorbikeSelfieLinkPath"`
+	RiderPhotoLinkPath          string  `json:"riderPhotoLinkPath"`
 	Status                      string  `json:"status"`
+	MembershipExpiresAt         *string `json:"membershipExpiresAt"`
 	CreatedAt                   string  `json:"created_at"`
 	ApprovedAt                  *string `json:"approved_at"`
 }
@@ -158,8 +170,13 @@ func toProfile(m domain.Member) profileResponse {
 		EmergencyContactName:        m.EmergencyContactName,
 		EmergencyContactPhoneNumber: m.EmergencyContactPhoneNumber,
 		MotorbikeName:               m.MotorbikeName,
+		MotorbikeBrand:              m.MotorbikeBrand,
+		MotorbikeType:               m.MotorbikeType,
+		PlateNumber:                 m.PlateNumber,
 		MotorbikeSelfieLinkPath:     m.MotorbikeSelfieLinkPath,
-		Status:                      string(m.Status),
+		RiderPhotoLinkPath:          m.RiderPhotoLinkPath,
+		Status:                      effectiveStatus(m),
+		MembershipExpiresAt:         util.FormatJakartaDatePtr(m.MembershipExpiresAt),
 		CreatedAt:                   util.FormatJakartaDate(m.CreatedAt),
 		ApprovedAt:                  util.FormatJakartaDatePtr(m.ApprovedAt),
 	}
@@ -190,11 +207,13 @@ func toRegistrationList(regs []domain.Registration) registrationListResponse {
 }
 
 type memberItem struct {
-	ID               string  `json:"id"`
-	Email            string  `json:"email"`
-	Role             string  `json:"role"`
-	RegistrationDate string  `json:"registration_date"`
-	ApprovalDate     *string `json:"approval_date"`
+	ID                  string  `json:"id"`
+	Email               string  `json:"email"`
+	Role                string  `json:"role"`
+	Status              string  `json:"status"`
+	MembershipExpiresAt *string `json:"membership_expires_at"`
+	RegistrationDate    string  `json:"registration_date"`
+	ApprovalDate        *string `json:"approval_date"`
 }
 
 type memberListResponse struct {
@@ -205,11 +224,13 @@ func toMemberList(members []domain.Member) memberListResponse {
 	out := make([]memberItem, 0, len(members))
 	for _, m := range members {
 		out = append(out, memberItem{
-			ID:               idString(m.ID),
-			Email:            m.Email,
-			Role:             string(m.Role),
-			RegistrationDate: util.FormatJakartaDate(m.CreatedAt),
-			ApprovalDate:     util.FormatJakartaDatePtr(m.ApprovedAt),
+			ID:                  idString(m.ID),
+			Email:               m.Email,
+			Role:                string(m.Role),
+			Status:              effectiveStatus(m),
+			MembershipExpiresAt: util.FormatJakartaDatePtr(m.MembershipExpiresAt),
+			RegistrationDate:    util.FormatJakartaDate(m.CreatedAt),
+			ApprovalDate:        util.FormatJakartaDatePtr(m.ApprovedAt),
 		})
 	}
 	return memberListResponse{Members: out}

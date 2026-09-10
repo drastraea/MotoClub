@@ -23,6 +23,7 @@ type Querier interface {
 	GetMemberByEmail(ctx context.Context, email string) (Member, error)
 	GetMemberByGoogleSub(ctx context.Context, googleSub string) (Member, error)
 	GetMemberByID(ctx context.Context, id int64) (Member, error)
+	GetSiteContent(ctx context.Context) ([]byte, error)
 	IsTokenRevoked(ctx context.Context, jti string) (bool, error)
 	ListAnnouncements(ctx context.Context, arg ListAnnouncementsParams) ([]Announcement, error)
 	ListEvents(ctx context.Context, arg ListEventsParams) ([]Event, error)
@@ -30,6 +31,7 @@ type Querier interface {
 	ListMembers(ctx context.Context) ([]Member, error)
 	ListPendingRegistrations(ctx context.Context) ([]ListPendingRegistrationsRow, error)
 	RevokeToken(ctx context.Context, arg RevokeTokenParams) error
+	SetMembershipExpiry(ctx context.Context, arg SetMembershipExpiryParams) (Member, error)
 	SoftDeleteAnnouncement(ctx context.Context, id int64) (int64, error)
 	SoftDeleteEvent(ctx context.Context, id int64) (int64, error)
 	SoftDeleteGalleryItem(ctx context.Context, id int64) (int64, error)
@@ -39,6 +41,7 @@ type Querier interface {
 	UpdateGalleryItem(ctx context.Context, arg UpdateGalleryItemParams) (Gallery, error)
 	UpdateMemberRole(ctx context.Context, arg UpdateMemberRoleParams) (Member, error)
 	UpdateMemberStatus(ctx context.Context, arg UpdateMemberStatusParams) (Member, error)
+	UpsertSiteContent(ctx context.Context, data []byte) error
 }
 
 var _ Querier = (*Queries)(nil)

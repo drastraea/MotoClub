@@ -32,7 +32,11 @@ type registerRequest struct {
 	EmergencyContactName        string `json:"emergencyContactName" binding:"required"`
 	EmergencyContactPhoneNumber string `json:"emergencyContactPhoneNumber" binding:"required"`
 	MotorbikeName               string `json:"motorbikeName" binding:"required"`
+	MotorbikeBrand              string `json:"motorbikeBrand" binding:"required"`
+	MotorbikeType               string `json:"motorbikeType" binding:"required"`
+	PlateNumber                 string `json:"plateNumber" binding:"required"`
 	MotorbikeSelfieLinkPath     string `json:"motorbikeSelfieLinkPath" binding:"required"`
+	RiderPhotoLinkPath          string `json:"riderPhotoLinkPath" binding:"required"`
 	GoogleToken                 string `json:"googleToken" binding:"required"`
 }
 
@@ -60,7 +64,11 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		EmergencyContactName:        req.EmergencyContactName,
 		EmergencyContactPhoneNumber: req.EmergencyContactPhoneNumber,
 		MotorbikeName:               req.MotorbikeName,
+		MotorbikeBrand:              req.MotorbikeBrand,
+		MotorbikeType:               req.MotorbikeType,
+		PlateNumber:                 req.PlateNumber,
 		MotorbikeSelfieLinkPath:     req.MotorbikeSelfieLinkPath,
+		RiderPhotoLinkPath:          req.RiderPhotoLinkPath,
 		GoogleToken:                 req.GoogleToken,
 	})
 	if err != nil {

@@ -14,7 +14,7 @@ const backfillGoogleSub = `-- name: BackfillGoogleSub :one
 UPDATE members
 SET google_sub = $2
 WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at
+RETURNING id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at, motorbike_brand, motorbike_type, plate_number, rider_photo_link_path, membership_expires_at
 `
 
 type BackfillGoogleSubParams struct {
@@ -47,6 +47,11 @@ func (q *Queries) BackfillGoogleSub(ctx context.Context, arg BackfillGoogleSubPa
 		&i.CreatedAt,
 		&i.LastUpdatedAt,
 		&i.DeletedAt,
+		&i.MotorbikeBrand,
+		&i.MotorbikeType,
+		&i.PlateNumber,
+		&i.RiderPhotoLinkPath,
+		&i.MembershipExpiresAt,
 	)
 	return i, err
 }
@@ -91,11 +96,13 @@ const createMember = `-- name: CreateMember :one
 INSERT INTO members (
     google_sub, email, name, phone_number, place_of_birth, date_of_birth,
     address, instagram_username, blood_type, emergency_contact_name,
-    emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path
+    emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path,
+    motorbike_brand, motorbike_type, plate_number, rider_photo_link_path
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13,
+    $14, $15, $16, $17
 )
-RETURNING id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at
+RETURNING id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at, motorbike_brand, motorbike_type, plate_number, rider_photo_link_path, membership_expires_at
 `
 
 type CreateMemberParams struct {
@@ -112,6 +119,10 @@ type CreateMemberParams struct {
 	EmergencyContactPhoneNumber string
 	MotorbikeName               string
 	MotorbikeSelfieLinkPath     string
+	MotorbikeBrand              string
+	MotorbikeType               string
+	PlateNumber                 string
+	RiderPhotoLinkPath          string
 }
 
 func (q *Queries) CreateMember(ctx context.Context, arg CreateMemberParams) (Member, error) {
@@ -129,6 +140,10 @@ func (q *Queries) CreateMember(ctx context.Context, arg CreateMemberParams) (Mem
 		arg.EmergencyContactPhoneNumber,
 		arg.MotorbikeName,
 		arg.MotorbikeSelfieLinkPath,
+		arg.MotorbikeBrand,
+		arg.MotorbikeType,
+		arg.PlateNumber,
+		arg.RiderPhotoLinkPath,
 	)
 	var i Member
 	err := row.Scan(
@@ -153,12 +168,17 @@ func (q *Queries) CreateMember(ctx context.Context, arg CreateMemberParams) (Mem
 		&i.CreatedAt,
 		&i.LastUpdatedAt,
 		&i.DeletedAt,
+		&i.MotorbikeBrand,
+		&i.MotorbikeType,
+		&i.PlateNumber,
+		&i.RiderPhotoLinkPath,
+		&i.MembershipExpiresAt,
 	)
 	return i, err
 }
 
 const getMemberByEmail = `-- name: GetMemberByEmail :one
-SELECT id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at FROM members
+SELECT id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at, motorbike_brand, motorbike_type, plate_number, rider_photo_link_path, membership_expires_at FROM members
 WHERE email = $1 AND deleted_at IS NULL
 `
 
@@ -187,12 +207,17 @@ func (q *Queries) GetMemberByEmail(ctx context.Context, email string) (Member, e
 		&i.CreatedAt,
 		&i.LastUpdatedAt,
 		&i.DeletedAt,
+		&i.MotorbikeBrand,
+		&i.MotorbikeType,
+		&i.PlateNumber,
+		&i.RiderPhotoLinkPath,
+		&i.MembershipExpiresAt,
 	)
 	return i, err
 }
 
 const getMemberByGoogleSub = `-- name: GetMemberByGoogleSub :one
-SELECT id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at FROM members
+SELECT id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at, motorbike_brand, motorbike_type, plate_number, rider_photo_link_path, membership_expires_at FROM members
 WHERE google_sub = $1 AND deleted_at IS NULL
 `
 
@@ -221,12 +246,17 @@ func (q *Queries) GetMemberByGoogleSub(ctx context.Context, googleSub string) (M
 		&i.CreatedAt,
 		&i.LastUpdatedAt,
 		&i.DeletedAt,
+		&i.MotorbikeBrand,
+		&i.MotorbikeType,
+		&i.PlateNumber,
+		&i.RiderPhotoLinkPath,
+		&i.MembershipExpiresAt,
 	)
 	return i, err
 }
 
 const getMemberByID = `-- name: GetMemberByID :one
-SELECT id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at FROM members
+SELECT id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at, motorbike_brand, motorbike_type, plate_number, rider_photo_link_path, membership_expires_at FROM members
 WHERE id = $1 AND deleted_at IS NULL
 `
 
@@ -255,12 +285,17 @@ func (q *Queries) GetMemberByID(ctx context.Context, id int64) (Member, error) {
 		&i.CreatedAt,
 		&i.LastUpdatedAt,
 		&i.DeletedAt,
+		&i.MotorbikeBrand,
+		&i.MotorbikeType,
+		&i.PlateNumber,
+		&i.RiderPhotoLinkPath,
+		&i.MembershipExpiresAt,
 	)
 	return i, err
 }
 
 const listMembers = `-- name: ListMembers :many
-SELECT id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at FROM members
+SELECT id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at, motorbike_brand, motorbike_type, plate_number, rider_photo_link_path, membership_expires_at FROM members
 WHERE deleted_at IS NULL
 ORDER BY created_at
 `
@@ -296,6 +331,11 @@ func (q *Queries) ListMembers(ctx context.Context) ([]Member, error) {
 			&i.CreatedAt,
 			&i.LastUpdatedAt,
 			&i.DeletedAt,
+			&i.MotorbikeBrand,
+			&i.MotorbikeType,
+			&i.PlateNumber,
+			&i.RiderPhotoLinkPath,
+			&i.MembershipExpiresAt,
 		); err != nil {
 			return nil, err
 		}
@@ -345,6 +385,52 @@ func (q *Queries) ListPendingRegistrations(ctx context.Context) ([]ListPendingRe
 	return items, nil
 }
 
+const setMembershipExpiry = `-- name: SetMembershipExpiry :one
+UPDATE members
+SET membership_expires_at = $2
+WHERE id = $1 AND deleted_at IS NULL
+RETURNING id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at, motorbike_brand, motorbike_type, plate_number, rider_photo_link_path, membership_expires_at
+`
+
+type SetMembershipExpiryParams struct {
+	ID                  int64
+	MembershipExpiresAt *time.Time
+}
+
+func (q *Queries) SetMembershipExpiry(ctx context.Context, arg SetMembershipExpiryParams) (Member, error) {
+	row := q.db.QueryRow(ctx, setMembershipExpiry, arg.ID, arg.MembershipExpiresAt)
+	var i Member
+	err := row.Scan(
+		&i.ID,
+		&i.GoogleSub,
+		&i.Email,
+		&i.Name,
+		&i.PhoneNumber,
+		&i.PlaceOfBirth,
+		&i.DateOfBirth,
+		&i.Address,
+		&i.InstagramUsername,
+		&i.BloodType,
+		&i.EmergencyContactName,
+		&i.EmergencyContactPhoneNumber,
+		&i.MotorbikeName,
+		&i.MotorbikeSelfieLinkPath,
+		&i.Role,
+		&i.Status,
+		&i.Remarks,
+		&i.ApprovedAt,
+		&i.CreatedAt,
+		&i.LastUpdatedAt,
+		&i.DeletedAt,
+		&i.MotorbikeBrand,
+		&i.MotorbikeType,
+		&i.PlateNumber,
+		&i.RiderPhotoLinkPath,
+		&i.MembershipExpiresAt,
+	)
+	return i, err
+}
+
 const softDeleteMember = `-- name: SoftDeleteMember :execrows
 UPDATE members
 SET deleted_at = now()
@@ -363,7 +449,7 @@ const updateMemberRole = `-- name: UpdateMemberRole :one
 UPDATE members
 SET role = $2
 WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at
+RETURNING id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at, motorbike_brand, motorbike_type, plate_number, rider_photo_link_path, membership_expires_at
 `
 
 type UpdateMemberRoleParams struct {
@@ -396,23 +482,30 @@ func (q *Queries) UpdateMemberRole(ctx context.Context, arg UpdateMemberRolePara
 		&i.CreatedAt,
 		&i.LastUpdatedAt,
 		&i.DeletedAt,
+		&i.MotorbikeBrand,
+		&i.MotorbikeType,
+		&i.PlateNumber,
+		&i.RiderPhotoLinkPath,
+		&i.MembershipExpiresAt,
 	)
 	return i, err
 }
 
 const updateMemberStatus = `-- name: UpdateMemberStatus :one
 UPDATE members
-SET status = $2, remarks = $3, approved_at = $4, role = $5
+SET status = $2, remarks = $3, approved_at = $4, role = $5,
+    membership_expires_at = $6
 WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at
+RETURNING id, google_sub, email, name, phone_number, place_of_birth, date_of_birth, address, instagram_username, blood_type, emergency_contact_name, emergency_contact_phone_number, motorbike_name, motorbike_selfie_link_path, role, status, remarks, approved_at, created_at, last_updated_at, deleted_at, motorbike_brand, motorbike_type, plate_number, rider_photo_link_path, membership_expires_at
 `
 
 type UpdateMemberStatusParams struct {
-	ID         int64
-	Status     string
-	Remarks    *string
-	ApprovedAt *time.Time
-	Role       string
+	ID                  int64
+	Status              string
+	Remarks             *string
+	ApprovedAt          *time.Time
+	Role                string
+	MembershipExpiresAt *time.Time
 }
 
 func (q *Queries) UpdateMemberStatus(ctx context.Context, arg UpdateMemberStatusParams) (Member, error) {
@@ -422,6 +515,7 @@ func (q *Queries) UpdateMemberStatus(ctx context.Context, arg UpdateMemberStatus
 		arg.Remarks,
 		arg.ApprovedAt,
 		arg.Role,
+		arg.MembershipExpiresAt,
 	)
 	var i Member
 	err := row.Scan(
@@ -446,6 +540,11 @@ func (q *Queries) UpdateMemberStatus(ctx context.Context, arg UpdateMemberStatus
 		&i.CreatedAt,
 		&i.LastUpdatedAt,
 		&i.DeletedAt,
+		&i.MotorbikeBrand,
+		&i.MotorbikeType,
+		&i.PlateNumber,
+		&i.RiderPhotoLinkPath,
+		&i.MembershipExpiresAt,
 	)
 	return i, err
 }

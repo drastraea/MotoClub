@@ -19,7 +19,8 @@ const validRegisterBody = `{
 	"name":"Alice","email":"a@b.com","phoneNumber":"08","placeOfBirth":"Jakarta",
 	"dateofBirth":"1990-01-01","address":"addr","instagramUsername":"al","bloodType":"O",
 	"emergencyContactName":"Bob","emergencyContactPhoneNumber":"09","motorbikeName":"Vespa",
-	"motorbikeSelfieLinkPath":"http://x","googleToken":"tok"
+	"motorbikeBrand":"Piaggio","motorbikeType":"GTS","plateNumber":"B1AA",
+	"motorbikeSelfieLinkPath":"http://x","riderPhotoLinkPath":"http://y","googleToken":"tok"
 }`
 
 func TestRegister(t *testing.T) {
@@ -31,7 +32,7 @@ func TestRegister(t *testing.T) {
 	})
 	t.Run("bad date", func(t *testing.T) {
 		svc := svcmocks.NewMockAuthServicer(t)
-		body := `{"name":"Alice","email":"a@b.com","phoneNumber":"08","placeOfBirth":"J","dateofBirth":"bad","address":"a","instagramUsername":"i","bloodType":"O","emergencyContactName":"B","emergencyContactPhoneNumber":"09","motorbikeName":"V","motorbikeSelfieLinkPath":"http://x","googleToken":"t"}`
+		body := `{"name":"Alice","email":"a@b.com","phoneNumber":"08","placeOfBirth":"J","dateofBirth":"bad","address":"a","instagramUsername":"i","bloodType":"O","emergencyContactName":"B","emergencyContactPhoneNumber":"09","motorbikeName":"V","motorbikeBrand":"P","motorbikeType":"G","plateNumber":"B1","motorbikeSelfieLinkPath":"http://x","riderPhotoLinkPath":"http://y","googleToken":"t"}`
 		c, w := ctxJSON(http.MethodPost, "/register", body)
 		NewAuthHandler(svc).Register(c)
 		assert.Equal(t, http.StatusBadRequest, w.Code)

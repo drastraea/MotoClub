@@ -184,6 +184,53 @@ func (_c *MockMemberServicer_Delete_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
+// ExtendMembership provides a mock function with given fields: ctx, id
+func (_m *MockMemberServicer) ExtendMembership(ctx context.Context, id int64) error {
+	ret := _m.Called(ctx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ExtendMembership")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, int64) error); ok {
+		r0 = rf(ctx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockMemberServicer_ExtendMembership_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ExtendMembership'
+type MockMemberServicer_ExtendMembership_Call struct {
+	*mock.Call
+}
+
+// ExtendMembership is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id int64
+func (_e *MockMemberServicer_Expecter) ExtendMembership(ctx interface{}, id interface{}) *MockMemberServicer_ExtendMembership_Call {
+	return &MockMemberServicer_ExtendMembership_Call{Call: _e.mock.On("ExtendMembership", ctx, id)}
+}
+
+func (_c *MockMemberServicer_ExtendMembership_Call) Run(run func(ctx context.Context, id int64)) *MockMemberServicer_ExtendMembership_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int64))
+	})
+	return _c
+}
+
+func (_c *MockMemberServicer_ExtendMembership_Call) Return(_a0 error) *MockMemberServicer_ExtendMembership_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockMemberServicer_ExtendMembership_Call) RunAndReturn(run func(context.Context, int64) error) *MockMemberServicer_ExtendMembership_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetProfile provides a mock function with given fields: ctx, id
 func (_m *MockMemberServicer) GetProfile(ctx context.Context, id int64) (domain.Member, error) {
 	ret := _m.Called(ctx, id)
@@ -241,9 +288,9 @@ func (_c *MockMemberServicer_GetProfile_Call) RunAndReturn(run func(context.Cont
 	return _c
 }
 
-// ListMembers provides a mock function with given fields: ctx
-func (_m *MockMemberServicer) ListMembers(ctx context.Context) ([]domain.Member, error) {
-	ret := _m.Called(ctx)
+// ListMembers provides a mock function with given fields: ctx, status
+func (_m *MockMemberServicer) ListMembers(ctx context.Context, status *domain.Status) ([]domain.Member, error) {
+	ret := _m.Called(ctx, status)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListMembers")
@@ -251,19 +298,19 @@ func (_m *MockMemberServicer) ListMembers(ctx context.Context) ([]domain.Member,
 
 	var r0 []domain.Member
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]domain.Member, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, *domain.Status) ([]domain.Member, error)); ok {
+		return rf(ctx, status)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []domain.Member); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, *domain.Status) []domain.Member); ok {
+		r0 = rf(ctx, status)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]domain.Member)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, *domain.Status) error); ok {
+		r1 = rf(ctx, status)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -278,13 +325,14 @@ type MockMemberServicer_ListMembers_Call struct {
 
 // ListMembers is a helper method to define mock.On call
 //   - ctx context.Context
-func (_e *MockMemberServicer_Expecter) ListMembers(ctx interface{}) *MockMemberServicer_ListMembers_Call {
-	return &MockMemberServicer_ListMembers_Call{Call: _e.mock.On("ListMembers", ctx)}
+//   - status *domain.Status
+func (_e *MockMemberServicer_Expecter) ListMembers(ctx interface{}, status interface{}) *MockMemberServicer_ListMembers_Call {
+	return &MockMemberServicer_ListMembers_Call{Call: _e.mock.On("ListMembers", ctx, status)}
 }
 
-func (_c *MockMemberServicer_ListMembers_Call) Run(run func(ctx context.Context)) *MockMemberServicer_ListMembers_Call {
+func (_c *MockMemberServicer_ListMembers_Call) Run(run func(ctx context.Context, status *domain.Status)) *MockMemberServicer_ListMembers_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context))
+		run(args[0].(context.Context), args[1].(*domain.Status))
 	})
 	return _c
 }
@@ -294,7 +342,7 @@ func (_c *MockMemberServicer_ListMembers_Call) Return(_a0 []domain.Member, _a1 e
 	return _c
 }
 
-func (_c *MockMemberServicer_ListMembers_Call) RunAndReturn(run func(context.Context) ([]domain.Member, error)) *MockMemberServicer_ListMembers_Call {
+func (_c *MockMemberServicer_ListMembers_Call) RunAndReturn(run func(context.Context, *domain.Status) ([]domain.Member, error)) *MockMemberServicer_ListMembers_Call {
 	_c.Call.Return(run)
 	return _c
 }

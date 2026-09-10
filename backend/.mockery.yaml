@@ -10,6 +10,7 @@ packages:
       EventRepository:
       AnnouncementRepository:
       GalleryRepository:
+      SiteContentRepository:
       TokenRepository:
   github.com/edberto/motoclub-backend/internal/auth:
     interfaces:
@@ -28,3 +29,4 @@ packages:
       EventServicer:
       AnnouncementServicer:
       GalleryServicer:
+      SiteContentServicer:

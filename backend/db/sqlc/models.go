@@ -62,6 +62,11 @@ type Member struct {
 	CreatedAt                   time.Time
 	LastUpdatedAt               time.Time
 	DeletedAt                   *time.Time
+	MotorbikeBrand              string
+	MotorbikeType               string
+	PlateNumber                 string
+	RiderPhotoLinkPath          string
+	MembershipExpiresAt         *time.Time
 }
 
 type RevokedToken struct {
@@ -71,4 +76,10 @@ type RevokedToken struct {
 	CreatedAt     time.Time
 	LastUpdatedAt time.Time
 	DeletedAt     *time.Time
+}
+
+type SiteContent struct {
+	ID            int16
+	Data          []byte
+	LastUpdatedAt time.Time
 }

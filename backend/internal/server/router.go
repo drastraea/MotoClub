@@ -36,6 +36,9 @@ func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middlewa
 	publicRead.GET("/event/:id", h.Event.Get)
 	publicRead.GET("/announcements", h.Announcement.List)
 
+	// Landing-page content: public read, admin write.
+	r.GET("/site-content", h.SiteContent.Get)
+
 	// Authenticated endpoints available to any role, including visitors
 	// (registered-but-unapproved members).
 	authed := r.Group("/", middleware.JWTAuth(jwtMgr, revocations))
@@ -50,6 +53,7 @@ func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middlewa
 	admin.GET("/members/count", h.Member.GetCount)
 	admin.GET("/members", h.Member.ListMembers)
 	admin.POST("/members/:id/status", h.Member.SetStatus)
+	admin.POST("/members/:id/extend", h.Member.ExtendMembership)
 	admin.DELETE("/members/:id", h.Member.Delete)
 
 	admin.GET("/events/count", h.Event.Count)
@@ -65,6 +69,8 @@ func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middlewa
 	admin.POST("/announcements", h.Announcement.Create)
 	admin.PUT("/announcements/:id", h.Announcement.Update)
 	admin.DELETE("/announcements/:id", h.Announcement.Delete)
+
+	admin.PUT("/site-content", h.SiteContent.Update)
 
 	// Superadmin-only endpoints.
 	superadmin := authed.Group("/", middleware.RequireRole(domain.RoleSuperadmin))

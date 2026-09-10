@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"time"
 
 	"github.com/edberto/motoclub-backend/db/sqlc"
 	"github.com/edberto/motoclub-backend/internal/domain"
@@ -28,11 +29,16 @@ func toDomainMember(m sqlc.Member) domain.Member {
 		EmergencyContactName:        m.EmergencyContactName,
 		EmergencyContactPhoneNumber: m.EmergencyContactPhoneNumber,
 		MotorbikeName:               m.MotorbikeName,
+		MotorbikeBrand:              m.MotorbikeBrand,
+		MotorbikeType:               m.MotorbikeType,
+		PlateNumber:                 m.PlateNumber,
 		MotorbikeSelfieLinkPath:     m.MotorbikeSelfieLinkPath,
+		RiderPhotoLinkPath:          m.RiderPhotoLinkPath,
 		Role:                        domain.Role(m.Role),
 		Status:                      domain.Status(m.Status),
 		Remarks:                     m.Remarks,
 		ApprovedAt:                  m.ApprovedAt,
+		MembershipExpiresAt:         m.MembershipExpiresAt,
 		CreatedAt:                   m.CreatedAt,
 		LastUpdatedAt:               m.LastUpdatedAt,
 	}
@@ -53,7 +59,11 @@ func (r *MemberRepo) Create(ctx context.Context, in repository.CreateMemberInput
 		EmergencyContactName:        in.EmergencyContactName,
 		EmergencyContactPhoneNumber: in.EmergencyContactPhoneNumber,
 		MotorbikeName:               in.MotorbikeName,
+		MotorbikeBrand:              in.MotorbikeBrand,
+		MotorbikeType:               in.MotorbikeType,
+		PlateNumber:                 in.PlateNumber,
 		MotorbikeSelfieLinkPath:     in.MotorbikeSelfieLinkPath,
+		RiderPhotoLinkPath:          in.RiderPhotoLinkPath,
 	})
 	if err != nil {
 		return domain.Member{}, err
@@ -142,11 +152,24 @@ func (r *MemberRepo) List(ctx context.Context) ([]domain.Member, error) {
 // UpdateStatus applies an approve/reject decision.
 func (r *MemberRepo) UpdateStatus(ctx context.Context, in repository.UpdateStatusInput) (domain.Member, error) {
 	m, err := r.q.UpdateMemberStatus(ctx, sqlc.UpdateMemberStatusParams{
-		ID:         in.ID,
-		Status:     string(in.Status),
-		Remarks:    in.Remarks,
-		ApprovedAt: in.ApprovedAt,
-		Role:       string(in.Role),
+		ID:                  in.ID,
+		Status:              string(in.Status),
+		Remarks:             in.Remarks,
+		ApprovedAt:          in.ApprovedAt,
+		MembershipExpiresAt: in.MembershipExpiresAt,
+		Role:                string(in.Role),
+	})
+	if err != nil {
+		return domain.Member{}, mapGetErr(err)
+	}
+	return toDomainMember(m), nil
+}
+
+// SetMembershipExpiry updates only the membership expiry timestamp.
+func (r *MemberRepo) SetMembershipExpiry(ctx context.Context, id int64, expiresAt *time.Time) (domain.Member, error) {
+	m, err := r.q.SetMembershipExpiry(ctx, sqlc.SetMembershipExpiryParams{
+		ID:                  id,
+		MembershipExpiresAt: expiresAt,
 	})
 	if err != nil {
 		return domain.Member{}, mapGetErr(err)

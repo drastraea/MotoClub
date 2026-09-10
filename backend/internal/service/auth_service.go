@@ -27,7 +27,11 @@ type RegisterInput struct {
 	EmergencyContactName        string
 	EmergencyContactPhoneNumber string
 	MotorbikeName               string
+	MotorbikeBrand              string
+	MotorbikeType               string
+	PlateNumber                 string
 	MotorbikeSelfieLinkPath     string
+	RiderPhotoLinkPath          string
 	GoogleToken                 string
 }
 
@@ -98,7 +102,11 @@ func (s *AuthService) Register(ctx context.Context, in RegisterInput) (domain.Me
 		EmergencyContactName:        in.EmergencyContactName,
 		EmergencyContactPhoneNumber: in.EmergencyContactPhoneNumber,
 		MotorbikeName:               in.MotorbikeName,
+		MotorbikeBrand:              in.MotorbikeBrand,
+		MotorbikeType:               in.MotorbikeType,
+		PlateNumber:                 in.PlateNumber,
 		MotorbikeSelfieLinkPath:     in.MotorbikeSelfieLinkPath,
+		RiderPhotoLinkPath:          in.RiderPhotoLinkPath,
 	})
 }
 

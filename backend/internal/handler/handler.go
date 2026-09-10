@@ -22,6 +22,7 @@ type Handlers struct {
 	Event        *EventHandler
 	Announcement *AnnouncementHandler
 	Gallery      *GalleryHandler
+	SiteContent  *SiteContentHandler
 	Upload       *UploadHandler
 }
 

@@ -88,18 +88,56 @@ func TestRegistrationCountAndLists(t *testing.T) {
 	})
 	t.Run("members error", func(t *testing.T) {
 		svc := svcmocks.NewMockMemberServicer(t)
-		svc.On("ListMembers", mock.Anything).Return(nil, apperr.ErrNotFound)
+		svc.On("ListMembers", mock.Anything, (*domain.Status)(nil)).Return(nil, apperr.ErrNotFound)
 		c, w := ctxJSON(http.MethodGet, "/members", "")
 		NewMemberHandler(svc).ListMembers(c)
 		assert.Equal(t, http.StatusNotFound, w.Code)
 	})
 	t.Run("members success", func(t *testing.T) {
 		svc := svcmocks.NewMockMemberServicer(t)
-		svc.On("ListMembers", mock.Anything).Return([]domain.Member{{ID: 1, Email: "a@b.com", Role: domain.RoleMember}}, nil)
+		svc.On("ListMembers", mock.Anything, (*domain.Status)(nil)).Return([]domain.Member{{ID: 1, Email: "a@b.com", Role: domain.RoleMember}}, nil)
 		c, w := ctxJSON(http.MethodGet, "/members", "")
 		NewMemberHandler(svc).ListMembers(c)
 		assert.Equal(t, http.StatusOK, w.Code)
 		assert.Contains(t, w.Body.String(), `"role":"member"`)
+	})
+	t.Run("members status filter", func(t *testing.T) {
+		svc := svcmocks.NewMockMemberServicer(t)
+		want := domain.StatusExpired
+		svc.On("ListMembers", mock.Anything, &want).Return([]domain.Member{}, nil)
+		c, w := ctxJSON(http.MethodGet, "/members?status=EXPIRED", "")
+		NewMemberHandler(svc).ListMembers(c)
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+	t.Run("members bad status filter", func(t *testing.T) {
+		c, w := ctxJSON(http.MethodGet, "/members?status=BOGUS", "")
+		NewMemberHandler(svcmocks.NewMockMemberServicer(t)).ListMembers(c)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+}
+
+func TestExtendMembership(t *testing.T) {
+	t.Run("bad id", func(t *testing.T) {
+		c, w := ctxJSON(http.MethodPost, "/members/x/extend", "")
+		setParam(c, "id", "x")
+		NewMemberHandler(svcmocks.NewMockMemberServicer(t)).ExtendMembership(c)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+	t.Run("service error", func(t *testing.T) {
+		svc := svcmocks.NewMockMemberServicer(t)
+		svc.On("ExtendMembership", mock.Anything, int64(1)).Return(apperr.ErrNotFound)
+		c, w := ctxJSON(http.MethodPost, "/members/1/extend", "")
+		setParam(c, "id", "1")
+		NewMemberHandler(svc).ExtendMembership(c)
+		assert.Equal(t, http.StatusNotFound, w.Code)
+	})
+	t.Run("success", func(t *testing.T) {
+		svc := svcmocks.NewMockMemberServicer(t)
+		svc.On("ExtendMembership", mock.Anything, int64(1)).Return(nil)
+		c, _ := ctxJSON(http.MethodPost, "/members/1/extend", "")
+		setParam(c, "id", "1")
+		NewMemberHandler(svc).ExtendMembership(c)
+		assert.Equal(t, http.StatusNoContent, c.Writer.Status())
 	})
 }
 

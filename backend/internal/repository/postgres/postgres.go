@@ -38,6 +38,7 @@ type Repositories struct {
 	Events        *EventRepo
 	Announcements *AnnouncementRepo
 	Gallery       *GalleryRepo
+	SiteContent   *SiteContentRepo
 	Tokens        *TokenRepo
 }
 
@@ -49,6 +50,7 @@ func New(db sqlc.DBTX) *Repositories {
 		Events:        &EventRepo{q: q},
 		Announcements: &AnnouncementRepo{q: q},
 		Gallery:       &GalleryRepo{q: q},
+		SiteContent:   &SiteContentRepo{q: q},
 		Tokens:        &TokenRepo{q: q},
 	}
 }

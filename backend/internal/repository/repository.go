@@ -25,16 +25,21 @@ type CreateMemberInput struct {
 	EmergencyContactName        string
 	EmergencyContactPhoneNumber string
 	MotorbikeName               string
+	MotorbikeBrand              string
+	MotorbikeType               string
+	PlateNumber                 string
 	MotorbikeSelfieLinkPath     string
+	RiderPhotoLinkPath          string
 }
 
 // UpdateStatusInput carries an approve/reject decision (and the resulting role).
 type UpdateStatusInput struct {
-	ID         int64
-	Status     domain.Status
-	Remarks    *string
-	ApprovedAt *time.Time
-	Role       domain.Role
+	ID                  int64
+	Status              domain.Status
+	Remarks             *string
+	ApprovedAt          *time.Time
+	MembershipExpiresAt *time.Time
+	Role                domain.Role
 }
 
 // CreateEventInput carries the fields for creating an event.
@@ -70,9 +75,17 @@ type MemberRepository interface {
 	ListPending(ctx context.Context) ([]domain.Registration, error)
 	List(ctx context.Context) ([]domain.Member, error)
 	UpdateStatus(ctx context.Context, in UpdateStatusInput) (domain.Member, error)
+	SetMembershipExpiry(ctx context.Context, id int64, expiresAt *time.Time) (domain.Member, error)
 	UpdateRole(ctx context.Context, id int64, role domain.Role) (domain.Member, error)
 	SoftDelete(ctx context.Context, id int64) error
 	CountSuperadmins(ctx context.Context) (int64, error)
+}
+
+// SiteContentRepository persists the single landing-page content document as an
+// opaque JSON blob.
+type SiteContentRepository interface {
+	Get(ctx context.Context) ([]byte, error)
+	Upsert(ctx context.Context, data []byte) error
 }
 
 // EventRepository persists events. publicOnly restricts reads to public rows.

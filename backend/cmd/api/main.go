@@ -83,6 +83,7 @@ func run(cfg config.Config, logger *slog.Logger) error {
 		Event:        handler.NewEventHandler(service.NewEventService(repos.Events)),
 		Announcement: handler.NewAnnouncementHandler(service.NewAnnouncementService(repos.Announcements)),
 		Gallery:      handler.NewGalleryHandler(service.NewGalleryService(repos.Gallery)),
+		SiteContent:  handler.NewSiteContentHandler(service.NewSiteContentService(repos.SiteContent)),
 		Upload:       handler.NewUploadHandler(uploadDir),
 	}
 

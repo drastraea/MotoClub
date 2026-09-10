@@ -65,14 +65,43 @@ func (h *MemberHandler) ListRegistrations(c *gin.Context) {
 	c.JSON(http.StatusOK, toRegistrationList(regs))
 }
 
-// ListMembers handles GET /members.
+var validStatuses = map[string]domain.Status{
+	string(domain.StatusPending):  domain.StatusPending,
+	string(domain.StatusApproved): domain.StatusApproved,
+	string(domain.StatusRejected): domain.StatusRejected,
+	string(domain.StatusExpired):  domain.StatusExpired,
+}
+
+// ListMembers handles GET /members, optionally filtered by ?status=.
 func (h *MemberHandler) ListMembers(c *gin.Context) {
-	members, err := h.svc.ListMembers(c.Request.Context())
+	var status *domain.Status
+	if raw := c.Query("status"); raw != "" {
+		s, ok := validStatuses[raw]
+		if !ok {
+			httpx.AbortStatus(c, http.StatusBadRequest, "invalid status filter")
+			return
+		}
+		status = &s
+	}
+	members, err := h.svc.ListMembers(c.Request.Context(), status)
 	if err != nil {
 		httpx.Error(c, err)
 		return
 	}
 	c.JSON(http.StatusOK, toMemberList(members))
+}
+
+// ExtendMembership handles POST /members/{id}/extend.
+func (h *MemberHandler) ExtendMembership(c *gin.Context) {
+	id, ok := parseIDParam(c)
+	if !ok {
+		return
+	}
+	if err := h.svc.ExtendMembership(c.Request.Context(), id); err != nil {
+		httpx.Error(c, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
 }
 
 type statusRequest struct {
