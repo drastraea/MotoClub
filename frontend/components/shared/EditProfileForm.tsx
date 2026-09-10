@@ -36,6 +36,9 @@ const editProfileSchema = z.object({
   emergencyContactName: z.string().min(2, "Required"),
   emergencyContactPhoneNumber: z.string().min(8, "Enter a valid phone number"),
   motorbikeName: z.string().min(2, "Required"),
+  motorbikeBrand: z.string().min(2, "Required"),
+  motorbikeType: z.string().min(1, "Required"),
+  plateNumber: z.string().min(3, "Required"),
 });
 
 type EditProfileValues = z.infer<typeof editProfileSchema>;
@@ -55,6 +58,9 @@ function toDefaults(p: Profile): EditProfileValues {
     emergencyContactName: p.emergencyContactName,
     emergencyContactPhoneNumber: p.emergencyContactPhoneNumber,
     motorbikeName: p.motorbikeName,
+    motorbikeBrand: p.motorbikeBrand,
+    motorbikeType: p.motorbikeType,
+    plateNumber: p.plateNumber,
   };
 }
 
@@ -208,10 +214,32 @@ function InnerForm({ defaults }: { defaults: EditProfileValues }) {
           <CardTitle className="text-xs tracking-widest uppercase">Motorbike</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="motorbikeName">Motorbike Name</Label>
-            <Input id="motorbikeName" aria-invalid={!!errors.motorbikeName} {...register("motorbikeName")} />
-            {errors.motorbikeName && <p className="text-sm text-destructive">{errors.motorbikeName.message}</p>}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="motorbikeName">Motorbike Name</Label>
+              <Input id="motorbikeName" aria-invalid={!!errors.motorbikeName} {...register("motorbikeName")} />
+              {errors.motorbikeName && <p className="text-sm text-destructive">{errors.motorbikeName.message}</p>}
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="motorbikeBrand">Motorbike Brand</Label>
+              <Input id="motorbikeBrand" aria-invalid={!!errors.motorbikeBrand} {...register("motorbikeBrand")} />
+              {errors.motorbikeBrand && <p className="text-sm text-destructive">{errors.motorbikeBrand.message}</p>}
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="motorbikeType">Motorbike Type</Label>
+              <Input id="motorbikeType" aria-invalid={!!errors.motorbikeType} {...register("motorbikeType")} />
+              {errors.motorbikeType && <p className="text-sm text-destructive">{errors.motorbikeType.message}</p>}
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="plateNumber">Plate Number</Label>
+              <Input
+                id="plateNumber"
+                className="uppercase"
+                aria-invalid={!!errors.plateNumber}
+                {...register("plateNumber")}
+              />
+              {errors.plateNumber && <p className="text-sm text-destructive">{errors.plateNumber.message}</p>}
+            </div>
           </div>
         </CardContent>
       </Card>

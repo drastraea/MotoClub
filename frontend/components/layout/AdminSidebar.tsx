@@ -9,7 +9,7 @@ import {
   CalendarDays,
   Images,
   Megaphone,
-  Award,
+  LayoutTemplate,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +20,7 @@ const links = [
   { href: "/admin/events", label: "Events", icon: CalendarDays },
   { href: "/admin/gallery", label: "Gallery", icon: Images },
   { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
-  { href: "/admin/benefits", label: "Benefits", icon: Award },
+  { href: "/admin/site", label: "Site Content", icon: LayoutTemplate },
 ];
 
 export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {

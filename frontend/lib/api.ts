@@ -4,6 +4,7 @@
 
 import { config } from "@/lib/config";
 import { clearSession, getSession, getToken, setSession, type Role } from "@/lib/session";
+import type { SiteContent } from "@/lib/site-content";
 
 export class ApiError extends Error {
   status: number;
@@ -132,8 +133,13 @@ export type Profile = {
   emergencyContactName: string;
   emergencyContactPhoneNumber: string;
   motorbikeName: string;
+  motorbikeBrand: string;
+  motorbikeType: string;
+  plateNumber: string;
   motorbikeSelfieLinkPath: string;
+  riderPhotoLinkPath: string;
   status: string;
+  membershipExpiresAt: string | null;
   created_at: string;
   approved_at: string | null;
 };
@@ -147,6 +153,8 @@ export type MemberRow = {
   id: string;
   email: string;
   role: Role;
+  status: string;
+  membership_expires_at: string | null;
   registration_date: string;
   approval_date: string | null;
 };
@@ -163,7 +171,11 @@ export type RegisterRequest = {
   emergencyContactName: string;
   emergencyContactPhoneNumber: string;
   motorbikeName: string;
+  motorbikeBrand: string;
+  motorbikeType: string;
+  plateNumber: string;
   motorbikeSelfieLinkPath: string;
+  riderPhotoLinkPath: string;
   googleToken: string;
 };
 
@@ -217,6 +229,14 @@ export const api = {
       "/announcements" + (startFrom ? `?startFrom=${encodeURIComponent(startFrom)}` : "")
     ).then((r) => r.announcements),
 
+  // ---- site content (public landing page) ----
+  // Backend: GET/PUT /site-content, a single jsonb row. Not implemented yet —
+  // until it is, getSiteContent 404s and callers fall back to defaults.
+  getSiteContent: () => apiFetch<SiteContent>("/site-content", { auth: false }),
+
+  updateSiteContent: (body: SiteContent) =>
+    apiFetch<void>("/site-content", { method: "PUT", body }),
+
   // ---- profile ----
   getProfile: (memberId: string) => apiFetch<Profile>(`/members/${memberId}/profile`),
 
@@ -235,7 +255,13 @@ export const api = {
   setMemberStatus: (id: string, action: "APPROVE" | "REJECT", remarks?: string) =>
     apiFetch<void>(`/members/${id}/status`, { method: "POST", body: { action, remarks: remarks ?? null } }),
 
-  getMembers: () => apiFetch<{ members: MemberRow[] }>("/members").then((r) => r.members),
+  getMembers: (status?: string) =>
+    apiFetch<{ members: MemberRow[] }>(
+      "/members" + (status ? `?status=${encodeURIComponent(status)}` : "")
+    ).then((r) => r.members),
+
+  extendMembership: (id: string) =>
+    apiFetch<void>(`/members/${id}/extend`, { method: "POST" }),
 
   updateMemberRole: (id: string, role: "ADMIN" | "MEMBER") =>
     apiFetch<void>(`/members/${id}`, { method: "POST", body: { role } }),

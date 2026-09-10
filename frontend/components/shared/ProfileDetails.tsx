@@ -3,13 +3,19 @@ import {
   Phone,
   MapPin,
   CalendarDays,
+  CalendarX,
   AtSign,
   Droplet,
   Home,
   Siren,
   Bike,
+  Factory,
+  Cog,
+  Hash,
+  User,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { MembershipCardQrs } from "@/components/shared/MembershipCardQrs";
 import type { Profile } from "@/lib/api";
 
 type Field = { icon: React.ElementType; label: string; value: string };
@@ -49,7 +55,13 @@ function Section({ title, fields }: { title: string; fields: Field[] }) {
 
 // Read-only, sectioned view of a member's profile. Shared by the member's own
 // profile page and the admin application-review page.
-export function ProfileDetails({ profile }: { profile: Profile }) {
+export function ProfileDetails({
+  profile,
+  memberId,
+}: {
+  profile: Profile;
+  memberId?: string;
+}) {
   const personal: Field[] = [
     { icon: Mail, label: "Email", value: profile.email },
     { icon: Phone, label: "Phone Number", value: profile.phoneNumber },
@@ -71,7 +83,15 @@ export function ProfileDetails({ profile }: { profile: Profile }) {
 
   const motorbike: Field[] = [
     { icon: Bike, label: "Motorbike", value: profile.motorbikeName },
+    { icon: Factory, label: "Brand", value: profile.motorbikeBrand },
+    { icon: Cog, label: "Type", value: profile.motorbikeType },
+    { icon: Hash, label: "Plate Number", value: profile.plateNumber },
     { icon: CalendarDays, label: "Member Since", value: profile.created_at },
+    {
+      icon: CalendarX,
+      label: "Membership Expires",
+      value: profile.membershipExpiresAt ?? "",
+    },
   ];
 
   return (
@@ -89,23 +109,47 @@ export function ProfileDetails({ profile }: { profile: Profile }) {
                 <FieldRow key={f.label} {...f} />
               ))}
             </dl>
-            {profile.motorbikeSelfieLinkPath && (
-              <a
-                href={profile.motorbikeSelfieLinkPath}
-                target="_blank"
-                rel="noreferrer"
-                className="block"
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={profile.motorbikeSelfieLinkPath}
-                  alt="Motorbike"
-                  className="shape-corner-sm max-h-56 w-full border border-border object-cover"
-                />
-              </a>
-            )}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {profile.motorbikeSelfieLinkPath && (
+                <a
+                  href={profile.motorbikeSelfieLinkPath}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block"
+                >
+                  <span className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+                    <Bike className="size-3.5" /> Motorbike Selfie
+                  </span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={profile.motorbikeSelfieLinkPath}
+                    alt="Motorbike selfie"
+                    className="shape-corner-sm max-h-56 w-full border border-border object-cover"
+                  />
+                </a>
+              )}
+              {profile.riderPhotoLinkPath && (
+                <a
+                  href={profile.riderPhotoLinkPath}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block"
+                >
+                  <span className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+                    <User className="size-3.5" /> Rider Photo
+                  </span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={profile.riderPhotoLinkPath}
+                    alt="Rider closeup"
+                    className="shape-corner-sm max-h-56 w-full border border-border object-cover"
+                  />
+                </a>
+              )}
+            </div>
           </CardContent>
         </Card>
+        {memberId && <MembershipCardQrs memberId={memberId} />}
       </div>
     </div>
   );

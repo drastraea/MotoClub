@@ -14,7 +14,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { api } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
-import { useBenefits } from "@/hooks/useBenefits";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 // Each card owns a dedicated count endpoint and its own loading state, so a
 // number never renders until it's real — no misleading 0 while fetching.
@@ -75,7 +75,7 @@ function StatCardView({
 }
 
 export default function AdminHome() {
-  const benefits = useBenefits();
+  const { content } = useSiteContent();
 
   return (
     <div>
@@ -111,10 +111,10 @@ export default function AdminHome() {
           fetcher={() => api.getGallery().then((items) => items.length)}
         />
         <StatCardView
-          href="/admin/benefits"
+          href="/admin/site"
           icon={Award}
           label="Membership Benefits"
-          value={benefits.length}
+          value={content.benefits.items.length}
           loading={false}
           error={false}
         />

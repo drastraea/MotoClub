@@ -1,43 +1,50 @@
 import { ImagePlaceholder } from "@/components/shared/ImagePlaceholder";
+import { defaultSiteContent, type SiteContent } from "@/lib/site-content";
 
-const points = [
-  "Founded by riders, for riders - not a business, a brotherhood.",
-  "Weekend rides, charity runs, and yearly gatherings that keep the club close.",
-  "Safety, respect for the road, and giving back to every community we pass through.",
-];
+function AboutImage({ url, className }: { url?: string; className: string }) {
+  if (!url) return <ImagePlaceholder className={className} />;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={url}
+      alt=""
+      className={`img-mono shape-corner border border-border object-cover shadow-inner ${className}`}
+    />
+  );
+}
 
-export function AboutSection() {
+export function AboutSection({
+  data = defaultSiteContent.about,
+}: {
+  data?: SiteContent["about"];
+}) {
   return (
     <section id="about" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-16 sm:px-6">
       <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
         <div className="grid grid-cols-5 gap-4">
           <div className="col-span-3">
-            <ImagePlaceholder className="aspect-[3/4] h-full" />
+            <AboutImage url={data.images[0]} className="aspect-[3/4] h-full w-full" />
           </div>
           <div className="col-span-2 flex flex-col gap-4">
             <div className="shape-corner-sm flex flex-col items-center justify-center bg-primary py-6 text-primary-foreground">
               <span className="text-sm font-medium">Est.</span>
-              <span className="font-heading text-3xl font-bold">2024</span>
+              <span className="font-heading text-3xl font-bold">{data.established_year}</span>
             </div>
-            <ImagePlaceholder className="aspect-square flex-1" />
+            <AboutImage url={data.images[1]} className="aspect-square w-full flex-1" />
           </div>
         </div>
 
         <div>
           <span className="text-xs font-semibold tracking-[0.3em] text-primary uppercase">
-            Who We Are
+            {data.eyebrow}
           </span>
           <h2 className="font-heading mt-2 text-3xl font-bold tracking-wide uppercase">
-            About the Club
+            {data.heading}
           </h2>
           <div className="mt-3 h-1 w-16 bg-primary" />
-          <p className="mt-4 text-muted-foreground">
-            Founded by riders for riders, our club brings together people who
-            share a passion for the open road. From weekend rides to charity
-            runs, we build lasting friendships one mile at a time.
-          </p>
+          <p className="mt-4 text-muted-foreground">{data.body}</p>
           <ul className="mt-6 flex flex-col">
-            {points.map((point, i) => (
+            {data.points.map((point, i) => (
               <li
                 key={point}
                 className="flex gap-3 border-b border-border py-3 first:pt-0 last:border-0 last:pb-0"

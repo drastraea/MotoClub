@@ -1,13 +1,6 @@
-const tags = [
-  "GROUP RIDES",
-  "TRACK DAYS",
-  "CHARITY RUNS",
-  "NIGHT RIDES",
-  "TOURING",
-  "MAINTENANCE CLINICS",
-];
+import { defaultSiteContent } from "@/lib/site-content";
 
-function TagList({ ariaHidden }: { ariaHidden?: boolean }) {
+function TagList({ tags, ariaHidden }: { tags: string[]; ariaHidden?: boolean }) {
   return (
     <ul
       aria-hidden={ariaHidden}
@@ -23,12 +16,13 @@ function TagList({ ariaHidden }: { ariaHidden?: boolean }) {
   );
 }
 
-export function TagTicker() {
+export function TagTicker({ tags = defaultSiteContent.ticker }: { tags?: string[] }) {
+  if (tags.length === 0) return null;
   return (
     <div className="overflow-hidden border-y border-border bg-secondary/40 py-6">
       <div className="flex w-max animate-marquee">
-        <TagList />
-        <TagList ariaHidden />
+        <TagList tags={tags} />
+        <TagList tags={tags} ariaHidden />
       </div>
     </div>
   );

@@ -2,9 +2,10 @@
 
 import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronRight, Search, Trash2 } from "lucide-react";
+import { CalendarPlus, ChevronRight, Search, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,12 +18,19 @@ import {
 } from "@/components/ui/select";
 import { api, type MemberRow } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
+import { MEMBER_STATUSES, statusMeta } from "@/lib/member-status";
+
+const ALL = "ALL";
 
 export default function AdminUsersPage() {
   const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>(ALL);
   const { data: users, loading, error, reload } = useApiData(
-    useCallback(() => api.getMembers(), []),
-    []
+    useCallback(
+      () => api.getMembers(statusFilter === ALL ? undefined : statusFilter),
+      [statusFilter]
+    ),
+    [statusFilter]
   );
 
   const filtered = useMemo(() => {
@@ -52,6 +60,16 @@ export default function AdminUsersPage() {
     }
   };
 
+  const extendUser = async (id: string) => {
+    try {
+      await api.extendMembership(id);
+      toast.success("Membership extended by 3 years");
+      await reload();
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Extend failed");
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -65,14 +83,29 @@ export default function AdminUsersPage() {
             </p>
           )}
         </div>
-        <div className="relative w-full sm:w-64">
-          <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search by email…"
-            className="pl-9"
-          />
+        <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? ALL)}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>All statuses</SelectItem>
+              {MEMBER_STATUSES.map((s) => (
+                <SelectItem key={s} value={s}>
+                  {statusMeta(s).label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <div className="relative flex-1 sm:w-64">
+            <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by email…"
+              className="pl-9"
+            />
+          </div>
         </div>
       </div>
 
@@ -84,7 +117,13 @@ export default function AdminUsersPage() {
 
       <div className="mt-8 flex flex-col gap-3">
         {filtered.map((u) => (
-          <UserRow key={u.id} user={u} onRoleChange={updateRole} onRemove={removeUser} />
+          <UserRow
+            key={u.id}
+            user={u}
+            onRoleChange={updateRole}
+            onRemove={removeUser}
+            onExtend={extendUser}
+          />
         ))}
       </div>
     </div>
@@ -95,12 +134,15 @@ function UserRow({
   user,
   onRoleChange,
   onRemove,
+  onExtend,
 }: {
   user: MemberRow;
   onRoleChange: (id: string, role: "ADMIN" | "MEMBER") => void;
   onRemove: (id: string) => void;
+  onExtend: (id: string) => void;
 }) {
   const selectableRole = user.role === "admin" ? "ADMIN" : user.role === "member" ? "MEMBER" : undefined;
+  const canExtend = user.status === "APPROVED" || user.status === "EXPIRED";
 
   return (
     <Card>
@@ -112,8 +154,18 @@ function UserRow({
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium">{user.email}</p>
-            <p className="text-xs text-muted-foreground">Joined {user.registration_date}</p>
+            <div className="flex items-center gap-2">
+              <p className="truncate text-sm font-medium">{user.email}</p>
+              {user.status && (
+                <Badge variant={statusMeta(user.status).badge} className="shrink-0">
+                  {statusMeta(user.status).label}
+                </Badge>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Joined {user.registration_date}
+              {user.membership_expires_at && ` · expires ${user.membership_expires_at}`}
+            </p>
           </div>
         </div>
 
@@ -130,6 +182,18 @@ function UserRow({
               <SelectItem value="ADMIN">Admin</SelectItem>
             </SelectContent>
           </Select>
+
+          {canExtend && (
+            <Button
+              size="icon-sm"
+              variant="outline"
+              aria-label="Extend membership by 3 years"
+              title="Extend membership (+3 years)"
+              onClick={() => onExtend(user.id)}
+            >
+              <CalendarPlus className="size-4" />
+            </Button>
+          )}
 
           <Button
             size="sm"

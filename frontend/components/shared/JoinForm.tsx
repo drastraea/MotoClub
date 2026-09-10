@@ -41,11 +41,67 @@ const joinSchema = z.object({
   emergencyContactName: z.string().min(2, "Required"),
   emergencyContactPhoneNumber: z.string().min(8, "Enter a valid phone number"),
   motorbikeName: z.string().min(2, "Required"),
+  motorbikeBrand: z.string().min(2, "Required"),
+  motorbikeType: z.string().min(1, "Required"),
+  plateNumber: z.string().min(3, "Required"),
 });
 
 type JoinValues = z.infer<typeof joinSchema>;
 
 type GoogleAccount = { name: string; email: string };
+
+// One drag-and-drop photo field. Holds the picked File in parent state; the
+// actual upload is deferred to form submit (no account/JWT exists yet).
+function PhotoField({
+  label,
+  onFile,
+}: {
+  label: string;
+  onFile: (file: File) => void;
+}) {
+  const [preview, setPreview] = useState<string | null>(null);
+
+  const onDrop = useCallback(
+    (accepted: File[]) => {
+      const file = accepted[0];
+      if (!file) return;
+      onFile(file);
+      setPreview(URL.createObjectURL(file));
+    },
+    [onFile]
+  );
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { "image/*": [] },
+    maxFiles: 1,
+  });
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label>{label}</Label>
+      <div
+        {...getRootProps()}
+        className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground hover:bg-muted"
+      >
+        <input {...getInputProps()} />
+        {preview ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={preview}
+            alt={`${label} preview`}
+            className="h-32 w-32 rounded-lg object-cover"
+          />
+        ) : (
+          <>
+            <UploadCloud className="size-6" />
+            {isDragActive ? "Drop the photo here" : "Drag & drop or click to upload a photo"}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function StepIndicator({ step }: { step: 1 | 2 }) {
   const steps = ["Sign in with Google", "Your details"];
@@ -84,20 +140,7 @@ export function JoinForm() {
   const [account, setAccount] = useState<GoogleAccount | null>(null);
   const [googleToken, setGoogleToken] = useState("");
   const [selfie, setSelfie] = useState<File | null>(null);
-  const [selfiePreview, setSelfiePreview] = useState<string | null>(null);
-
-  const onDrop = useCallback((accepted: File[]) => {
-    const file = accepted[0];
-    if (!file) return;
-    setSelfie(file);
-    setSelfiePreview(URL.createObjectURL(file));
-  }, []);
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: { "image/*": [] },
-    maxFiles: 1,
-  });
+  const [riderPhoto, setRiderPhoto] = useState<File | null>(null);
 
   const {
     register,
@@ -140,11 +183,17 @@ export function JoinForm() {
       toast.error("Please upload a motorbike selfie.");
       return;
     }
+    if (!riderPhoto) {
+      toast.error("Please upload a rider closeup photo.");
+      return;
+    }
     let motorbikeSelfieLinkPath: string;
+    let riderPhotoLinkPath: string;
     try {
       motorbikeSelfieLinkPath = await uploadImage(selfie);
+      riderPhotoLinkPath = await uploadImage(riderPhoto);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Selfie upload failed");
+      toast.error(err instanceof Error ? err.message : "Photo upload failed");
       return;
     }
     try {
@@ -160,7 +209,11 @@ export function JoinForm() {
         emergencyContactName: values.emergencyContactName,
         emergencyContactPhoneNumber: values.emergencyContactPhoneNumber,
         motorbikeName: values.motorbikeName,
+        motorbikeBrand: values.motorbikeBrand,
+        motorbikeType: values.motorbikeType,
+        plateNumber: values.plateNumber.trim().toUpperCase(),
         motorbikeSelfieLinkPath,
+        riderPhotoLinkPath,
         googleToken,
       });
       toast.success("Application submitted! You can sign in once an admin approves it.");
@@ -372,6 +425,55 @@ export function JoinForm() {
           </div>
 
           <div className="flex flex-col gap-1.5">
+            <Label htmlFor="motorbikeBrand">Motorbike Brand</Label>
+            <Input
+              id="motorbikeBrand"
+              placeholder="e.g. Honda"
+              aria-invalid={!!errors.motorbikeBrand}
+              aria-describedby={errors.motorbikeBrand ? "motorbikeBrand-error" : undefined}
+              {...register("motorbikeBrand")}
+            />
+            {errors.motorbikeBrand && (
+              <p id="motorbikeBrand-error" className="text-sm text-destructive">
+                {errors.motorbikeBrand.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="motorbikeType">Motorbike Type</Label>
+            <Input
+              id="motorbikeType"
+              placeholder="e.g. CB150R"
+              aria-invalid={!!errors.motorbikeType}
+              aria-describedby={errors.motorbikeType ? "motorbikeType-error" : undefined}
+              {...register("motorbikeType")}
+            />
+            {errors.motorbikeType && (
+              <p id="motorbikeType-error" className="text-sm text-destructive">
+                {errors.motorbikeType.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="plateNumber">Plate Number</Label>
+            <Input
+              id="plateNumber"
+              placeholder="e.g. B 1234 XYZ"
+              className="uppercase"
+              aria-invalid={!!errors.plateNumber}
+              aria-describedby={errors.plateNumber ? "plateNumber-error" : undefined}
+              {...register("plateNumber")}
+            />
+            {errors.plateNumber && (
+              <p id="plateNumber-error" className="text-sm text-destructive">
+                {errors.plateNumber.message}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
             <Label htmlFor="emergencyContactName">Emergency Contact Name</Label>
             <Input
               id="emergencyContactName"
@@ -405,27 +507,9 @@ export function JoinForm() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <Label>Motorbike Selfie</Label>
-          <div
-            {...getRootProps()}
-            className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground hover:bg-muted"
-          >
-            <input {...getInputProps()} />
-            {selfiePreview ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={selfiePreview}
-                alt="Motorbike selfie preview"
-                className="h-32 w-32 rounded-lg object-cover"
-              />
-            ) : (
-              <>
-                <UploadCloud className="size-6" />
-                {isDragActive ? "Drop the photo here" : "Drag & drop or click to upload a photo"}
-              </>
-            )}
-          </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <PhotoField label="Motorbike Selfie" onFile={setSelfie} />
+          <PhotoField label="Rider Closeup Photo" onFile={setRiderPhoto} />
         </div>
 
         <Button type="submit" disabled={isSubmitting} className="self-start">

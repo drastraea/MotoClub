@@ -11,6 +11,7 @@ import { ProfileDetails } from "@/components/shared/ProfileDetails";
 import { api } from "@/lib/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useApiData } from "@/hooks/useApiData";
+import { statusMeta } from "@/lib/member-status";
 
 function initials(name: string) {
   return name
@@ -60,7 +61,9 @@ export default function ProfilePage() {
           </div>
 
           <div className="flex shrink-0 items-center gap-3">
-            <Badge>{profile.status}</Badge>
+            <Badge variant={statusMeta(profile.status).badge}>
+              {statusMeta(profile.status).label}
+            </Badge>
             <Button
               size="sm"
               variant="outline"
@@ -74,7 +77,7 @@ export default function ProfilePage() {
         </CardContent>
       </Card>
 
-      <ProfileDetails profile={profile} />
+      <ProfileDetails profile={profile} memberId={memberId} />
     </div>
   );
 }
