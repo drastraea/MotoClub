@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DashboardSidebar } from "@/components/layout/DashboardSidebar";
 import { DashboardTopbar } from "@/components/layout/DashboardTopbar";
+import { memberNav } from "@/components/dashboard/nav";
 import { useAuth } from "@/hooks/useAuth";
 
 export default function DashboardLayout({
@@ -21,12 +22,22 @@ export default function DashboardLayout({
     else if (user.role === "visitor") router.replace("/status");
   }, [ready, user, router]);
 
+  // Close the mobile drawer on Escape.
+  useEffect(() => {
+    if (!mobileNavOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMobileNavOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [mobileNavOpen]);
+
   if (!ready || !user || user.role === "visitor") return null;
 
   return (
-    <div className="flex min-h-screen flex-1">
-      <div className="hidden lg:flex">
-        <DashboardSidebar />
+    <div data-dashboard className="flex min-h-screen flex-1 bg-muted/30">
+      <div className="hidden lg:block">
+        <div className="sticky top-0 h-screen">
+          <DashboardSidebar />
+        </div>
       </div>
 
       {mobileNavOpen && (
@@ -36,16 +47,16 @@ export default function DashboardLayout({
             onClick={() => setMobileNavOpen(false)}
             aria-hidden
           />
-          <div className="relative z-50 h-full w-56 bg-background">
+          <div className="relative z-50 h-full w-64 shadow-xl">
             <DashboardSidebar onNavigate={() => setMobileNavOpen(false)} />
           </div>
         </div>
       )}
 
-      <div className="flex flex-1 flex-col">
-        <DashboardTopbar onMenuClick={() => setMobileNavOpen(true)} />
-        <main id="main-content" className="flex-1 p-4 sm:p-6">
-          <div className="mx-auto max-w-4xl">{children}</div>
+      <div className="flex min-w-0 flex-1 flex-col">
+        <DashboardTopbar groups={memberNav} onMenuClick={() => setMobileNavOpen(true)} />
+        <main id="main-content" className="flex-1 p-4 sm:p-6 lg:p-8">
+          <div className="mx-auto w-full max-w-5xl">{children}</div>
         </main>
       </div>
     </div>

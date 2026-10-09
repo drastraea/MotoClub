@@ -2,13 +2,15 @@
 
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { Eye, EyeOff, Trash2, UploadCloud } from "lucide-react";
+import { Eye, EyeOff, Images, Trash2, UploadCloud } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DashHeader } from "@/components/dashboard/DashHeader";
 import { api } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
 import { uploadImage } from "@/lib/upload";
+import { cn } from "@/lib/utils";
 
 export default function AdminGalleryPage() {
   const { data: images, loading, error, reload } = useApiData(
@@ -17,10 +19,8 @@ export default function AdminGalleryPage() {
   );
   const [uploading, setUploading] = useState(false);
 
-  // POST /gallery { link }. The backend stores a link to an already-hosted
-  // image (no upload endpoint), so dropped files are inlined as base64 data
-  // URIs to use as that link. New items are private (is_public: false) until
-  // toggled public below.
+  // Each dropped file is uploaded (POST /uploads) and then registered as a
+  // gallery item (POST /gallery { link }). New items are private until toggled.
   const onDrop = useCallback(
     async (accepted: File[]) => {
       if (accepted.length === 0) return;
@@ -57,6 +57,7 @@ export default function AdminGalleryPage() {
   });
 
   const handleDelete = async (id: string) => {
+    if (!window.confirm("Delete this image?")) return;
     try {
       await api.deleteGalleryItem(id);
       toast.success("Image deleted");
@@ -67,42 +68,61 @@ export default function AdminGalleryPage() {
   };
 
   return (
-    <div>
-      <h1 className="font-heading text-3xl font-bold tracking-wide uppercase">
-        Gallery Management
-      </h1>
+    <div className="flex flex-col gap-6">
+      <DashHeader
+        title="Gallery"
+        description="Photos for the landing-page gallery. New uploads stay private until you make them public."
+      />
 
       <div
         {...getRootProps()}
-        className="shape-corner mt-8 flex cursor-pointer flex-col items-center gap-2 border border-dashed border-border p-8 text-center text-sm text-muted-foreground hover:bg-muted"
+        className={cn(
+          "flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground transition-colors hover:border-primary/60 hover:bg-primary/5",
+          isDragActive && "border-primary bg-primary/5"
+        )}
       >
         <input {...getInputProps()} />
-        <UploadCloud className="size-6" />
-        {uploading
-          ? "Uploading…"
-          : isDragActive
-            ? "Drop images here"
-            : "Drag & drop or click to upload images"}
+        <span className="flex size-10 items-center justify-center rounded-full bg-muted">
+          <UploadCloud className="size-5" />
+        </span>
+        <p className="font-medium text-foreground">
+          {uploading ? "Uploading…" : isDragActive ? "Drop images here" : "Drag & drop images"}
+        </p>
+        {!uploading && !isDragActive && <p className="text-xs">or click to browse</p>}
       </div>
 
-      {loading && <p className="mt-4 text-sm text-muted-foreground">Loading…</p>}
-      {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
-      <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      {loading && (
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4" aria-hidden>
+          {Array.from({ length: 8 }, (_, i) => (
+            <div key={i} className="aspect-square animate-pulse rounded-xl bg-muted" />
+          ))}
+        </div>
+      )}
+
+      {images && images.length === 0 && (
+        <p className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground">
+          <Images className="size-4" />
+          No photos yet. Drop the first ones above.
+        </p>
+      )}
+
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {images?.map((img) => (
-          <div key={img.id} className="group relative">
+          <div key={img.id} className="group relative overflow-hidden rounded-xl ring-1 ring-border">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={img.link}
               alt="Gallery item"
-              className="aspect-square w-full rounded-lg border border-border object-cover"
+              className="aspect-square w-full object-cover"
             />
             {img.is_public && (
               <Badge variant="secondary" className="absolute top-2 left-2">
                 Public
               </Badge>
             )}
-            <div className="absolute top-2 right-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+            <div className="absolute top-2 right-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
               <Button
                 size="icon-sm"
                 variant="secondary"

@@ -33,14 +33,12 @@ export function Navbar() {
       ? "/status"
       : isAdmin(user.role)
         ? "/admin"
-        : "/dashboard/profile";
+        : "/dashboard";
   const accountLabel = !user
     ? "Login"
     : user.role === "visitor"
       ? "My Status"
-      : isAdmin(user.role)
-        ? "Dashboard"
-        : "Profile";
+      : "Dashboard";
 
   return (
     <header className="sticky top-0 z-50 border-b-2 border-primary/30 bg-background/95 backdrop-blur">

@@ -59,7 +59,7 @@ export default function MemberDetailPage() {
       </Button>
 
       <div className="mt-4 flex items-center justify-between">
-        <h1 className="font-heading text-3xl font-bold tracking-wide uppercase">
+        <h1 className="text-2xl font-semibold tracking-tight">
           {profile?.status === PENDING ? "Membership Application" : "Member Profile"}
         </h1>
         {profile && (

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
+import { DashHeader } from "@/components/dashboard/DashHeader";
 import { SiteContentForm } from "@/components/shared/SiteContentForm";
 import { useSiteContent } from "@/hooks/useSiteContent";
 import { api } from "@/lib/api";
@@ -26,12 +27,10 @@ export default function AdminSitePage() {
 
   return (
     <div>
-      <h1 className="font-heading text-3xl font-bold tracking-wide uppercase">
-        Site Content
-      </h1>
-      <p className="mt-2 text-muted-foreground">
-        Edit the text and images on the public landing page.
-      </p>
+      <DashHeader
+        title="Site Content"
+        description="Edit the text and images on the public landing page."
+      />
 
       {error && (
         <p className="mt-4 text-sm text-destructive">

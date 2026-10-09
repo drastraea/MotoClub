@@ -41,14 +41,23 @@ export default function ProfilePage() {
     <div>
       <Card>
         <CardContent className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-center sm:text-left">
-          <Avatar className="size-16 shrink-0 sm:size-20">
-            <AvatarFallback className="bg-primary/10 text-lg font-semibold text-primary sm:text-xl">
-              {initials(profile.name)}
-            </AvatarFallback>
-          </Avatar>
+          {profile.riderPhotoLinkPath ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={profile.riderPhotoLinkPath}
+              alt=""
+              className="size-16 shrink-0 rounded-full object-cover ring-2 ring-primary/40 sm:size-20"
+            />
+          ) : (
+            <Avatar className="size-16 shrink-0 sm:size-20">
+              <AvatarFallback className="bg-primary/10 text-lg font-semibold text-primary sm:text-xl">
+                {initials(profile.name)}
+              </AvatarFallback>
+            </Avatar>
+          )}
 
           <div className="min-w-0 flex-1">
-            <h1 className="font-heading truncate text-2xl font-bold tracking-wide uppercase sm:text-3xl">
+            <h1 className="truncate text-2xl font-semibold tracking-tight sm:text-3xl">
               {profile.name}
             </h1>
             <div className="mt-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm text-muted-foreground sm:justify-start">

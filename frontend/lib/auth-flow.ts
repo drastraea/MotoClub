@@ -27,5 +27,5 @@ export async function completeGoogleLogin(
   }
 
   toast.success("Signed in");
-  router.push(isAdmin(role) ? "/admin" : "/dashboard/profile");
+  router.push(isAdmin(role) ? "/admin" : "/dashboard");
 }

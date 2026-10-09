@@ -1,15 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { QrCode } from "@/components/shared/QrCode";
+import { useOrigin } from "@/hooks/useOrigin";
 
 // The two QR codes printed on the physical member ID card:
 //  - Benefits: static, points at the public "why join / benefits" section
 //  - Member:   points at this member's detail page (scanned to verify at events)
 export function MembershipCardQrs({ memberId }: { memberId: string }) {
-  const [origin, setOrigin] = useState("");
-  useEffect(() => setOrigin(window.location.origin), []);
+  const origin = useOrigin();
 
   const benefitsUrl = `${origin}/#benefits`;
   const memberUrl = `${origin}/admin/members/${memberId}`;

@@ -1,17 +1,20 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Megaphone, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { DashHeader } from "@/components/dashboard/DashHeader";
+import { EmptyState, ListSkeleton } from "@/components/dashboard/EmptyState";
+import { Panel, PanelList } from "@/components/dashboard/Panel";
 import {
   AnnouncementFormDialog,
   type AnnouncementFormValues,
 } from "@/components/shared/AnnouncementFormDialog";
 import { api, type Announcement } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
+import { useOpenOnNewParam } from "@/hooks/useOpenOnNewParam";
 
 export default function AdminAnnouncementsPage() {
   const { data: announcements, loading, error, reload } = useApiData(
@@ -25,6 +28,7 @@ export default function AdminAnnouncementsPage() {
     setEditing(null);
     setDialogOpen(true);
   };
+  useOpenOnNewParam(openCreate);
 
   const openEdit = (announcement: Announcement) => {
     setEditing(announcement);
@@ -46,9 +50,10 @@ export default function AdminAnnouncementsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (a: Announcement) => {
+    if (!window.confirm(`Delete "${a.title}"?`)) return;
     try {
-      await api.deleteAnnouncement(id);
+      await api.deleteAnnouncement(a.id);
       toast.success("Announcement deleted");
       await reload();
     } catch (err) {
@@ -57,48 +62,66 @@ export default function AdminAnnouncementsPage() {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <h1 className="font-heading text-3xl font-bold tracking-wide uppercase">
-          Announcement Management
-        </h1>
-        <Button size="sm" onClick={openCreate}>
-          <Plus className="size-4" />
-          New Announcement
-        </Button>
-      </div>
+    <div className="flex flex-col gap-6">
+      <DashHeader
+        title="Announcements"
+        description="News for members. Mark one public to also show it on the landing page."
+        actions={
+          <Button size="sm" onClick={openCreate}>
+            <Plus className="size-4" />
+            New announcement
+          </Button>
+        }
+      />
 
-      {loading && <p className="mt-4 text-sm text-muted-foreground">Loading…</p>}
-      {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
-
-      <div className="mt-8 flex flex-col gap-4">
-        {announcements?.map((a) => (
-          <Card key={a.id}>
-            <CardHeader className="sm:grid-cols-[1fr_auto] sm:items-center">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  {a.title}
+      <Panel>
+        {loading && <ListSkeleton rows={3} />}
+        {error && <p className="px-5 py-4 text-sm text-destructive">{error}</p>}
+        {announcements && announcements.length === 0 && (
+          <EmptyState
+            icon={Megaphone}
+            title="No announcements yet"
+            description="Post the first update for the club."
+            action={
+              <Button size="sm" onClick={openCreate}>
+                <Plus className="size-4" />
+                New announcement
+              </Button>
+            }
+          />
+        )}
+        <PanelList>
+          {announcements?.map((a) => (
+            <div
+              key={a.id}
+              className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-start sm:justify-between"
+            >
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-sm font-medium">{a.title}</p>
                   {a.is_public && <Badge variant="secondary">Public</Badge>}
-                </CardTitle>
-                <CardDescription className="flex flex-col gap-1">
-                  <span>{a.last_updated_at}</span>
-                  <span>{a.description}</span>
-                </CardDescription>
+                </div>
+                <p className="mt-0.5 text-xs text-muted-foreground">{a.last_updated_at}</p>
+                <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{a.description}</p>
               </div>
-              <div className="mt-4 flex gap-2 sm:mt-0">
+              <div className="flex shrink-0 gap-2">
                 <Button size="sm" variant="outline" onClick={() => openEdit(a)}>
                   <Pencil className="size-4" />
                   Edit
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => handleDelete(a.id)}>
+                <Button
+                  size="icon-sm"
+                  variant="outline"
+                  aria-label={`Delete ${a.title}`}
+                  onClick={() => handleDelete(a)}
+                >
                   <Trash2 className="size-4" />
-                  Delete
                 </Button>
               </div>
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
+            </div>
+          ))}
+        </PanelList>
+      </Panel>
 
       <AnnouncementFormDialog
         open={dialogOpen}

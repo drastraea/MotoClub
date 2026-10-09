@@ -1,23 +1,40 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Pencil, Plus, Trash2, ImageIcon } from "lucide-react";
+import { CalendarDays, ImageIcon, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { DashHeader } from "@/components/dashboard/DashHeader";
+import { EmptyState, ListSkeleton } from "@/components/dashboard/EmptyState";
+import { Panel, PanelList } from "@/components/dashboard/Panel";
 import { EventFormDialog, type EventFormValues } from "@/components/shared/EventFormDialog";
 import { api, type EventSummary } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
+import { useOpenOnNewParam } from "@/hooks/useOpenOnNewParam";
+import { formatDate, todayISO } from "@/lib/dash-utils";
 
-function EventBadges({ event }: { event: EventSummary }) {
-  if (!event.is_public && !event.image_link) return null;
+function DateBlock({ date }: { date: string }) {
+  const [, month, day] = date.split("-");
+  const monthName = new Date(2000, Number(month) - 1, 1).toLocaleString("en-GB", {
+    month: "short",
+  });
   return (
-    <div className="mt-2 flex gap-2">
+    <div className="flex size-12 shrink-0 flex-col items-center justify-center rounded-lg bg-muted leading-none">
+      <span className="text-base font-semibold tabular-nums">{Number(day)}</span>
+      <span className="mt-0.5 text-[10px] text-muted-foreground uppercase">{monthName}</span>
+    </div>
+  );
+}
+
+function EventBadges({ event, past }: { event: EventSummary; past: boolean }) {
+  return (
+    <div className="mt-1.5 flex flex-wrap gap-1.5">
+      {past && <Badge variant="outline">Past</Badge>}
       {event.is_public && <Badge variant="secondary">Public</Badge>}
       {event.image_link && (
         <Badge variant="secondary">
-          <ImageIcon className="size-3" /> Has banner
+          <ImageIcon /> Has banner
         </Badge>
       )}
     </div>
@@ -38,6 +55,7 @@ export default function AdminEventsPage() {
     setEditingValues(undefined);
     setDialogOpen(true);
   };
+  useOpenOnNewParam(openCreate);
 
   const openEdit = async (id: string) => {
     try {
@@ -72,9 +90,10 @@ export default function AdminEventsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (event: EventSummary) => {
+    if (!window.confirm(`Delete "${event.title}"?`)) return;
     try {
-      await api.deleteEvent(id);
+      await api.deleteEvent(event.id);
       toast.success("Event deleted");
       await reload();
     } catch (err) {
@@ -82,44 +101,69 @@ export default function AdminEventsPage() {
     }
   };
 
+  const today = todayISO();
+
   return (
-    <div>
-      <div className="flex items-center justify-between">
-        <h1 className="font-heading text-3xl font-bold tracking-wide uppercase">
-          Event Management
-        </h1>
-        <Button size="sm" onClick={openCreate}>
-          <Plus className="size-4" />
-          New Event
-        </Button>
-      </div>
+    <div className="flex flex-col gap-6">
+      <DashHeader
+        title="Events"
+        description="Rides, meetups and gatherings shown on the landing page and member home."
+        actions={
+          <Button size="sm" onClick={openCreate}>
+            <Plus className="size-4" />
+            New event
+          </Button>
+        }
+      />
 
-      {loading && <p className="mt-4 text-sm text-muted-foreground">Loading…</p>}
-      {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
-
-      <div className="mt-8 flex flex-col gap-4">
-        {events?.map((event) => (
-          <Card key={event.id}>
-            <CardHeader className="sm:grid-cols-[1fr_auto] sm:items-center">
-              <div>
-                <CardTitle>{event.title}</CardTitle>
-                <CardDescription>{event.date}</CardDescription>
-                <EventBadges event={event} />
+      <Panel>
+        {loading && <ListSkeleton rows={4} />}
+        {error && <p className="px-5 py-4 text-sm text-destructive">{error}</p>}
+        {events && events.length === 0 && (
+          <EmptyState
+            icon={CalendarDays}
+            title="No events yet"
+            description="Create the first ride or meetup for members."
+            action={
+              <Button size="sm" onClick={openCreate}>
+                <Plus className="size-4" />
+                New event
+              </Button>
+            }
+          />
+        )}
+        <PanelList>
+          {events?.map((event) => (
+            <div
+              key={event.id}
+              className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div className="flex min-w-0 items-center gap-4">
+                <DateBlock date={event.date} />
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium">{event.title}</p>
+                  <p className="text-xs text-muted-foreground">{formatDate(event.date)}</p>
+                  <EventBadges event={event} past={event.date < today} />
+                </div>
               </div>
-              <div className="mt-4 flex gap-2 sm:mt-0">
+              <div className="flex shrink-0 gap-2">
                 <Button size="sm" variant="outline" onClick={() => openEdit(event.id)}>
                   <Pencil className="size-4" />
                   Edit
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => handleDelete(event.id)}>
+                <Button
+                  size="icon-sm"
+                  variant="outline"
+                  aria-label={`Delete ${event.title}`}
+                  onClick={() => handleDelete(event)}
+                >
                   <Trash2 className="size-4" />
-                  Delete
                 </Button>
               </div>
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
+            </div>
+          ))}
+        </PanelList>
+      </Panel>
 
       <EventFormDialog
         open={dialogOpen}

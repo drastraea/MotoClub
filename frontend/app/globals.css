@@ -161,6 +161,22 @@
   }
 }
 
+/* Dashboards (admin + member) use a flatter, calmer surface than the public
+   site's cut-corner cards. Scoped by the data-dashboard attribute that the
+   admin and member layouts set on their root, so the landing page is untouched.
+   Unlayered on purpose: it must win over the layered .shape-corner / shadow
+   utilities that the shared Card component carries. */
+[data-dashboard] .shape-corner,
+[data-dashboard] .shape-corner-sm {
+  border-radius: var(--radius-xl);
+}
+[data-dashboard] [data-slot="card"] {
+  border-radius: var(--radius-xl);
+  box-shadow:
+    0 1px 2px 0 rgb(0 0 0 / 0.04),
+    0 0 0 1px var(--border);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
