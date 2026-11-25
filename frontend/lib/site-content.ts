@@ -28,6 +28,8 @@ export type SiteBenefit = {
   title: string;
   description: string;
 };
+export type SiteStat = { value: string; label: string };
+export type SiteStep = { title: string; description: string };
 
 export type SiteContent = {
   hero: {
@@ -36,10 +38,11 @@ export type SiteContent = {
     headline_lines: string[];
     highlight: string;
     body: string;
-    value_props: string[];
-    /** Uploaded image URL; "" renders the placeholder box. */
+    /** Full-width photo behind the headline; "" falls back to the dark artwork. */
     image: string;
   };
+  /** Big numbers under the banner. Empty hides the strip entirely. */
+  stats: SiteStat[];
   ticker: string[];
   about: {
     eyebrow: string;
@@ -55,10 +58,18 @@ export type SiteContent = {
     heading: string;
     items: SiteActivity[];
   };
+  how_to_join: {
+    eyebrow: string;
+    heading: string;
+    intro: string;
+    steps: SiteStep[];
+    note: string;
+  };
   benefits: {
     eyebrow: string;
     heading: string;
     items: SiteBenefit[];
+    image: string;
   };
   contact: {
     eyebrow: string;
@@ -66,6 +77,10 @@ export type SiteContent = {
     address: string;
     phone: string;
     email: string;
+    /** WhatsApp number, country code and digits only, e.g. 6281234567890. */
+    whatsapp: string;
+    /** Instagram handle without the @. */
+    instagram: string;
   };
   join_cta: {
     heading: string;
@@ -80,9 +95,9 @@ export const defaultSiteContent: SiteContent = {
     highlight: "Family",
     body:
       "A community of riders sharing the road, the events, and the brotherhood. Join the club and be part of every ride.",
-    value_props: ["Ride together every weekend", "Family that has your back"],
     image: "",
   },
+  stats: [],
   ticker: [
     "GROUP RIDES",
     "TRACK DAYS",
@@ -116,9 +131,32 @@ export const defaultSiteContent: SiteContent = {
       { icon: "Wrench", title: "Maintenance Clinics" },
     ],
   },
+  how_to_join: {
+    eyebrow: "New here?",
+    heading: "Join in 3 steps",
+    intro:
+      "Sign in with Google, tell us about you and your bike, and an admin approves your membership.",
+    steps: [
+      {
+        title: "Sign in with Google",
+        description: "One tap. We use your Google account to verify it is really you.",
+      },
+      {
+        title: "Fill in your details",
+        description: "Your info, your bike, your plate number and two photos.",
+      },
+      {
+        title: "Get approved",
+        description:
+          "An admin reviews your application. Then your digital member card is ready on your phone.",
+      },
+    ],
+    note: "Membership lasts 3 years and can be renewed any time.",
+  },
   benefits: {
     eyebrow: "Why Join",
     heading: "Ready to Ride With Us?",
+    image: "",
     items: [
       {
         id: "1",
@@ -154,6 +192,8 @@ export const defaultSiteContent: SiteContent = {
     address: "Club HQ, 123 Rider Street",
     phone: "+62 812-0000-0000",
     email: "hello@motorcycleclub.example",
+    whatsapp: "",
+    instagram: "",
   },
   join_cta: {
     heading: "Ready to Ride With Us?",
@@ -173,9 +213,11 @@ export function withSiteContentDefaults(
   const d = defaultSiteContent;
   return {
     hero: { ...d.hero, ...c.hero },
+    stats: c.stats ?? d.stats,
     ticker: c.ticker ?? d.ticker,
     about: { ...d.about, ...c.about },
     activities: { ...d.activities, ...c.activities },
+    how_to_join: { ...d.how_to_join, ...c.how_to_join },
     benefits: { ...d.benefits, ...c.benefits },
     contact: { ...d.contact, ...c.contact },
     join_cta: { ...d.join_cta, ...c.join_cta },

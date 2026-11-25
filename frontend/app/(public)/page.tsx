@@ -1,9 +1,11 @@
 "use client";
 
 import { Hero } from "@/components/shared/Hero";
+import { StatsStrip } from "@/components/shared/StatsStrip";
 import { TagTicker } from "@/components/shared/TagTicker";
 import { AboutSection } from "@/components/shared/AboutSection";
 import { ServicesGrid } from "@/components/shared/ServicesGrid";
+import { HowToJoin } from "@/components/shared/HowToJoin";
 import { BenefitsSection } from "@/components/shared/BenefitsSection";
 import { GallerySection } from "@/components/shared/GallerySection";
 import { EventsSection } from "@/components/shared/EventsSection";
@@ -17,9 +19,11 @@ export default function Home() {
   return (
     <>
       <Hero data={content.hero} />
+      <StatsStrip stats={content.stats} />
       <TagTicker tags={content.ticker} />
       <AboutSection data={content.about} />
       <ServicesGrid data={content.activities} />
+      <HowToJoin data={content.how_to_join} />
       <BenefitsSection data={content.benefits} />
       <GallerySection />
       <EventsSection />

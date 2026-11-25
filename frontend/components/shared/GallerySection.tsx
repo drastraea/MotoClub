@@ -1,64 +1,95 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ImagePlaceholder } from "@/components/shared/ImagePlaceholder";
 import { api } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
+import { cn } from "@/lib/utils";
 
-// Fallback preview shown to logged-out visitors, since GET /gallery currently
-// requires a member+ session. Real photos replace this once loaded.
-const placeholderCount = 10;
+// Shown while the gallery is empty or still loading.
+const PLACEHOLDERS = 8;
+const MAX_SHOWN = 8;
 
-function GalleryRow({
-  items,
-  ariaHidden,
-}: {
-  items: { id: string; link?: string }[];
-  ariaHidden?: boolean;
-}) {
-  return (
-    <div aria-hidden={ariaHidden} className="flex shrink-0 gap-4 pr-4">
-      {items.map((item) =>
-        item.link ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            key={item.id}
-            src={item.link}
-            alt=""
-            className="img-mono shape-corner h-64 w-64 shrink-0 border border-border object-cover sm:h-80 sm:w-80"
-          />
-        ) : (
-          <ImagePlaceholder key={item.id} className="h-64 w-64 shrink-0 sm:h-80 sm:w-80" />
-        )
-      )}
-    </div>
-  );
-}
+// With 8 photos the grid gets an editorial rhythm (one tall, three wide);
+// with fewer, a plain square grid so no gaps appear.
+const FEATURE_SLOT = [
+  "row-span-2", // 0
+  "", // 1
+  "col-span-2", // 2
+  "", // 3
+  "", // 4
+  "", // 5
+  "col-span-2", // 6
+  "col-span-2", // 7
+];
 
 export function GallerySection() {
   const { data } = useApiData(useCallback(() => api.getGallery(), []), []);
+  const [open, setOpen] = useState<string | null>(null);
 
-  const items =
-    data && data.length > 0
-      ? data.map((item) => ({ id: item.id, link: item.link }))
-      : Array.from({ length: placeholderCount }, (_, i) => ({ id: `placeholder-${i}` }));
+  const photos = (data ?? []).slice(0, MAX_SHOWN);
+  const featured = photos.length === MAX_SHOWN;
+  const shown = photos.length > 0 ? photos : null;
+
+  const cell = (i: number) =>
+    shown && featured ? FEATURE_SLOT[i] : shown ? "aspect-square" : FEATURE_SLOT[i];
 
   return (
-    <section id="gallery" className="scroll-mt-24 py-16">
-      <div className="mx-auto max-w-6xl px-4 text-center sm:px-6">
+    <section id="gallery" className="mx-auto max-w-6xl scroll-mt-24 px-4 py-16 sm:px-6">
+      <div className="flex flex-col gap-2">
         <span className="text-xs font-semibold tracking-[0.3em] text-primary uppercase">
           The Road So Far
         </span>
-        <h2 className="font-heading mt-2 text-3xl font-bold tracking-wide uppercase">
+        <h2 className="font-heading text-3xl font-bold tracking-wide uppercase sm:text-4xl">
           Gallery
         </h2>
       </div>
-      <div className="mt-8 overflow-hidden">
-        <div className="flex w-max animate-marquee-slow">
-          <GalleryRow items={items} />
-          <GalleryRow items={items} ariaHidden />
-        </div>
+
+      <div
+        className={cn(
+          "mt-8 grid grid-cols-2 gap-3 lg:grid-cols-4",
+          (!shown || featured) && "auto-rows-[150px] sm:auto-rows-[170px]"
+        )}
+      >
+        {shown
+          ? shown.map((p, i) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => setOpen(p.link)}
+                aria-label="Open photo"
+                className={cn(
+                  "group relative overflow-hidden rounded-xl border border-border",
+                  cell(i)
+                )}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={p.link}
+                  alt=""
+                  loading="lazy"
+                  className="img-mono size-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              </button>
+            ))
+          : Array.from({ length: PLACEHOLDERS }, (_, i) => (
+              <ImagePlaceholder
+                key={i}
+                className={cn("size-full rounded-xl", FEATURE_SLOT[i])}
+              />
+            ))}
       </div>
+
+      <Dialog open={open !== null} onOpenChange={(o) => !o && setOpen(null)}>
+        <DialogContent className="max-w-[calc(100%-2rem)] overflow-hidden bg-neutral-950 p-0 sm:max-w-4xl">
+          <DialogTitle className="sr-only">Gallery photo</DialogTitle>
+          {open && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={open} alt="" className="max-h-[85vh] w-full object-contain" />
+          )}
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

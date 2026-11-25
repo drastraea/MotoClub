@@ -11,8 +11,9 @@ import { isAdmin } from "@/lib/session";
 
 const links = [
   { href: "/#about", label: "About" },
+  { href: "/#events", label: "Rides" },
+  { href: "/#benefits", label: "Benefits" },
   { href: "/#gallery", label: "Gallery" },
-  { href: "/#events", label: "Events" },
   { href: "/#contact", label: "Contact" },
 ];
 
@@ -41,7 +42,7 @@ export function Navbar() {
       : "Dashboard";
 
   return (
-    <header className="sticky top-0 z-50 border-b-2 border-primary/30 bg-background/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link
           href="/"

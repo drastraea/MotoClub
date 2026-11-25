@@ -1,62 +1,79 @@
-import Link from "next/link";
-import { MapPin, Phone, Clock, AtSign } from "lucide-react";
-import { LoggedOutOnly } from "@/components/shared/LoggedOutOnly";
+"use client";
 
-const contactInfo = [
-  { icon: MapPin, title: "Our Location", body: "Club HQ, 123 Rider Street" },
-  { icon: Phone, title: "Get in Touch", body: "+62 812-0000-0000" },
-  { icon: Clock, title: "Clubhouse Hours", body: "Everyday: 9:00 AM - 9:00 PM" },
-];
+import Link from "next/link";
+import { AtSign, MessageCircle } from "lucide-react";
+import { LoggedOutOnly } from "@/components/shared/LoggedOutOnly";
+import { useSiteContent } from "@/hooks/useSiteContent";
+
+const colHead = "mb-3 text-[11px] font-semibold tracking-[0.18em] text-muted-foreground uppercase";
+const link = "text-sm text-foreground/80 transition-colors hover:text-primary";
 
 export function Footer() {
+  const { content } = useSiteContent();
+  const { contact } = content;
+  const wa = contact.whatsapp.replace(/\D/g, "");
+  const ig = contact.instagram.replace(/^@/, "").trim();
+
   return (
-    <footer className="border-t-2 border-primary/30">
-      <div className="border-b border-border py-12">
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 sm:grid-cols-3 sm:px-6">
-          {contactInfo.map(({ icon: Icon, title, body }) => (
-            <div key={title} className="flex flex-col items-center gap-3 text-center">
-              <div className="shape-corner-sm flex size-14 items-center justify-center bg-primary/10 ring-1 ring-primary/30">
-                <Icon className="size-6 text-primary" />
-              </div>
-              <h3 className="font-heading font-semibold tracking-wide uppercase">{title}</h3>
-              <p className="text-sm text-muted-foreground">{body}</p>
-            </div>
-          ))}
+    <footer className="border-t border-border">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.6fr_1fr_1fr_1fr]">
+        <div>
+          <Link href="/" className="font-heading text-xl font-bold tracking-widest uppercase">
+            Brosqi<span className="text-primary">.id</span>
+          </Link>
+          <p className="mt-3 max-w-xs text-sm text-muted-foreground">
+            Ride together. Stay family. A community of riders sharing the road.
+          </p>
+        </div>
+
+        <div>
+          <h4 className={colHead}>Club</h4>
+          <ul className="flex flex-col gap-2.5">
+            <li><Link href="/#about" className={link}>About</Link></li>
+            <li><Link href="/#benefits" className={link}>Benefits</Link></li>
+            <li><Link href="/#events" className={link}>Events</Link></li>
+            <li><Link href="/#gallery" className={link}>Gallery</Link></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className={colHead}>Members</h4>
+          <ul className="flex flex-col gap-2.5">
+            <LoggedOutOnly>
+              <li><Link href="/join" className={link}>Join</Link></li>
+            </LoggedOutOnly>
+            <li><Link href="/login" className={link}>Sign in</Link></li>
+            <li><Link href="/dashboard" className={link}>My card</Link></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 className={colHead}>Contact</h4>
+          <ul className="flex flex-col gap-2.5">
+            <li><Link href="/#contact" className={link}>Get in touch</Link></li>
+            {wa && (
+              <li>
+                <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" className={`${link} inline-flex items-center gap-2`}>
+                  <MessageCircle className="size-4" /> WhatsApp
+                </a>
+              </li>
+            )}
+            {ig && (
+              <li>
+                <a href={`https://instagram.com/${ig}`} target="_blank" rel="noreferrer" className={`${link} inline-flex items-center gap-2`}>
+                  <AtSign className="size-4" /> Instagram
+                </a>
+              </li>
+            )}
+          </ul>
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-4 py-8 sm:flex-row sm:justify-between sm:px-6">
-        <Link
-          href="/"
-          className="font-heading text-xl font-bold tracking-widest uppercase"
-        >
-          Brosqi<span className="text-primary">.id</span>
-        </Link>
-
-        <div className="flex flex-col items-center gap-4 text-xs tracking-wide text-muted-foreground uppercase sm:flex-row sm:gap-6">
-          <Link href="/#contact" className="hover:text-primary">
-            Contact
-          </Link>
-          <LoggedOutOnly>
-            <Link href="/join" className="hover:text-primary">
-              Join Now
-            </Link>
-          </LoggedOutOnly>
-          {/* TODO: Replace with the real club Instagram profile URL. */}
-          <a
-            href="https://instagram.com"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Instagram"
-            className="flex size-8 items-center justify-center rounded-full bg-muted hover:text-primary"
-          >
-            <AtSign className="size-4" />
-          </a>
+      <div className="border-t border-border">
+        <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-5 text-xs text-muted-foreground sm:flex-row sm:justify-between sm:px-6">
+          <span>&copy; {new Date().getFullYear()} Brosqi.id. All rights reserved.</span>
+          <span>Ride safe.</span>
         </div>
-
-        <p className="text-xs tracking-wide text-muted-foreground uppercase">
-          &copy; {new Date().getFullYear()} Brosqi.id. All rights reserved.
-        </p>
       </div>
     </footer>
   );

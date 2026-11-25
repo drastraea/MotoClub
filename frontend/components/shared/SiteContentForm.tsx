@@ -38,9 +38,9 @@ const schema = z.object({
     headline_lines: z.array(nonEmpty).min(1, "Add at least one line"),
     highlight: z.string(),
     body: nonEmpty,
-    value_props: z.array(nonEmpty),
     image: z.string(),
   }),
+  stats: z.array(z.object({ value: nonEmpty, label: nonEmpty })),
   ticker: z.array(nonEmpty).min(1, "Add at least one word"),
   about: z.object({
     eyebrow: nonEmpty,
@@ -55,9 +55,19 @@ const schema = z.object({
     heading: nonEmpty,
     items: z.array(z.object({ icon: iconEnum, title: nonEmpty })).min(1, "Add at least one"),
   }),
+  how_to_join: z.object({
+    eyebrow: nonEmpty,
+    heading: nonEmpty,
+    intro: nonEmpty,
+    steps: z
+      .array(z.object({ title: nonEmpty, description: nonEmpty }))
+      .min(1, "Add at least one step"),
+    note: z.string(),
+  }),
   benefits: z.object({
     eyebrow: nonEmpty,
     heading: nonEmpty,
+    image: z.string(),
     items: z
       .array(
         z.object({
@@ -75,6 +85,8 @@ const schema = z.object({
     address: nonEmpty,
     phone: nonEmpty,
     email: nonEmpty,
+    whatsapp: z.string(),
+    instagram: z.string(),
   }),
   join_cta: z.object({ heading: nonEmpty, body: nonEmpty }),
 });
@@ -238,16 +250,17 @@ export function SiteContentForm({
   const v = {
     hero: {
       headline_lines: watch("hero.headline_lines"),
-      value_props: watch("hero.value_props"),
       image: watch("hero.image"),
     },
+    stats: watch("stats"),
     ticker: watch("ticker"),
     about: {
       points: watch("about.points"),
       images: watch("about.images"),
     },
     activities: { items: watch("activities.items") },
-    benefits: { items: watch("benefits.items") },
+    how_to_join: { steps: watch("how_to_join.steps") },
+    benefits: { items: watch("benefits.items"), image: watch("benefits.image") },
   };
   const bind = <K extends string>(name: K, val: unknown) =>
     setValue(name as never, val as never, { shouldDirty: true });
@@ -380,18 +393,77 @@ export function SiteContentForm({
             <Field label="Intro paragraph" error={errors.hero?.body?.message}>
               <Textarea rows={3} {...register("hero.body")} />
             </Field>
-            <StringList
-              label="Short points under the intro"
-              values={v.hero.value_props}
-              onChange={(val) => bind("hero.value_props", val)}
-              addLabel="Add point"
-            />
-            <Field label="Banner photo" hint="Shown next to the headline.">
+            <Field
+              label="Banner photo"
+              hint="Fills the whole banner behind the headline. A wide photo works best. Without one, a dark background is used."
+            >
               <ImageDropzone
                 value={v.hero.image}
                 onChange={(url) => bind("hero.image", url)}
               />
             </Field>
+          </div>
+
+          {/* Numbers */}
+          <div hidden={show("stats")} className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
+              <Label>Numbers</Label>
+              <p className="-mt-1 text-xs text-muted-foreground">
+                Use real figures only, for example 120+ and Riders. Up to four look best.
+              </p>
+              {v.stats.map((s, i) => (
+                <div key={i} className="flex gap-2">
+                  <Input
+                    className="w-28 shrink-0"
+                    value={s.value}
+                    placeholder="120+"
+                    onChange={(e) =>
+                      bind(
+                        "stats",
+                        v.stats.map((x, j) => (j === i ? { ...x, value: e.target.value } : x))
+                      )
+                    }
+                  />
+                  <Input
+                    value={s.label}
+                    placeholder="Active riders"
+                    onChange={(e) =>
+                      bind(
+                        "stats",
+                        v.stats.map((x, j) => (j === i ? { ...x, label: e.target.value } : x))
+                      )
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon-sm"
+                    aria-label="Remove"
+                    onClick={() =>
+                      bind(
+                        "stats",
+                        v.stats.filter((_, j) => j !== i)
+                      )
+                    }
+                  >
+                    <X className="size-4" />
+                  </Button>
+                </div>
+              ))}
+              {errors.stats?.message && (
+                <p className="text-sm text-destructive">{errors.stats.message}</p>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="self-start"
+                onClick={() => bind("stats", [...v.stats, { value: "", label: "" }])}
+              >
+                <Plus className="size-4" />
+                Add number
+              </Button>
+            </div>
           </div>
 
           {/* Scrolling strip */}
@@ -516,6 +588,84 @@ export function SiteContentForm({
             </div>
           </div>
 
+          {/* How to join */}
+          <div hidden={show("how_to_join")} className="flex flex-col gap-4">
+            <Field label="Small label above the title" error={errors.how_to_join?.eyebrow?.message}>
+              <Input {...register("how_to_join.eyebrow")} />
+            </Field>
+            <Field label="Section title" error={errors.how_to_join?.heading?.message}>
+              <Input {...register("how_to_join.heading")} />
+            </Field>
+            <Field label="Intro" error={errors.how_to_join?.intro?.message}>
+              <Textarea rows={2} {...register("how_to_join.intro")} />
+            </Field>
+            <div className="flex flex-col gap-3">
+              <Label>Steps</Label>
+              {v.how_to_join.steps.map((step, i) => {
+                const update = (patch: Partial<typeof step>) =>
+                  bind(
+                    "how_to_join.steps",
+                    v.how_to_join.steps.map((s, j) => (j === i ? { ...s, ...patch } : s))
+                  );
+                return (
+                  <div key={i} className="flex flex-col gap-2 rounded-lg border border-border p-3">
+                    <div className="flex items-center gap-2">
+                      <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary">
+                        {i + 1}
+                      </span>
+                      <Input
+                        value={step.title}
+                        placeholder="Step title"
+                        onChange={(e) => update({ title: e.target.value })}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon-sm"
+                        aria-label="Remove"
+                        onClick={() =>
+                          bind(
+                            "how_to_join.steps",
+                            v.how_to_join.steps.filter((_, j) => j !== i)
+                          )
+                        }
+                      >
+                        <X className="size-4" />
+                      </Button>
+                    </div>
+                    <Textarea
+                      rows={2}
+                      value={step.description}
+                      placeholder="What happens in this step"
+                      onChange={(e) => update({ description: e.target.value })}
+                    />
+                  </div>
+                );
+              })}
+              {errors.how_to_join?.steps?.message && (
+                <p className="text-sm text-destructive">{errors.how_to_join.steps.message}</p>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="self-start"
+                onClick={() =>
+                  bind("how_to_join.steps", [
+                    ...v.how_to_join.steps,
+                    { title: "", description: "" },
+                  ])
+                }
+              >
+                <Plus className="size-4" />
+                Add step
+              </Button>
+            </div>
+            <Field label="Note under the steps" hint="Optional, for example how long membership lasts.">
+              <Input {...register("how_to_join.note")} />
+            </Field>
+          </div>
+
           {/* Benefits */}
           <div hidden={show("benefits")} className="flex flex-col gap-4">
             <Field label="Small label above the title" error={errors.benefits?.eyebrow?.message}>
@@ -523,6 +673,12 @@ export function SiteContentForm({
             </Field>
             <Field label="Section title" error={errors.benefits?.heading?.message}>
               <Input {...register("benefits.heading")} />
+            </Field>
+            <Field label="Photo" hint="Shown beside the benefits. Portrait photos work best.">
+              <ImageDropzone
+                value={v.benefits.image}
+                onChange={(url) => bind("benefits.image", url)}
+              />
             </Field>
             <div className="flex flex-col gap-3">
               <Label>Benefits</Label>
@@ -607,6 +763,15 @@ export function SiteContentForm({
             </Field>
             <Field label="Email" error={errors.contact?.email?.message}>
               <Input {...register("contact.email")} />
+            </Field>
+            <Field
+              label="WhatsApp number"
+              hint="Country code and digits only, for example 6281234567890. Adds a WhatsApp button and sends the contact form there."
+            >
+              <Input inputMode="numeric" placeholder="6281234567890" {...register("contact.whatsapp")} />
+            </Field>
+            <Field label="Instagram" hint="The handle without the @, for example brosqi.id.">
+              <Input placeholder="brosqi.id" {...register("contact.instagram")} />
             </Field>
           </div>
 

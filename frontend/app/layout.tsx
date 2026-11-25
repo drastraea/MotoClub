@@ -43,7 +43,7 @@ export default function RootLayout({
         >
           Skip to content
         </a>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           {children}
           <Toaster />
         </ThemeProvider>

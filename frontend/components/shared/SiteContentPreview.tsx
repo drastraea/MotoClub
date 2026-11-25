@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Hero } from "@/components/shared/Hero";
+import { StatsStrip } from "@/components/shared/StatsStrip";
+import { HowToJoin } from "@/components/shared/HowToJoin";
 import { TagTicker } from "@/components/shared/TagTicker";
 import { AboutSection } from "@/components/shared/AboutSection";
 import { ServicesGrid } from "@/components/shared/ServicesGrid";
@@ -123,9 +125,20 @@ export function SiteContentPreview({
       <SitePreviewProvider value={true}>
         <div style={desktop ? { width: DESKTOP_WIDTH, zoom } : undefined}>
           {frame("hero", <Hero data={content.hero} />)}
+          {frame(
+            "stats",
+            content.stats.length > 0 ? (
+              <StatsStrip stats={content.stats} />
+            ) : (
+              <div className="border-b border-dashed border-border bg-muted/30 px-6 py-6 text-center text-sm text-muted-foreground">
+                No numbers yet, so this strip is hidden on the real page.
+              </div>
+            )
+          )}
           {frame("ticker", <TagTicker tags={content.ticker} />)}
           {frame("about", <AboutSection data={content.about} />)}
           {frame("activities", <ServicesGrid data={content.activities} />)}
+          {frame("how_to_join", <HowToJoin data={content.how_to_join} />)}
           {frame("benefits", <BenefitsSection data={content.benefits} />)}
           <div className="border-y border-border bg-muted/40 px-6 py-14 text-center text-sm text-muted-foreground">
             Photo gallery, upcoming events and announcements appear here.

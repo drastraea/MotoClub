@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { toast } from "sonner";
+import { MessageCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,30 +11,43 @@ import { Textarea } from "@/components/ui/textarea";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name is too short"),
-  email: z.email("Enter a valid email"),
   message: z.string().min(10, "Message is too short"),
 });
 
 type ContactValues = z.infer<typeof contactSchema>;
 
-export function ContactForm() {
+// There is no server endpoint for messages, so this hands the message to the
+// visitor's own WhatsApp (preferred) or email app, prefilled. Nothing is sent
+// until they press send there, and we never claim it was.
+export function ContactForm({ whatsapp, email }: { whatsapp?: string; email?: string }) {
   const {
     register,
     handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<ContactValues>({ resolver: zodResolver(contactSchema) });
 
-  // TODO: Replace with a real POST /contact once the endpoint exists
-  const onSubmit = async (values: ContactValues) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    console.log("Contact form submitted", values);
-    toast.success("Message sent. We'll get back to you soon.");
-    reset();
+  const digits = (whatsapp ?? "").replace(/\D/g, "");
+  const canSend = digits.length > 0 || !!email;
+
+  const onSubmit = (values: ContactValues) => {
+    const text = `Hi, I'm ${values.name}.\n\n${values.message}`;
+    if (digits) {
+      window.open(`https://wa.me/${digits}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
+    } else if (email) {
+      window.open(
+        `mailto:${email}?subject=${encodeURIComponent(`Message from ${values.name}`)}&body=${encodeURIComponent(text)}`,
+        "_self"
+      );
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col gap-4 rounded-[26px_26px_6px_26px] border border-border bg-card p-6"
+    >
+      <h3 className="font-heading text-xl font-bold tracking-wide uppercase">Send a message</h3>
+
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="name">Name</Label>
         <Input
@@ -46,22 +59,6 @@ export function ContactForm() {
         {errors.name && (
           <p id="name-error" className="text-sm text-destructive">
             {errors.name.message}
-          </p>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          aria-invalid={!!errors.email}
-          aria-describedby={errors.email ? "email-error" : undefined}
-          {...register("email")}
-        />
-        {errors.email && (
-          <p id="email-error" className="text-sm text-destructive">
-            {errors.email.message}
           </p>
         )}
       </div>
@@ -82,9 +79,15 @@ export function ContactForm() {
         )}
       </div>
 
-      <Button type="submit" disabled={isSubmitting} className="self-start">
-        {isSubmitting ? "Sending..." : "Send Message"}
+      <Button type="submit" disabled={!canSend} className="h-11">
+        {digits ? <MessageCircle className="size-4" /> : <Send className="size-4" />}
+        {digits ? "Continue in WhatsApp" : "Continue in email"}
       </Button>
+      <p className="text-xs text-muted-foreground">
+        {canSend
+          ? "This opens your own app with the message ready. Press send there to deliver it."
+          : "Contact details have not been set up yet."}
+      </p>
     </form>
   );
 }
