@@ -40,7 +40,7 @@ export default function DashboardLayout({
         </main>
       </div>
 
-      <BottomTabs groups={memberNav} />
+      <BottomTabs items={memberNav.flatMap((g) => g.items)} />
     </div>
   );
 }

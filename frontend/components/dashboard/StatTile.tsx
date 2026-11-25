@@ -21,7 +21,7 @@ export function StatTile({
   return (
     <Link
       href={href}
-      className="group flex items-center gap-4 rounded-xl bg-card p-4 shadow-xs ring-1 ring-border transition hover:ring-foreground/25"
+      className="group flex items-center gap-3 rounded-xl bg-card p-3 shadow-xs ring-1 ring-border transition hover:ring-foreground/25 sm:gap-4 sm:p-4"
     >
       <div
         className={cn(

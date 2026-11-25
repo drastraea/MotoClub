@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ProfileDetails } from "@/components/shared/ProfileDetails";
 import { api } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
+import { refreshPendingCount } from "@/hooks/usePendingCount";
 import { statusMeta } from "@/lib/member-status";
 
 const PENDING = "PENDING_APPROVAL";
@@ -31,6 +32,7 @@ export default function MemberDetailPage() {
     try {
       await api.setMemberStatus(id, action);
       toast.success(action === "APPROVE" ? "Application approved" : "Application rejected");
+      void refreshPendingCount();
       router.push("/admin/members");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Action failed");

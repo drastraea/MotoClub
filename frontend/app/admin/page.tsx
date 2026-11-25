@@ -27,6 +27,7 @@ import { StatTile } from "@/components/dashboard/StatTile";
 import { api, type MemberRow } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
 import { useAuth } from "@/hooks/useAuth";
+import { refreshPendingCount } from "@/hooks/usePendingCount";
 import {
   RENEWAL_WINDOW_DAYS,
   daysUntil,
@@ -103,6 +104,7 @@ export default function AdminHome() {
       await api.setMemberStatus(id, action);
       toast.success(action === "APPROVE" ? "Application approved" : "Application rejected");
       await Promise.all([registrations.reload(), members.reload()]);
+      void refreshPendingCount();
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Action failed");
     } finally {
@@ -132,7 +134,20 @@ export default function AdminHome() {
         description="Here's what needs your attention today."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0 lg:hidden">
+        {quickActions.map(({ href, label, icon: Icon }) => (
+          <Link
+            key={href}
+            href={href}
+            className="flex shrink-0 items-center gap-2 rounded-full bg-card px-3.5 py-2 text-sm font-medium ring-1 ring-border"
+          >
+            <Icon className="size-4 text-primary" />
+            {label}
+          </Link>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <StatTile
           href="/admin/members"
           icon={UserCheck}
@@ -201,7 +216,7 @@ export default function AdminHome() {
                         {initials(r.name)}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-0 flex-1 basis-40">
                       <p className="truncate text-sm font-medium">{r.name}</p>
                       <p className="truncate text-xs text-muted-foreground">
                         {r.email} · applied {formatDate(r.registered_at)}
@@ -266,7 +281,7 @@ export default function AdminHome() {
                           {initials(m.email)}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="min-w-0 flex-1">
+                      <div className="min-w-0 flex-1 basis-40">
                         <p className="truncate text-sm font-medium">{m.email}</p>
                         <p className="text-xs text-muted-foreground">
                           {m.membership_expires_at
@@ -314,7 +329,7 @@ export default function AdminHome() {
         </Panel>
 
         <div className="flex flex-col gap-6">
-          <Panel>
+          <Panel className="max-lg:hidden">
             <PanelHeader title="Quick actions" />
             <PanelList>
               {quickActions.map(({ href, label, icon: Icon }) => (

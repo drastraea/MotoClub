@@ -9,6 +9,8 @@ import {
   User,
   Gift,
   IdCard,
+  ScanLine,
+  Ellipsis,
   type LucideIcon,
 } from "lucide-react";
 
@@ -18,10 +20,14 @@ export type NavItem = {
   icon: LucideIcon;
   /** Match only the exact path (for index routes like /admin). */
   exact?: boolean;
+  /** Extra path prefixes that also count as this item being active. */
+  also?: string[];
   /** Show the pending-applications count next to this item. */
   badge?: "pending";
   /** Shorter label for the phone tab bar. */
   tabLabel?: string;
+  /** Render as the raised centre button on the phone tab bar. */
+  fab?: boolean;
 };
 
 export type NavGroup = { label?: string; items: NavItem[] };
@@ -35,6 +41,7 @@ export const adminNav: NavGroup[] = [
     items: [
       { href: "/admin/members", label: "Applications", icon: UserCheck, badge: "pending" },
       { href: "/admin/users", label: "Users", icon: Users },
+      { href: "/admin/scan", label: "Scan card", icon: ScanLine },
     ],
   },
   {
@@ -45,6 +52,21 @@ export const adminNav: NavGroup[] = [
       { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
       { href: "/admin/site", label: "Site Content", icon: LayoutTemplate },
     ],
+  },
+];
+
+// The phone tab bar for admins: the jobs done on the go. Everything else is
+// one tap away under More.
+export const adminTabs: NavItem[] = [
+  { href: "/admin", label: "Home", icon: LayoutDashboard, exact: true },
+  { href: "/admin/users", label: "Members", icon: Users, also: ["/admin/members"], badge: "pending" },
+  { href: "/admin/scan", label: "Scan", icon: ScanLine, fab: true },
+  { href: "/admin/events", label: "Events", icon: CalendarDays },
+  {
+    href: "/admin/more",
+    label: "More",
+    icon: Ellipsis,
+    also: ["/admin/gallery", "/admin/announcements", "/admin/site"],
   },
 ];
 
@@ -62,10 +84,14 @@ export const memberNav: NavGroup[] = [
   },
 ];
 
+function under(pathname: string, prefix: string): boolean {
+  return pathname === prefix || pathname.startsWith(prefix + "/");
+}
+
 export function isActive(pathname: string, item: NavItem): boolean {
   if (item.href.includes("#")) return false;
   if (item.exact) return pathname === item.href;
-  return pathname === item.href || pathname.startsWith(item.href + "/");
+  return under(pathname, item.href) || (item.also ?? []).some((p) => under(pathname, p));
 }
 
 /** Label of the nav item matching the current path (for the topbar title). */
