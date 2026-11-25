@@ -7,6 +7,8 @@ import {
   Megaphone,
   LayoutTemplate,
   User,
+  Gift,
+  IdCard,
   type LucideIcon,
 } from "lucide-react";
 
@@ -18,6 +20,8 @@ export type NavItem = {
   exact?: boolean;
   /** Show the pending-applications count next to this item. */
   badge?: "pending";
+  /** Shorter label for the phone tab bar. */
+  tabLabel?: string;
 };
 
 export type NavGroup = { label?: string; items: NavItem[] };
@@ -44,19 +48,16 @@ export const adminNav: NavGroup[] = [
   },
 ];
 
+// The five member screens. Phones show them as the bottom tab bar, larger
+// screens as the sidebar.
 export const memberNav: NavGroup[] = [
   {
     items: [
       { href: "/dashboard", label: "Home", icon: LayoutDashboard, exact: true },
-      { href: "/dashboard/profile", label: "Profile", icon: User },
-    ],
-  },
-  {
-    label: "Club",
-    items: [
-      { href: "/#events", label: "Events", icon: CalendarDays },
-      { href: "/#announcements", label: "Announcements", icon: Megaphone },
-      { href: "/#gallery", label: "Gallery", icon: Images },
+      { href: "/dashboard/events", label: "Events", icon: CalendarDays },
+      { href: "/dashboard/benefits", label: "Benefits", icon: Gift },
+      { href: "/dashboard/card", label: "My card", icon: IdCard },
+      { href: "/dashboard/profile", label: "Profile", icon: User, tabLabel: "Me" },
     ],
   },
 ];
