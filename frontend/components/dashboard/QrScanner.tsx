@@ -90,7 +90,7 @@ export function QrScanner({
 
   if (error) {
     return (
-      <div className="flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-3xl bg-neutral-950 p-8 text-center text-neutral-300">
+      <div className="on-dark flex aspect-square w-full flex-col items-center justify-center gap-3 rounded-3xl bg-neutral-950 p-8 text-center text-neutral-300">
         <CameraOff className="size-8 text-neutral-500" />
         <p className="text-sm">{error}</p>
       </div>
@@ -98,7 +98,7 @@ export function QrScanner({
   }
 
   return (
-    <div className="relative aspect-square w-full overflow-hidden rounded-3xl bg-neutral-950">
+    <div className="on-dark relative aspect-square w-full overflow-hidden rounded-3xl bg-neutral-950">
       <video ref={videoRef} playsInline muted className="size-full object-cover" />
       <div aria-hidden className="pointer-events-none absolute inset-[14%]">
         {(["top-0 left-0 border-t-4 border-l-4 rounded-tl-2xl", "top-0 right-0 border-t-4 border-r-4 rounded-tr-2xl", "bottom-0 left-0 border-b-4 border-l-4 rounded-bl-2xl", "bottom-0 right-0 border-b-4 border-r-4 rounded-br-2xl"] as const).map((c) => (

@@ -3,7 +3,7 @@ import { statusMeta } from "@/lib/member-status";
 import { cn } from "@/lib/utils";
 
 // Status pill for dashboard lists. Approved is a soft green instead of the
-// solid brand amber so a long list of active members stays calm.
+// solid brand accent so a long list of active members stays calm.
 export function StatusBadge({ status }: { status: string }) {
   const meta = statusMeta(status);
   const Icon = meta.icon;

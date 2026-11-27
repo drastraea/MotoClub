@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, ExternalLink, Images, LayoutTemplate, LogOut, Megaphone } from "lucide-react";
+import { ChevronRight, ExternalLink, Images, LayoutTemplate, LogOut, Megaphone, Palette } from "lucide-react";
 import { DashHeader } from "@/components/dashboard/DashHeader";
 import { Panel, PanelList } from "@/components/dashboard/Panel";
 import { useAuth } from "@/hooks/useAuth";
@@ -11,6 +11,7 @@ const links = [
   { href: "/admin/gallery", label: "Gallery", hint: "Photos on the landing page", icon: Images },
   { href: "/admin/announcements", label: "Announcements", hint: "News for members", icon: Megaphone },
   { href: "/admin/site", label: "Site content", hint: "Edit the landing page", icon: LayoutTemplate },
+  { href: "/admin/theme", label: "Theme", hint: "Accent colour", icon: Palette },
   { href: "/", label: "View public site", hint: "See what visitors see", icon: ExternalLink },
 ];
 

@@ -26,7 +26,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 // Compact digital member card for the home screen. The one brand-forward element
-// on the dashboard: dark card, amber glow. The full-size QR lives on the My card tab.
+// on the dashboard: dark card, grey glow. The full-size QR lives on the My card tab.
 export function MemberIdCard({ profile, memberId }: { profile: Profile; memberId: string }) {
   const origin = useOrigin();
 
@@ -37,7 +37,7 @@ export function MemberIdCard({ profile, memberId }: { profile: Profile; memberId
   const bike = [profile.motorbikeBrand, profile.motorbikeType].filter(Boolean).join(" ");
 
   return (
-    <div className="relative overflow-hidden rounded-[24px_24px_6px_24px] bg-neutral-950 p-5 text-neutral-50 shadow-lg ring-1 ring-white/10">
+    <div className="on-dark relative overflow-hidden rounded-[24px_24px_6px_24px] bg-neutral-950 p-5 text-neutral-50 shadow-lg ring-1 ring-white/10">
       <div
         aria-hidden
         className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-primary/25 blur-3xl"

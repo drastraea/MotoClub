@@ -12,6 +12,8 @@ export type CardImageInput = {
   photoUrl?: string;
   /** What the QR code encodes. */
   qrValue: string;
+  /** Accent as #rrggbb. */
+  accent: string;
 };
 
 const W = 900;
@@ -41,6 +43,7 @@ function cssFont(name: string, fallback: string): string {
 
 /** Draws the member card to a PNG and downloads it. Runs in the browser only. */
 export async function downloadCardImage(input: CardImageInput): Promise<void> {
+  const { accent } = input;
   const heading = cssFont("--font-oswald", "Oswald, Impact, sans-serif");
   const sans = cssFont("--font-geist-sans", "system-ui, sans-serif");
   await Promise.all([
@@ -61,8 +64,8 @@ export async function downloadCardImage(input: CardImageInput): Promise<void> {
   ctx.save();
   ctx.clip();
   const glow = ctx.createRadialGradient(W * 0.85, 40, 0, W * 0.85, 40, 520);
-  glow.addColorStop(0, "rgba(245,158,11,0.40)");
-  glow.addColorStop(1, "rgba(245,158,11,0)");
+  glow.addColorStop(0, `${accent}47`);
+  glow.addColorStop(1, `${accent}00`);
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, W, H);
   ctx.restore();
@@ -83,9 +86,9 @@ export async function downloadCardImage(input: CardImageInput): Promise<void> {
     const s = Math.max(ps / photo.width, ps / photo.height);
     ctx.drawImage(photo, px + (ps - photo.width * s) / 2, py + (ps - photo.height * s) / 2, photo.width * s, photo.height * s);
   } else {
-    ctx.fillStyle = "rgba(245,158,11,0.22)";
+    ctx.fillStyle = `${accent}2e`;
     ctx.fillRect(px, py, ps, ps);
-    ctx.fillStyle = "#f59e0b";
+    ctx.fillStyle = accent;
     ctx.font = `700 64px ${heading}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -93,7 +96,7 @@ export async function downloadCardImage(input: CardImageInput): Promise<void> {
   }
   ctx.restore();
   rrect(ctx, px, py, ps, ps, [40, 40, 40, 40]);
-  ctx.strokeStyle = "rgba(245,158,11,0.75)";
+  ctx.strokeStyle = `${accent}bf`;
   ctx.lineWidth = 5;
   ctx.stroke();
 
@@ -101,7 +104,7 @@ export async function downloadCardImage(input: CardImageInput): Promise<void> {
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
   const tx = px + ps + 44;
-  ctx.fillStyle = "#f59e0b";
+  ctx.fillStyle = accent;
   ctx.font = `600 24px ${sans}`;
   (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = "6px";
   ctx.fillText("BROSQI.ID MEMBER", tx, py + 52);

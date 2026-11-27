@@ -1,22 +1,24 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { CalendarDays } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { DateBlock } from "@/components/shared/DateBlock";
+import { EventDialog } from "@/components/shared/EventDialog";
 import { api } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
 import { formatDate, todayISO } from "@/lib/dash-utils";
 
 const ART = {
   background:
-    "radial-gradient(60% 60% at 70% 30%, rgba(245,158,11,.30), transparent 62%), repeating-linear-gradient(115deg, transparent 0 38px, rgba(255,255,255,.04) 38px 40px), linear-gradient(160deg, #1d1509, #0a0a0a 75%)",
+    "radial-gradient(60% 60% at 70% 30%, color-mix(in srgb, var(--primary) 20%, transparent), transparent 62%), repeating-linear-gradient(115deg, transparent 0 38px, rgba(255,255,255,.04) 38px 40px), linear-gradient(160deg, #17181a, #0a0a0a 75%)",
 };
 
 // GET /events is public: anonymous visitors see events flagged public; signed-in
 // members see all. Empty gets a quiet note rather than fake events.
 export function EventsSection() {
   const { data } = useApiData(useCallback(() => api.getEvents(), []), []);
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const upcoming = useMemo(() => {
     const today = todayISO();
@@ -43,7 +45,7 @@ export function EventsSection() {
             {upcoming.map((event) => (
               <article
                 key={event.id}
-                className="flex flex-col overflow-hidden rounded-[20px_20px_5px_20px] border border-border bg-card"
+                className="relative flex flex-col overflow-hidden rounded-[20px_20px_5px_20px] border border-border bg-card transition hover:border-foreground/30"
               >
                 {event.image_link ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -54,13 +56,15 @@ export function EventsSection() {
                     className="h-44 w-full object-cover"
                   />
                 ) : (
-                  <div className="h-44 w-full" style={ART} />
+                  <div className="on-dark h-44 w-full" style={ART} />
                 )}
                 <div className="flex flex-1 flex-col gap-4 p-5">
                   <div className="flex items-center gap-4">
                     <DateBlock date={event.date} />
                     <h3 className="font-heading text-lg leading-tight font-bold tracking-wide uppercase">
-                      {event.title}
+                      <button type="button" onClick={() => setOpenId(event.id)} className="text-left uppercase after:absolute after:inset-0">
+                        {event.title}
+                      </button>
                     </h3>
                   </div>
                   <div className="mt-auto flex items-center justify-between gap-3 text-sm text-muted-foreground">
@@ -80,6 +84,7 @@ export function EventsSection() {
           </p>
         )}
       </div>
+      <EventDialog id={openId} onClose={() => setOpenId(null)} />
     </section>
   );
 }

@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { ArrowRight, Clock, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DateBlock } from "@/components/shared/DateBlock";
+import { EventDialog } from "@/components/shared/EventDialog";
 import { LoggedOutOnly } from "@/components/shared/LoggedOutOnly";
 import { useNextRide } from "@/hooks/useNextRide";
 import { daysUntil, formatDate, relativeDays } from "@/lib/dash-utils";
@@ -27,16 +29,17 @@ function withHighlight(line: string, highlight: string) {
 // Dark artwork shown until the admin uploads a banner photo.
 const ART = {
   background:
-    "radial-gradient(90% 70% at 85% 25%, rgba(245,158,11,.30), transparent 60%), radial-gradient(60% 50% at 10% 100%, rgba(245,158,11,.14), transparent 60%), repeating-linear-gradient(115deg, transparent 0 38px, rgba(255,255,255,.035) 38px 40px), linear-gradient(160deg, #1a1208, #0a0a0a 70%)",
+    "radial-gradient(90% 70% at 85% 25%, color-mix(in srgb, var(--primary) 20%, transparent), transparent 60%), radial-gradient(60% 50% at 10% 100%, color-mix(in srgb, var(--primary) 10%, transparent), transparent 60%), repeating-linear-gradient(115deg, transparent 0 38px, rgba(255,255,255,.035) 38px 40px), linear-gradient(160deg, #151619, #0a0a0a 70%)",
 };
 
 function NextRideCard() {
   const { event, location } = useNextRide();
+  const [open, setOpen] = useState(false);
   if (!event) return null;
   const days = daysUntil(event.date);
 
   return (
-    <div className="flex flex-col gap-4 rounded-[26px_26px_6px_26px] border border-white/15 bg-neutral-900/60 p-5 backdrop-blur-xl">
+    <div className="relative flex flex-col gap-4 rounded-[26px_26px_6px_26px] border border-white/15 bg-neutral-900/60 p-5 backdrop-blur-xl">
       <div className="flex items-center justify-between">
         <span className="text-[11px] font-semibold tracking-[0.22em] text-primary uppercase">
           Next ride
@@ -48,7 +51,9 @@ function NextRideCard() {
       <div className="flex items-center gap-4">
         <DateBlock date={event.date} className="h-[66px] w-[62px]" />
         <h3 className="font-heading text-xl leading-tight font-bold tracking-wide uppercase">
-          {event.title}
+          <button type="button" onClick={() => setOpen(true)} className="text-left uppercase after:absolute after:inset-0">
+            {event.title}
+          </button>
         </h3>
       </div>
       <div className="flex flex-col gap-1 text-sm text-neutral-400">
@@ -65,18 +70,19 @@ function NextRideCard() {
       </div>
       <Link
         href="/#events"
-        className="flex items-center justify-between border-t border-white/10 pt-3 text-sm font-semibold"
+        className="relative z-10 flex items-center justify-between border-t border-white/10 pt-3 text-sm font-semibold"
       >
         <span>All upcoming events</span>
         <ArrowRight className="size-4 text-primary" />
       </Link>
+      <EventDialog id={open ? event.id : null} onClose={() => setOpen(false)} />
     </div>
   );
 }
 
 export function Hero({ data = defaultSiteContent.hero }: { data?: SiteContent["hero"] }) {
   return (
-    <section className="relative isolate flex min-h-[min(92vh,860px)] items-end overflow-hidden bg-neutral-950 text-neutral-50">
+    <section className="on-dark relative isolate flex min-h-[min(92vh,860px)] items-end overflow-hidden bg-neutral-950 text-neutral-50">
       {data.image ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={data.image} alt="" className="absolute inset-0 -z-20 size-full object-cover" />

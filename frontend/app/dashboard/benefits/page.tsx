@@ -16,7 +16,7 @@ export default function MemberBenefitsPage() {
     <div className="flex flex-col gap-5">
       <DashHeader title="Benefits" description="What your membership includes." />
 
-      <div className="relative overflow-hidden rounded-[24px_24px_6px_24px] border border-white/10 bg-neutral-950 p-5 text-neutral-50">
+      <div className="on-dark relative overflow-hidden rounded-[24px_24px_6px_24px] border border-white/10 bg-neutral-950 p-5 text-neutral-50">
         <div
           aria-hidden
           className="pointer-events-none absolute -bottom-20 -left-12 size-52 rounded-full bg-primary/30 blur-3xl"

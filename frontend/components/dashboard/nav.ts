@@ -11,6 +11,7 @@ import {
   IdCard,
   ScanLine,
   Ellipsis,
+  Palette,
   type LucideIcon,
 } from "lucide-react";
 
@@ -51,6 +52,7 @@ export const adminNav: NavGroup[] = [
       { href: "/admin/gallery", label: "Gallery", icon: Images },
       { href: "/admin/announcements", label: "Announcements", icon: Megaphone },
       { href: "/admin/site", label: "Site Content", icon: LayoutTemplate },
+      { href: "/admin/theme", label: "Theme", icon: Palette },
     ],
   },
 ];
@@ -66,7 +68,7 @@ export const adminTabs: NavItem[] = [
     href: "/admin/more",
     label: "More",
     icon: Ellipsis,
-    also: ["/admin/gallery", "/admin/announcements", "/admin/site"],
+    also: ["/admin/gallery", "/admin/announcements", "/admin/site", "/admin/theme"],
   },
 ];
 

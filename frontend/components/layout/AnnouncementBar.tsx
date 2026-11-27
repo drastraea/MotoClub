@@ -6,7 +6,7 @@ import { Megaphone, X } from "lucide-react";
 import { api } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
 
-// Thin amber strip above the navbar showing the latest announcement the current
+// Thin accent strip above the navbar showing the latest announcement the current
 // visitor may see (public ones for anonymous visitors). Hidden when there is
 // none, and dismissible for the rest of the visit.
 export function AnnouncementBar() {

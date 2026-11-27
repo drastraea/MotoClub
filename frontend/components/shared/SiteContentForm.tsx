@@ -35,6 +35,7 @@ const nonEmpty = z.string().min(1, "Required");
 
 const schema = z.object({
   hidden: z.array(z.string()),
+  accent: z.string(),
   hero: z.object({
     eyebrow: nonEmpty,
     headline_lines: z.array(nonEmpty).min(1, "Add at least one line"),
@@ -407,7 +408,7 @@ export function SiteContentForm({
             />
             <Field
               label="Word to highlight"
-              hint="Shown in amber. It must appear in one of the headline lines."
+              hint="Shown in the accent colour. It must appear in one of the headline lines."
               error={errors.hero?.highlight?.message}
             >
               <Input {...register("hero.highlight")} />

@@ -5,6 +5,7 @@ import { Download } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { QrCode } from "@/components/shared/QrCode";
+import { accentColors } from "@/lib/accent";
 import { api } from "@/lib/api";
 import { downloadCardImage } from "@/lib/card-image";
 import { daysUntil, formatDate, initials } from "@/lib/dash-utils";
@@ -12,6 +13,7 @@ import { statusMeta } from "@/lib/member-status";
 import { useApiData } from "@/hooks/useApiData";
 import { useAuth } from "@/hooks/useAuth";
 import { useOrigin } from "@/hooks/useOrigin";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import { useWakeLock } from "@/hooks/useWakeLock";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +26,7 @@ const statusColor: Record<string, string> = {
 
 export default function MemberCardPage() {
   const { user } = useAuth();
+  const { content } = useSiteContent();
   const memberId = user?.id;
   const origin = useOrigin();
   const [saving, setSaving] = useState(false);
@@ -53,6 +56,7 @@ export default function MemberCardPage() {
     setSaving(true);
     try {
       await downloadCardImage({
+        accent: accentColors(content.accent).dark,
         name: p.name,
         memberId,
         plate: p.plateNumber,
@@ -72,7 +76,7 @@ export default function MemberCardPage() {
 
   return (
     <div className="mx-auto flex max-w-sm flex-col gap-5">
-      <div className="relative overflow-hidden rounded-[28px_28px_8px_28px] border border-white/15 bg-gradient-to-b from-neutral-900 to-neutral-950 p-6 text-neutral-50 shadow-[0_30px_60px_-24px_rgba(245,158,11,0.45)]">
+      <div className="on-dark relative overflow-hidden rounded-[28px_28px_8px_28px] border border-white/15 bg-gradient-to-b from-neutral-900 to-neutral-950 p-6 text-neutral-50 shadow-[0_30px_60px_-24px] shadow-primary/25">
         <div
           aria-hidden
           className="pointer-events-none absolute -top-24 -right-24 size-64 rounded-full bg-primary/30 blur-3xl"

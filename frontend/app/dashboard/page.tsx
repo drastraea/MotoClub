@@ -33,7 +33,7 @@ import {
 
 const ART = {
   background:
-    "radial-gradient(70% 60% at 75% 25%, rgba(245,158,11,.30), transparent 62%), repeating-linear-gradient(115deg, transparent 0 38px, rgba(255,255,255,.04) 38px 40px), linear-gradient(160deg, #1d1509, #0a0a0a 75%)",
+    "radial-gradient(70% 60% at 75% 25%, color-mix(in srgb, var(--primary) 20%, transparent), transparent 62%), repeating-linear-gradient(115deg, transparent 0 38px, rgba(255,255,255,.04) 38px 40px), linear-gradient(160deg, #17181a, #0a0a0a 75%)",
 };
 
 const shortcuts = [
@@ -52,7 +52,7 @@ function NextRide() {
   return (
     <Link
       href="/dashboard/events"
-      className="relative flex min-h-44 items-end overflow-hidden rounded-[22px_22px_6px_22px] text-white"
+      className="on-dark relative flex min-h-44 items-end overflow-hidden rounded-[22px_22px_6px_22px] text-white"
     >
       {event.image_link ? (
         // eslint-disable-next-line @next/next/no-img-element

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DateBlock } from "@/components/shared/DateBlock";
+import { EventDialog } from "@/components/shared/EventDialog";
 import { DashHeader } from "@/components/dashboard/DashHeader";
 import { EmptyState, ListSkeleton } from "@/components/dashboard/EmptyState";
 import { api, type EventSummary } from "@/lib/api";
@@ -17,7 +18,7 @@ import { cn } from "@/lib/utils";
 
 const ART = {
   background:
-    "radial-gradient(60% 60% at 70% 30%, rgba(245,158,11,.30), transparent 62%), repeating-linear-gradient(115deg, transparent 0 38px, rgba(255,255,255,.04) 38px 40px), linear-gradient(160deg, #1d1509, #0a0a0a 75%)",
+    "radial-gradient(60% 60% at 70% 30%, color-mix(in srgb, var(--primary) 20%, transparent), transparent 62%), repeating-linear-gradient(115deg, transparent 0 38px, rgba(255,255,255,.04) 38px 40px), linear-gradient(160deg, #17181a, #0a0a0a 75%)",
 };
 
 function monthLabel(date: string): string {
@@ -45,17 +46,19 @@ function EventCard({
   location,
   featured,
   past,
+  onOpen,
 }: {
   event: EventSummary;
   location: string | null | undefined;
   featured: boolean;
   past: boolean;
+  onOpen: () => void;
 }) {
   const days = daysUntil(event.date);
   return (
     <article
       className={cn(
-        "overflow-hidden rounded-2xl bg-card shadow-xs ring-1 ring-border",
+        "relative overflow-hidden rounded-2xl bg-card shadow-xs ring-1 ring-border transition hover:ring-foreground/25",
         past && "opacity-75"
       )}
     >
@@ -65,9 +68,9 @@ function EventCard({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={event.image_link} alt="" className="size-full object-cover" />
           ) : (
-            <div className="size-full" style={ART} />
+            <div className="on-dark size-full" style={ART} />
           )}
-          <span className="absolute top-3 left-3 rounded-full bg-primary px-2.5 py-1 text-[11px] font-bold tracking-wide text-primary-foreground uppercase">
+          <span className="on-dark absolute top-3 left-3 rounded-full bg-primary px-2.5 py-1 text-[11px] font-bold tracking-wide text-primary-foreground uppercase">
             Next ride
           </span>
         </div>
@@ -76,7 +79,9 @@ function EventCard({
         <DateBlock date={event.date} tone={featured ? "accent" : "muted"} />
         <div className="min-w-0 flex-1">
           <h3 className="font-heading text-lg leading-tight font-bold tracking-wide uppercase">
-            {event.title}
+            <button type="button" onClick={onOpen} className="text-left uppercase after:absolute after:inset-0">
+              {event.title}
+            </button>
           </h3>
           <div className="mt-2 flex flex-col gap-1 text-sm text-muted-foreground">
             <span className="flex items-center gap-2">
@@ -94,7 +99,7 @@ function EventCard({
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <Badge variant="secondary">{event.is_public ? "Open to all" : "Members only"}</Badge>
             {!past && (
-              <span className="ml-auto flex gap-2">
+              <span className="relative z-10 ml-auto flex gap-2">
                 <Button
                   size="sm"
                   variant={featured ? "default" : "outline"}
@@ -130,6 +135,7 @@ function EventCard({
 export default function MemberEventsPage() {
   const { data, loading, error } = useApiData(useCallback(() => api.getEvents(), []), []);
   const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const { upcoming, past } = useMemo(() => {
     const today = todayISO();
@@ -208,10 +214,13 @@ export default function MemberEventsPage() {
               location={locations[e.id]}
               featured={tab === "upcoming" && e.id === upcoming[0]?.id}
               past={tab === "past"}
+              onOpen={() => setOpenId(e.id)}
             />
           ))}
         </section>
       ))}
+
+      <EventDialog id={openId} onClose={() => setOpenId(null)} />
     </div>
   );
 }

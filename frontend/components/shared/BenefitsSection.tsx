@@ -5,7 +5,7 @@ import { siteIconMap } from "@/lib/site-icons";
 // Same dark artwork as the hero, used when no benefits photo is uploaded.
 const ART = {
   background:
-    "radial-gradient(70% 55% at 75% 25%, rgba(245,158,11,.30), transparent 62%), repeating-linear-gradient(115deg, transparent 0 38px, rgba(255,255,255,.04) 38px 40px), linear-gradient(160deg, #1d1509, #0a0a0a 75%)",
+    "radial-gradient(70% 55% at 75% 25%, color-mix(in srgb, var(--primary) 20%, transparent), transparent 62%), repeating-linear-gradient(115deg, transparent 0 38px, rgba(255,255,255,.04) 38px 40px), linear-gradient(160deg, #17181a, #0a0a0a 75%)",
 };
 
 export function BenefitsSection({
@@ -49,7 +49,7 @@ export function BenefitsSection({
           </div>
         </div>
 
-        <div className="relative aspect-[4/5] overflow-hidden rounded-[2.5rem_2.5rem_.5rem_2.5rem] border border-border bg-neutral-950">
+        <div className="on-dark relative aspect-[4/5] overflow-hidden rounded-[2.5rem_2.5rem_.5rem_2.5rem] border border-border bg-neutral-950">
           {data.image ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={data.image} alt="" className="size-full object-cover" />

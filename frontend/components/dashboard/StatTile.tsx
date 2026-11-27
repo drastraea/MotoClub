@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Compact KPI tile. `tone="attention"` tints it amber when the number needs action.
+// Compact KPI tile. `tone="attention"` tints it with the accent when the number needs action.
 export function StatTile({
   href,
   icon: Icon,
