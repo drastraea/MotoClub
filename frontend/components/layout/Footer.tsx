@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { AtSign, MessageCircle } from "lucide-react";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { LoggedOutOnly } from "@/components/shared/LoggedOutOnly";
 import { useSiteContent } from "@/hooks/useSiteContent";
 
@@ -18,8 +19,8 @@ export function Footer() {
     <footer className="border-t border-border">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.6fr_1fr_1fr_1fr]">
         <div>
-          <Link href="/" className="font-heading text-xl font-bold tracking-widest uppercase">
-            Brosqi<span className="text-primary">.id</span>
+          <Link href="/" className="inline-block">
+            <BrandLogo className="h-14" />
           </Link>
           <p className="mt-3 max-w-xs text-sm text-muted-foreground">
             Ride together. Stay family. A community of riders sharing the road.

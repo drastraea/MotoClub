@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Menu, X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { useAuth } from "@/hooks/useAuth";
 import { isAdmin } from "@/lib/session";
 
@@ -44,11 +45,8 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
       <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link
-          href="/"
-          className="font-heading text-xl font-bold tracking-widest uppercase"
-        >
-          Brosqi<span className="text-primary">.id</span>
+        <Link href="/" className="shrink-0">
+          <BrandLogo />
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">

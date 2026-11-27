@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ExternalLink } from "lucide-react";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { cn } from "@/lib/utils";
 import { isActive, type NavGroup } from "@/components/dashboard/nav";
 
@@ -24,12 +25,8 @@ export function Sidebar({
   return (
     <aside className="flex h-full w-64 shrink-0 flex-col border-r border-border bg-sidebar">
       <div className="flex h-14 shrink-0 items-center gap-2 border-b border-border px-5">
-        <Link
-          href="/"
-          onClick={onNavigate}
-          className="font-heading text-lg font-bold tracking-widest uppercase"
-        >
-          Brosqi<span className="text-primary">.id</span>
+        <Link href="/" onClick={onNavigate} className="shrink-0">
+          <BrandLogo className="h-9" />
         </Link>
         <span className="ml-auto rounded-md bg-muted px-1.5 py-0.5 text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
           {area}
