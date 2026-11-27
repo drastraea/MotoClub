@@ -59,6 +59,11 @@ SET membership_expires_at = $2
 WHERE id = $1 AND deleted_at IS NULL
 RETURNING *;
 
+-- name: UpdateRiderPhoto :execrows
+UPDATE members
+SET rider_photo_link_path = $2
+WHERE id = $1 AND deleted_at IS NULL;
+
 -- name: UpdateMemberRole :one
 UPDATE members
 SET role = $2

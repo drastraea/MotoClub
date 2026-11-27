@@ -701,6 +701,54 @@ func (_c *MockMemberRepository_SoftDelete_Call) RunAndReturn(run func(context.Co
 	return _c
 }
 
+// UpdateRiderPhoto provides a mock function with given fields: ctx, id, link
+func (_m *MockMemberRepository) UpdateRiderPhoto(ctx context.Context, id int64, link string) error {
+	ret := _m.Called(ctx, id, link)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateRiderPhoto")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, int64, string) error); ok {
+		r0 = rf(ctx, id, link)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockMemberRepository_UpdateRiderPhoto_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdateRiderPhoto'
+type MockMemberRepository_UpdateRiderPhoto_Call struct {
+	*mock.Call
+}
+
+// UpdateRiderPhoto is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id int64
+//   - link string
+func (_e *MockMemberRepository_Expecter) UpdateRiderPhoto(ctx interface{}, id interface{}, link interface{}) *MockMemberRepository_UpdateRiderPhoto_Call {
+	return &MockMemberRepository_UpdateRiderPhoto_Call{Call: _e.mock.On("UpdateRiderPhoto", ctx, id, link)}
+}
+
+func (_c *MockMemberRepository_UpdateRiderPhoto_Call) Run(run func(ctx context.Context, id int64, link string)) *MockMemberRepository_UpdateRiderPhoto_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int64), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockMemberRepository_UpdateRiderPhoto_Call) Return(_a0 error) *MockMemberRepository_UpdateRiderPhoto_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockMemberRepository_UpdateRiderPhoto_Call) RunAndReturn(run func(context.Context, int64, string) error) *MockMemberRepository_UpdateRiderPhoto_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateRole provides a mock function with given fields: ctx, id, role
 func (_m *MockMemberRepository) UpdateRole(ctx context.Context, id int64, role domain.Role) (domain.Member, error) {
 	ret := _m.Called(ctx, id, role)

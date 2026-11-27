@@ -162,6 +162,26 @@ func TestEventCreate(t *testing.T) {
 	})
 }
 
+func TestEventTime(t *testing.T) {
+	body := func(v string) string {
+		return `{"title":"t","description":"d","date":"2026-05-01","time":"` + v + `"}`
+	}
+	for _, bad := range []string{"9:00", "24:00", "12:60", "noon"} {
+		c, w := ctxJSON(http.MethodPost, "/events", body(bad))
+		NewEventHandler(svcmocks.NewMockEventServicer(t)).Create(c)
+		assert.Equal(t, http.StatusBadRequest, w.Code, bad)
+	}
+	for _, good := range []string{"", "00:00", "23:59"} {
+		svc := svcmocks.NewMockEventServicer(t)
+		svc.On("Create", mock.Anything, mock.MatchedBy(func(in service.EventInput) bool {
+			return in.Time == good
+		})).Return(domain.Event{ID: 1}, nil)
+		c, w := ctxJSON(http.MethodPost, "/events", body(good))
+		NewEventHandler(svc).Create(c)
+		assert.Equal(t, http.StatusCreated, w.Code, good)
+	}
+}
+
 func TestEventUpdate(t *testing.T) {
 	t.Run("bad id", func(t *testing.T) {
 		c, w := ctxJSON(http.MethodPut, "/events/x", validEventBody)

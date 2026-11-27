@@ -48,6 +48,7 @@ type eventSummary struct {
 	ID            string  `json:"id"`
 	Title         string  `json:"title"`
 	Date          string  `json:"date"`
+	Time          string  `json:"time"`
 	ImageLink     *string `json:"image_link"`
 	IsPublic      bool    `json:"is_public"`
 	LastUpdatedAt string  `json:"last_updated_at"`
@@ -64,6 +65,7 @@ func toEventList(events []domain.Event) eventListResponse {
 			ID:            idString(e.ID),
 			Title:         e.Title,
 			Date:          util.FormatJakartaDate(e.Date),
+			Time:          e.Time,
 			ImageLink:     e.ImageLink,
 			IsPublic:      e.IsPublic,
 			LastUpdatedAt: util.FormatJakartaDate(e.LastUpdatedAt),
@@ -76,6 +78,7 @@ type eventDetail struct {
 	ID            string  `json:"id"`
 	Title         string  `json:"title"`
 	Date          string  `json:"date"`
+	Time          string  `json:"time"`
 	Location      *string `json:"location"`
 	Description   string  `json:"description"`
 	ImageLink     *string `json:"image_link"`
@@ -88,6 +91,7 @@ func toEventDetail(e domain.Event) eventDetail {
 		ID:            idString(e.ID),
 		Title:         e.Title,
 		Date:          util.FormatJakartaDate(e.Date),
+		Time:          e.Time,
 		Location:      e.Location,
 		Description:   e.Description,
 		ImageLink:     e.ImageLink,

@@ -548,3 +548,22 @@ func (q *Queries) UpdateMemberStatus(ctx context.Context, arg UpdateMemberStatus
 	)
 	return i, err
 }
+
+const updateRiderPhoto = `-- name: UpdateRiderPhoto :execrows
+UPDATE members
+SET rider_photo_link_path = $2
+WHERE id = $1 AND deleted_at IS NULL
+`
+
+type UpdateRiderPhotoParams struct {
+	ID                 int64
+	RiderPhotoLinkPath string
+}
+
+func (q *Queries) UpdateRiderPhoto(ctx context.Context, arg UpdateRiderPhotoParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateRiderPhoto, arg.ID, arg.RiderPhotoLinkPath)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}

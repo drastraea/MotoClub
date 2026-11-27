@@ -20,6 +20,7 @@ func toDomainEvent(e sqlc.Event) domain.Event {
 		Title:         e.Title,
 		Description:   e.Description,
 		Date:          e.EventDate,
+		Time:          e.EventTime,
 		Location:      e.Location,
 		ImageLink:     e.ImageLink,
 		IsPublic:      e.IsPublic,
@@ -65,6 +66,7 @@ func (r *EventRepo) Create(ctx context.Context, in repository.CreateEventInput) 
 		Location:    in.Location,
 		IsPublic:    in.IsPublic,
 		ImageLink:   in.ImageLink,
+		EventTime:   in.Time,
 	})
 	if err != nil {
 		return domain.Event{}, err
@@ -82,6 +84,7 @@ func (r *EventRepo) Update(ctx context.Context, in repository.UpdateEventInput) 
 		Location:    in.Location,
 		IsPublic:    in.IsPublic,
 		ImageLink:   in.ImageLink,
+		EventTime:   in.Time,
 	})
 	if err != nil {
 		return domain.Event{}, mapGetErr(err)

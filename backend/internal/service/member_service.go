@@ -119,6 +119,11 @@ func (s *MemberService) UpdateRole(ctx context.Context, id int64, role domain.Ro
 	return err
 }
 
+// UpdatePhoto replaces a member's rider photo.
+func (s *MemberService) UpdatePhoto(ctx context.Context, id int64, link string) error {
+	return s.members.UpdateRiderPhoto(ctx, id, link)
+}
+
 // Delete soft-deletes a member, enforcing the deletion authorization rules:
 // admins may only delete plain members, and the final superadmin cannot be
 // deleted.

@@ -28,6 +28,7 @@ type MemberServicer interface {
 	SetStatus(ctx context.Context, id int64, action StatusAction, remarks *string) error
 	ExtendMembership(ctx context.Context, id int64) error
 	UpdateRole(ctx context.Context, id int64, role domain.Role) error
+	UpdatePhoto(ctx context.Context, id int64, link string) error
 	Delete(ctx context.Context, actor domain.Principal, targetID int64) error
 }
 

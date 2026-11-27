@@ -186,6 +186,11 @@ func (r *MemberRepo) UpdateRole(ctx context.Context, id int64, role domain.Role)
 	return toDomainMember(m), nil
 }
 
+// UpdateRiderPhoto replaces the member's rider photo link.
+func (r *MemberRepo) UpdateRiderPhoto(ctx context.Context, id int64, link string) error {
+	return affected(r.q.UpdateRiderPhoto(ctx, sqlc.UpdateRiderPhotoParams{ID: id, RiderPhotoLinkPath: link}))
+}
+
 // SoftDelete soft-deletes a member.
 func (r *MemberRepo) SoftDelete(ctx context.Context, id int64) error {
 	return affected(r.q.SoftDeleteMember(ctx, id))

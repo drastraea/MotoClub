@@ -3,7 +3,7 @@ SELECT * FROM events
 WHERE deleted_at IS NULL
   AND (sqlc.narg('start_from')::timestamptz IS NULL OR event_date >= sqlc.narg('start_from'))
   AND (NOT sqlc.arg('public_only')::boolean OR is_public)
-ORDER BY event_date;
+ORDER BY event_date, event_time;
 
 -- name: CountEvents :one
 SELECT count(*) FROM events
@@ -15,13 +15,13 @@ WHERE id = sqlc.arg('id') AND deleted_at IS NULL
   AND (NOT sqlc.arg('public_only')::boolean OR is_public);
 
 -- name: CreateEvent :one
-INSERT INTO events (title, description, event_date, location, is_public, image_link)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO events (title, description, event_date, location, is_public, image_link, event_time)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING *;
 
 -- name: UpdateEvent :one
 UPDATE events
-SET title = $2, description = $3, event_date = $4, location = $5, is_public = $6, image_link = $7
+SET title = $2, description = $3, event_date = $4, location = $5, is_public = $6, image_link = $7, event_time = $8
 WHERE id = $1 AND deleted_at IS NULL
 RETURNING *;
 

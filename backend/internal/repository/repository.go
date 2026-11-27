@@ -47,6 +47,7 @@ type CreateEventInput struct {
 	Title       string
 	Description string
 	Date        time.Time
+	Time        string
 	Location    *string
 	ImageLink   *string
 	IsPublic    bool
@@ -58,6 +59,7 @@ type UpdateEventInput struct {
 	Title       string
 	Description string
 	Date        time.Time
+	Time        string
 	Location    *string
 	ImageLink   *string
 	IsPublic    bool
@@ -77,6 +79,7 @@ type MemberRepository interface {
 	UpdateStatus(ctx context.Context, in UpdateStatusInput) (domain.Member, error)
 	SetMembershipExpiry(ctx context.Context, id int64, expiresAt *time.Time) (domain.Member, error)
 	UpdateRole(ctx context.Context, id int64, role domain.Role) (domain.Member, error)
+	UpdateRiderPhoto(ctx context.Context, id int64, link string) error
 	SoftDelete(ctx context.Context, id int64) error
 	CountSuperadmins(ctx context.Context) (int64, error)
 }

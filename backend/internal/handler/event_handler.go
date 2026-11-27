@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -62,6 +63,7 @@ type eventRequest struct {
 	Title       string  `json:"title" binding:"required"`
 	Description string  `json:"description" binding:"required"`
 	Date        string  `json:"date" binding:"required"`
+	Time        string  `json:"time"` // optional HH:MM
 	Location    *string `json:"location"`
 	ImageLink   *string `json:"image_link"`
 	IsPublic    bool    `json:"is_public"`
@@ -73,7 +75,15 @@ func (r eventRequest) toInput(c *gin.Context) (service.EventInput, bool) {
 		httpx.AbortStatus(c, http.StatusBadRequest, "invalid date, expected YYYY-MM-DD")
 		return service.EventInput{}, false
 	}
+	// The length check rejects "9:00", which time.Parse would accept.
+	if r.Time != "" {
+		if _, err := time.Parse("15:04", r.Time); err != nil || len(r.Time) != 5 {
+			httpx.AbortStatus(c, http.StatusBadRequest, "invalid time, expected HH:MM")
+			return service.EventInput{}, false
+		}
+	}
 	return service.EventInput{
+		Time:        r.Time,
 		Title:       r.Title,
 		Description: r.Description,
 		Date:        date,

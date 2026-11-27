@@ -45,6 +45,8 @@ func NewRouter(h *handler.Handlers, jwtMgr auth.JWTManager, revocations middlewa
 	authed.POST("/logout", h.Auth.Logout)
 	authed.GET("/members/:id/profile",
 		middleware.RequireSelfOrRole(domain.RoleAdmin, domain.RoleSuperadmin), h.Member.GetProfile)
+	// No roles listed: members change their own photo only.
+	authed.PUT("/members/:id/photo", middleware.RequireSelfOrRole(), h.Member.UpdatePhoto)
 
 	// Admin + superadmin endpoints.
 	admin := authed.Group("/", middleware.RequireRole(domain.RoleAdmin, domain.RoleSuperadmin))

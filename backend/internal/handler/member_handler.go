@@ -2,6 +2,8 @@ package handler
 
 import (
 	"net/http"
+	"net/url"
+	"path"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -98,6 +100,40 @@ func (h *MemberHandler) ExtendMembership(c *gin.Context) {
 		return
 	}
 	if err := h.svc.ExtendMembership(c.Request.Context(), id); err != nil {
+		httpx.Error(c, err)
+		return
+	}
+	c.Status(http.StatusNoContent)
+}
+
+type photoRequest struct {
+	RiderPhotoLinkPath string `json:"riderPhotoLinkPath" binding:"required"`
+}
+
+// isOwnUpload reports whether link is a file served by this server's /uploads.
+// Other URLs are refused so a member photo cannot point at a third-party image
+// that could change after an admin has looked at it.
+func isOwnUpload(link, host string) bool {
+	u, err := url.Parse(link)
+	return err == nil && (u.Scheme == "http" || u.Scheme == "https") &&
+		u.Host == host && strings.HasPrefix(path.Clean(u.Path), "/uploads/")
+}
+
+// UpdatePhoto handles PUT /members/{id}/photo.
+func (h *MemberHandler) UpdatePhoto(c *gin.Context) {
+	id, ok := parseIDParam(c)
+	if !ok {
+		return
+	}
+	var req photoRequest
+	if !bindJSON(c, &req) {
+		return
+	}
+	if !isOwnUpload(req.RiderPhotoLinkPath, c.Request.Host) {
+		httpx.AbortStatus(c, http.StatusBadRequest, "photo must be a link returned by /uploads")
+		return
+	}
+	if err := h.svc.UpdatePhoto(c.Request.Context(), id, req.RiderPhotoLinkPath); err != nil {
 		httpx.Error(c, err)
 		return
 	}

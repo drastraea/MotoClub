@@ -235,3 +235,34 @@ func TestDeleteMember(t *testing.T) {
 		assert.Equal(t, http.StatusNoContent, c.Writer.Status())
 	})
 }
+
+func TestUpdatePhoto(t *testing.T) {
+	const own = "http://example.com/uploads/a.jpg" // httptest requests use Host example.com
+	call := func(svc *svcmocks.MockMemberServicer, id, body string) int {
+		c, _ := ctxJSON(http.MethodPut, "/members/"+id+"/photo", body)
+		setParam(c, "id", id)
+		NewMemberHandler(svc).UpdatePhoto(c)
+		return c.Writer.Status()
+	}
+	body := func(link string) string { return `{"riderPhotoLinkPath":"` + link + `"}` }
+
+	assert.Equal(t, http.StatusBadRequest, call(svcmocks.NewMockMemberServicer(t), "x", body(own)))
+	assert.Equal(t, http.StatusBadRequest, call(svcmocks.NewMockMemberServicer(t), "1", `{}`))
+	for _, bad := range []string{
+		"javascript:alert(1)",
+		"/uploads/a.jpg",
+		"http://evil.test/uploads/a.jpg",
+		"http://example.com/other/a.jpg",
+		"http://example.com/uploads/../healthz",
+	} {
+		assert.Equal(t, http.StatusBadRequest, call(svcmocks.NewMockMemberServicer(t), "1", body(bad)), bad)
+	}
+
+	svc := svcmocks.NewMockMemberServicer(t)
+	svc.On("UpdatePhoto", mock.Anything, int64(1), own).Return(nil)
+	assert.Equal(t, http.StatusNoContent, call(svc, "1", body(own)))
+
+	svc = svcmocks.NewMockMemberServicer(t)
+	svc.On("UpdatePhoto", mock.Anything, int64(1), own).Return(apperr.ErrNotFound)
+	assert.Equal(t, http.StatusNotFound, call(svc, "1", body(own)))
+}

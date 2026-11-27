@@ -129,6 +129,19 @@
       "name": "Profile",
       "item": [
         {
+          "name": "Change own photo",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/members/{{memberId}}/photo", "host": ["{{baseUrl}}"], "path": ["members", "{{memberId}}", "photo"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"riderPhotoLinkPath\": \"{{baseUrl}}/uploads/<file>.jpg\"\n}"
+            },
+            "description": "A member may only change their own photo (else 400). The link must be one returned by POST /uploads on this server. Returns 204."
+          }
+        },
+        {
           "name": "Get profile",
           "request": {
             "method": "GET",
@@ -217,9 +230,9 @@
             "url": { "raw": "{{baseUrl}}/events", "host": ["{{baseUrl}}"], "path": ["events"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Sunday Ride\",\n  \"description\": \"Morning ride to the hills\",\n  \"date\": \"2026-08-01\",\n  \"location\": \"HQ\"\n}"
+              "raw": "{\n  \"title\": \"Sunday Ride\",\n  \"description\": \"Morning ride to the hills\",\n  \"date\": \"2026-08-01\",\n  \"time\": \"07:00\",\n  \"location\": \"HQ\"\n}"
             },
-            "description": "Roles: admin, superadmin. `location` optional. Returns { id }."
+            "description": "Roles: admin, superadmin. `location` and `time` (HH:MM, WIB) optional. Returns { id }."
           }
         },
         {
@@ -230,9 +243,9 @@
             "url": { "raw": "{{baseUrl}}/events/{{eventId}}", "host": ["{{baseUrl}}"], "path": ["events", "{{eventId}}"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Sunday Ride (updated)\",\n  \"description\": \"New route\",\n  \"date\": \"2026-08-02\",\n  \"location\": \"City Park\"\n}"
+              "raw": "{\n  \"title\": \"Sunday Ride (updated)\",\n  \"description\": \"New route\",\n  \"date\": \"2026-08-02\",\n  \"time\": \"19:30\",\n  \"location\": \"City Park\"\n}"
             },
-            "description": "Roles: admin, superadmin. Returns 204."
+            "description": "Roles: admin, superadmin. Omitting `time` clears it. Returns 204."
           }
         },
         {

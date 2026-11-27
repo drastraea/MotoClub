@@ -41,6 +41,7 @@ type Querier interface {
 	UpdateGalleryItem(ctx context.Context, arg UpdateGalleryItemParams) (Gallery, error)
 	UpdateMemberRole(ctx context.Context, arg UpdateMemberRoleParams) (Member, error)
 	UpdateMemberStatus(ctx context.Context, arg UpdateMemberStatusParams) (Member, error)
+	UpdateRiderPhoto(ctx context.Context, arg UpdateRiderPhotoParams) (int64, error)
 	UpsertSiteContent(ctx context.Context, data []byte) error
 }
 

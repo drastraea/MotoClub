@@ -13,6 +13,7 @@ type EventInput struct {
 	Title       string
 	Description string
 	Date        time.Time
+	Time        string
 	Location    *string
 	ImageLink   *string
 	IsPublic    bool
@@ -50,6 +51,7 @@ func (s *EventService) Create(ctx context.Context, in EventInput) (domain.Event,
 		Title:       in.Title,
 		Description: in.Description,
 		Date:        in.Date,
+		Time:        in.Time,
 		Location:    in.Location,
 		ImageLink:   in.ImageLink,
 		IsPublic:    in.IsPublic,
@@ -63,6 +65,7 @@ func (s *EventService) Update(ctx context.Context, id int64, in EventInput) (dom
 		Title:       in.Title,
 		Description: in.Description,
 		Date:        in.Date,
+		Time:        in.Time,
 		Location:    in.Location,
 		ImageLink:   in.ImageLink,
 		IsPublic:    in.IsPublic,

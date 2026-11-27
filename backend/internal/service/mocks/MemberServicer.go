@@ -454,6 +454,54 @@ func (_c *MockMemberServicer_SetStatus_Call) RunAndReturn(run func(context.Conte
 	return _c
 }
 
+// UpdatePhoto provides a mock function with given fields: ctx, id, link
+func (_m *MockMemberServicer) UpdatePhoto(ctx context.Context, id int64, link string) error {
+	ret := _m.Called(ctx, id, link)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdatePhoto")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, int64, string) error); ok {
+		r0 = rf(ctx, id, link)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockMemberServicer_UpdatePhoto_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdatePhoto'
+type MockMemberServicer_UpdatePhoto_Call struct {
+	*mock.Call
+}
+
+// UpdatePhoto is a helper method to define mock.On call
+//   - ctx context.Context
+//   - id int64
+//   - link string
+func (_e *MockMemberServicer_Expecter) UpdatePhoto(ctx interface{}, id interface{}, link interface{}) *MockMemberServicer_UpdatePhoto_Call {
+	return &MockMemberServicer_UpdatePhoto_Call{Call: _e.mock.On("UpdatePhoto", ctx, id, link)}
+}
+
+func (_c *MockMemberServicer_UpdatePhoto_Call) Run(run func(ctx context.Context, id int64, link string)) *MockMemberServicer_UpdatePhoto_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int64), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockMemberServicer_UpdatePhoto_Call) Return(_a0 error) *MockMemberServicer_UpdatePhoto_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockMemberServicer_UpdatePhoto_Call) RunAndReturn(run func(context.Context, int64, string) error) *MockMemberServicer_UpdatePhoto_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdateRole provides a mock function with given fields: ctx, id, role
 func (_m *MockMemberServicer) UpdateRole(ctx context.Context, id int64, role domain.Role) error {
 	ret := _m.Called(ctx, id, role)

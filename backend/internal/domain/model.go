@@ -111,6 +111,7 @@ type Event struct {
 	Title         string
 	Description   string
 	Date          time.Time
+	Time          string // HH:MM, empty when no time is set
 	Location      *string
 	ImageLink     *string
 	IsPublic      bool

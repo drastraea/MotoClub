@@ -223,3 +223,9 @@ func TestDelete(t *testing.T) {
 		assert.ErrorIs(t, s.Delete(context.Background(), super, 2), errBoom)
 	})
 }
+
+func TestUpdatePhoto(t *testing.T) {
+	repo := repomocks.NewMockMemberRepository(t)
+	repo.On("UpdateRiderPhoto", mock.Anything, int64(1), "link").Return(nil)
+	assert.NoError(t, NewMemberService(repo, nil).UpdatePhoto(context.Background(), 1, "link"))
+}
