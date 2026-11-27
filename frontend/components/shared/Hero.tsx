@@ -8,7 +8,7 @@ import { DateBlock } from "@/components/shared/DateBlock";
 import { EventDialog } from "@/components/shared/EventDialog";
 import { LoggedOutOnly } from "@/components/shared/LoggedOutOnly";
 import { useNextRide } from "@/hooks/useNextRide";
-import { daysUntil, formatDate, relativeDays } from "@/lib/dash-utils";
+import { daysUntil, formatEventDate, relativeDays } from "@/lib/dash-utils";
 import { defaultSiteContent, type SiteContent } from "@/lib/site-content";
 
 // Splits a headline line around the highlighted word so it keeps the accent
@@ -59,7 +59,7 @@ function NextRideCard() {
       <div className="flex flex-col gap-1 text-sm text-neutral-400">
         <span className="flex items-center gap-2">
           <Clock className="size-3.5" />
-          {formatDate(event.date)}
+          {formatEventDate(event.date, event.time)}
         </span>
         {location && (
           <span className="flex items-center gap-2">

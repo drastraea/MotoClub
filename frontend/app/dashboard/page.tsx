@@ -27,6 +27,7 @@ import {
   RENEWAL_WINDOW_DAYS,
   daysUntil,
   formatDate,
+  formatEventDate,
   greeting,
   relativeDays,
 } from "@/lib/dash-utils";
@@ -73,7 +74,7 @@ function NextRide() {
           <p className="mt-1 flex flex-wrap items-center gap-x-3 text-xs text-neutral-300">
             <span className="flex items-center gap-1">
               <Clock className="size-3" />
-              {formatDate(event.date)}
+              {formatEventDate(event.date, event.time)}
             </span>
             {location && (
               <span className="flex items-center gap-1">

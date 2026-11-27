@@ -7,7 +7,7 @@ import { DateBlock } from "@/components/shared/DateBlock";
 import { EventDialog } from "@/components/shared/EventDialog";
 import { api } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
-import { formatDate, todayISO } from "@/lib/dash-utils";
+import { formatEventDate, todayISO } from "@/lib/dash-utils";
 
 const ART = {
   background:
@@ -70,7 +70,7 @@ export function EventsSection() {
                   <div className="mt-auto flex items-center justify-between gap-3 text-sm text-muted-foreground">
                     <span className="flex items-center gap-2">
                       <CalendarDays className="size-4" />
-                      {formatDate(event.date)}
+                      {formatEventDate(event.date, event.time)}
                     </span>
                     <Badge variant="secondary">{event.is_public ? "Open to all" : "Members only"}</Badge>
                   </div>

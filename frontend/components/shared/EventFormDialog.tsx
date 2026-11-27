@@ -21,6 +21,7 @@ const eventSchema = z.object({
   title: z.string().min(2, "Title is too short"),
   description: z.string().min(5, "Description is too short"),
   date: z.string().min(1, "Required"),
+  time: z.string().optional(),
   location: z.string().optional(),
   image_link: z.string().optional(),
   is_public: z.boolean().default(false),
@@ -55,7 +56,7 @@ export function EventFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{defaultValues ? "Edit Event" : "New Event"}</DialogTitle>
         </DialogHeader>
@@ -96,23 +97,28 @@ export function EventFormDialog({
               </p>
             )}
           </div>
-          <div className="flex flex-col gap-1.5">
-            {/* Backend stores date-only (YYYY-MM-DD, Asia/Jakarta) - see
-                backend/internal/util/datetime.go. No time-of-day field
-                exists yet on the real Event model. */}
-            <Label htmlFor="date">Date</Label>
-            <Input
-              id="date"
-              type="date"
-              aria-invalid={!!errors.date}
-              aria-describedby={errors.date ? "date-error" : undefined}
-              {...register("date")}
-            />
-            {errors.date && (
-              <p id="date-error" className="text-sm text-destructive">
-                {errors.date.message}
-              </p>
-            )}
+          <div className="grid grid-cols-2 items-start gap-3">
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="date">Date</Label>
+              <Input
+                id="date"
+                type="date"
+                aria-invalid={!!errors.date}
+                aria-describedby={errors.date ? "date-error" : undefined}
+                {...register("date")}
+              />
+              {errors.date && (
+                <p id="date-error" className="text-sm text-destructive">
+                  {errors.date.message}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="time">
+                Time (WIB) <span className="font-normal text-muted-foreground">optional</span>
+              </Label>
+              <Input id="time" type="time" {...register("time")} />
+            </div>
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="location">Location</Label>

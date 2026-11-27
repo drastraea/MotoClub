@@ -24,6 +24,23 @@ export function formatDate(date: string): string {
   });
 }
 
+/** "Tue, 10 Mar 2026 · 19:00 WIB" for events; the time part only when one is set. */
+export function formatEventDate(date: string, time?: string): string {
+  const day = parse(date).toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  // \u00a0 stops "WIB" wrapping away from its time.
+  return time ? `${day} · ${time}\u00a0WIB` : day;
+}
+
+/** "Tue" */
+export function weekday(date: string): string {
+  return parse(date).toLocaleDateString("en-GB", { weekday: "short" });
+}
+
 /** Today as YYYY-MM-DD in the browser's local time. */
 export function todayISO(): string {
   const n = new Date();

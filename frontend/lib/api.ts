@@ -100,6 +100,7 @@ export type EventSummary = {
   id: string;
   title: string;
   date: string;
+  time?: string; // HH:MM (WIB); empty or missing when no time is set
   image_link: string | null;
   is_public: boolean;
   last_updated_at: string;
@@ -108,6 +109,7 @@ export type EventDetail = {
   id: string;
   title: string;
   date: string;
+  time?: string;
   location: string | null;
   description: string;
   image_link: string | null;
@@ -183,6 +185,7 @@ export type EventInput = {
   title: string;
   description: string;
   date: string; // YYYY-MM-DD
+  time?: string; // HH:MM, optional
   location?: string | null;
   image_link?: string | null;
   is_public: boolean;
@@ -239,6 +242,9 @@ export const api = {
 
   // ---- profile ----
   getProfile: (memberId: string) => apiFetch<Profile>(`/members/${memberId}/profile`),
+
+  updatePhoto: (memberId: string, riderPhotoLinkPath: string) =>
+    apiFetch<void>(`/members/${memberId}/photo`, { method: "PUT", body: { riderPhotoLinkPath } }),
 
   // ---- admin: members ----
   getRegistrationCount: () =>

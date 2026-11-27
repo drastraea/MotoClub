@@ -35,6 +35,7 @@ import {
   greeting,
   initials,
   relativeDays,
+  weekday,
   todayISO,
 } from "@/lib/dash-utils";
 
@@ -392,7 +393,8 @@ export default function AdminHome() {
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{e.title}</p>
                       <p className="text-xs text-muted-foreground">
-                        {relativeDays(daysUntil(e.date))}
+                        {weekday(e.date)}
+                        {e.time && ` ${e.time}`} · {relativeDays(daysUntil(e.date))}
                         {!e.is_public && " · private"}
                       </p>
                     </div>

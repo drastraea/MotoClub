@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useApiData } from "@/hooks/useApiData";
 import { api } from "@/lib/api";
 import { googleCalendarUrl } from "@/lib/calendar";
-import { daysUntil, formatDate, relativeDays, todayISO } from "@/lib/dash-utils";
+import { daysUntil, formatEventDate, relativeDays, todayISO } from "@/lib/dash-utils";
 
 // Event details in a popup. Pass the id of the event to show, or null to close.
 export function EventDialog({ id, onClose }: { id: string | null; onClose: () => void }) {
@@ -59,8 +59,10 @@ function EventDetails({ id }: { id: string }) {
       <div className="flex flex-col gap-2 text-muted-foreground">
         <span className="flex items-center gap-2">
           <CalendarDays className="size-4 shrink-0" />
-          {formatDate(event.date)}
-          {upcoming && <span className="text-foreground/70">· {relativeDays(daysUntil(event.date))}</span>}
+          <span>
+            {formatEventDate(event.date, event.time)}
+            {upcoming && <span className="text-foreground/70"> · {relativeDays(daysUntil(event.date))}</span>}
+          </span>
         </span>
         {event.location && (
           <span className="flex items-center gap-2">
@@ -77,7 +79,7 @@ function EventDetails({ id }: { id: string }) {
             nativeButton={false}
             render={
               <a
-                href={googleCalendarUrl(event.title, event.date, event.location)}
+                href={googleCalendarUrl(event.title, event.date, event.location, event.time)}
                 target="_blank"
                 rel="noreferrer"
               />

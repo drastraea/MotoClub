@@ -11,7 +11,7 @@ import { DashHeader } from "@/components/dashboard/DashHeader";
 import { EmptyState, ListSkeleton } from "@/components/dashboard/EmptyState";
 import { api, type EventSummary } from "@/lib/api";
 import { googleCalendarUrl } from "@/lib/calendar";
-import { daysUntil, formatDate, relativeDays, todayISO } from "@/lib/dash-utils";
+import { daysUntil, formatEventDate, relativeDays, todayISO } from "@/lib/dash-utils";
 import { useApiData } from "@/hooks/useApiData";
 import { useEventLocations } from "@/hooks/useEventLocations";
 import { cn } from "@/lib/utils";
@@ -28,7 +28,7 @@ function monthLabel(date: string): string {
 
 async function shareEvent(event: EventSummary) {
   const url = `${window.location.origin}/#events`;
-  const text = `${event.title}, ${formatDate(event.date)}`;
+  const text = `${event.title}, ${formatEventDate(event.date, event.time)}`;
   try {
     if (navigator.share) {
       await navigator.share({ title: event.title, text, url });
@@ -86,8 +86,10 @@ function EventCard({
           <div className="mt-2 flex flex-col gap-1 text-sm text-muted-foreground">
             <span className="flex items-center gap-2">
               <CalendarDays className="size-4 shrink-0" />
-              {formatDate(event.date)}
-              {!past && <span className="text-foreground/70">· {relativeDays(days)}</span>}
+              <span>
+                {formatEventDate(event.date, event.time)}
+                {!past && <span className="text-foreground/70"> · {relativeDays(days)}</span>}
+              </span>
             </span>
             {location && (
               <span className="flex items-center gap-2">
@@ -106,7 +108,7 @@ function EventCard({
                   nativeButton={false}
                   render={
                     <a
-                      href={googleCalendarUrl(event.title, event.date, location)}
+                      href={googleCalendarUrl(event.title, event.date, location, event.time)}
                       target="_blank"
                       rel="noreferrer"
                     />

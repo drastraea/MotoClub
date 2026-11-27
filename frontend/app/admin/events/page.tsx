@@ -12,7 +12,7 @@ import { EventFormDialog, type EventFormValues } from "@/components/shared/Event
 import { api, type EventSummary } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
 import { useOpenOnNewParam } from "@/hooks/useOpenOnNewParam";
-import { formatDate, todayISO } from "@/lib/dash-utils";
+import { formatEventDate, todayISO } from "@/lib/dash-utils";
 
 function DateBlock({ date }: { date: string }) {
   const [, month, day] = date.split("-");
@@ -65,6 +65,7 @@ export default function AdminEventsPage() {
         title: detail.title,
         description: detail.description,
         date: detail.date,
+        time: detail.time ?? "",
         location: detail.location ?? undefined,
         image_link: detail.image_link ?? undefined,
         is_public: detail.is_public,
@@ -142,7 +143,7 @@ export default function AdminEventsPage() {
                 <DateBlock date={event.date} />
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{event.title}</p>
-                  <p className="text-xs text-muted-foreground">{formatDate(event.date)}</p>
+                  <p className="text-xs text-muted-foreground">{formatEventDate(event.date, event.time)}</p>
                   <EventBadges event={event} past={event.date < today} />
                 </div>
               </div>
