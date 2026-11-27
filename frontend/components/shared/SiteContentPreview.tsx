@@ -80,6 +80,7 @@ export function SiteContentPreview({
   const zoom = desktop ? Math.min(1, (paneWidth || DESKTOP_WIDTH * 0.5) / DESKTOP_WIDTH) : 1;
 
   const frame = (id: SectionId, node: React.ReactNode) => {
+    if (content.hidden.includes(id)) return null;
     const label = SITE_SECTIONS.find((s) => s.id === id)?.label ?? id;
     const isActive = active === id;
     return (

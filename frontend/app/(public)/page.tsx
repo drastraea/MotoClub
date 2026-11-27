@@ -16,20 +16,21 @@ import { useSiteContent } from "@/hooks/useSiteContent";
 
 export default function Home() {
   const { content } = useSiteContent();
+  const show = (id: string) => !content.hidden.includes(id);
   return (
     <>
-      <Hero data={content.hero} />
-      <StatsStrip stats={content.stats} />
-      <TagTicker tags={content.ticker} />
-      <AboutSection data={content.about} />
-      <ServicesGrid data={content.activities} />
-      <HowToJoin data={content.how_to_join} />
-      <BenefitsSection data={content.benefits} />
+      {show("hero") && <Hero data={content.hero} />}
+      {show("stats") && <StatsStrip stats={content.stats} />}
+      {show("ticker") && <TagTicker tags={content.ticker} />}
+      {show("about") && <AboutSection data={content.about} />}
+      {show("activities") && <ServicesGrid data={content.activities} />}
+      {show("how_to_join") && <HowToJoin data={content.how_to_join} />}
+      {show("benefits") && <BenefitsSection data={content.benefits} />}
       <GallerySection />
       <EventsSection />
       <AnnouncementsSection />
-      <ContactSection data={content.contact} />
-      <JoinCta data={content.join_cta} />
+      {show("contact") && <ContactSection data={content.contact} />}
+      {show("join_cta") && <JoinCta data={content.join_cta} />}
     </>
   );
 }

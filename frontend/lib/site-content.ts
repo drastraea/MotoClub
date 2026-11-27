@@ -32,6 +32,8 @@ export type SiteStat = { value: string; label: string };
 export type SiteStep = { title: string; description: string };
 
 export type SiteContent = {
+  /** Ids of sections switched off by an admin; their content is kept. */
+  hidden: string[];
   hero: {
     eyebrow: string;
     /** 1-2 lines; the word matching `highlight` is drawn in the accent colour. */
@@ -89,6 +91,7 @@ export type SiteContent = {
 };
 
 export const defaultSiteContent: SiteContent = {
+  hidden: [],
   hero: {
     eyebrow: "Est. Brotherhood of Riders",
     headline_lines: ["Ride Together.", "Stay Family."],
@@ -212,6 +215,7 @@ export function withSiteContentDefaults(
   if (!c) return defaultSiteContent;
   const d = defaultSiteContent;
   return {
+    hidden: c.hidden ?? d.hidden,
     hero: { ...d.hero, ...c.hero },
     stats: c.stats ?? d.stats,
     ticker: c.ticker ?? d.ticker,

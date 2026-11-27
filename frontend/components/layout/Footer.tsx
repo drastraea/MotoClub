@@ -14,6 +14,7 @@ export function Footer() {
   const { contact } = content;
   const wa = contact.whatsapp.replace(/\D/g, "");
   const ig = contact.instagram.replace(/^@/, "").trim();
+  const show = (id: string) => !content.hidden.includes(id);
 
   return (
     <footer className="border-t border-border">
@@ -30,8 +31,8 @@ export function Footer() {
         <div>
           <h4 className={colHead}>Club</h4>
           <ul className="flex flex-col gap-2.5">
-            <li><Link href="/#about" className={link}>About</Link></li>
-            <li><Link href="/#benefits" className={link}>Benefits</Link></li>
+            {show("about") && <li><Link href="/#about" className={link}>About</Link></li>}
+            {show("benefits") && <li><Link href="/#benefits" className={link}>Benefits</Link></li>}
             <li><Link href="/#events" className={link}>Events</Link></li>
             <li><Link href="/#gallery" className={link}>Gallery</Link></li>
           </ul>
@@ -48,26 +49,28 @@ export function Footer() {
           </ul>
         </div>
 
-        <div>
-          <h4 className={colHead}>Contact</h4>
-          <ul className="flex flex-col gap-2.5">
-            <li><Link href="/#contact" className={link}>Get in touch</Link></li>
-            {wa && (
-              <li>
-                <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" className={`${link} inline-flex items-center gap-2`}>
-                  <MessageCircle className="size-4" /> WhatsApp
-                </a>
-              </li>
-            )}
-            {ig && (
-              <li>
-                <a href={`https://instagram.com/${ig}`} target="_blank" rel="noreferrer" className={`${link} inline-flex items-center gap-2`}>
-                  <AtSign className="size-4" /> Instagram
-                </a>
-              </li>
-            )}
-          </ul>
-        </div>
+        {show("contact") && (
+          <div>
+            <h4 className={colHead}>Contact</h4>
+            <ul className="flex flex-col gap-2.5">
+              <li><Link href="/#contact" className={link}>Get in touch</Link></li>
+              {wa && (
+                <li>
+                  <a href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" className={`${link} inline-flex items-center gap-2`}>
+                    <MessageCircle className="size-4" /> WhatsApp
+                  </a>
+                </li>
+              )}
+              {ig && (
+                <li>
+                  <a href={`https://instagram.com/${ig}`} target="_blank" rel="noreferrer" className={`${link} inline-flex items-center gap-2`}>
+                    <AtSign className="size-4" /> Instagram
+                  </a>
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
       </div>
 
       <div className="border-t border-border">

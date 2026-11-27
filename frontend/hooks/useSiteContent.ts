@@ -26,7 +26,8 @@ export function useSiteContent(): {
   );
   return {
     content: data ? withSiteContentDefaults(data) : defaultSiteContent,
-    loading,
+    // First load only: a reload after saving must not unmount the editor.
+    loading: loading && !data,
     error,
     reload,
   };

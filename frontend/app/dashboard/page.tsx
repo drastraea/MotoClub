@@ -21,6 +21,7 @@ import { Panel, PanelHeader, PanelList } from "@/components/dashboard/Panel";
 import { api } from "@/lib/api";
 import { useApiData } from "@/hooks/useApiData";
 import { useAuth } from "@/hooks/useAuth";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import { useNextRide } from "@/hooks/useNextRide";
 import {
   RENEWAL_WINDOW_DAYS,
@@ -107,6 +108,7 @@ export default function MemberHome() {
   const expired = p?.status === "EXPIRED";
   const dueSoon = !expired && days !== null && days <= RENEWAL_WINDOW_DAYS;
   const firstName = user?.name?.split(" ")[0];
+  const { content } = useSiteContent();
 
   return (
     <div className="flex flex-col gap-5">
@@ -150,19 +152,21 @@ export default function MemberHome() {
       <NextRide />
 
       <ul className="grid grid-cols-4 gap-2.5">
-        {shortcuts.map(({ href, label, icon: Icon }) => (
-          <li key={label}>
-            <Link
-              href={href}
-              className="flex flex-col items-center gap-2 rounded-2xl bg-card px-1 py-3 text-xs font-semibold shadow-xs ring-1 ring-border transition hover:ring-foreground/25"
-            >
-              <span className="flex size-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
-                <Icon className="size-5" />
-              </span>
-              {label}
-            </Link>
-          </li>
-        ))}
+        {shortcuts
+          .filter((s) => !content.hidden.includes(s.href.replace("/#", "")))
+          .map(({ href, label, icon: Icon }) => (
+            <li key={label}>
+              <Link
+                href={href}
+                className="flex flex-col items-center gap-2 rounded-2xl bg-card px-1 py-3 text-xs font-semibold shadow-xs ring-1 ring-border transition hover:ring-foreground/25"
+              >
+                <span className="flex size-10 items-center justify-center rounded-xl bg-primary/15 text-primary">
+                  <Icon className="size-5" />
+                </span>
+                {label}
+              </Link>
+            </li>
+          ))}
       </ul>
 
       <Panel>

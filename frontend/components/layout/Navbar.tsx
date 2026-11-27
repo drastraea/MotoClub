@@ -8,9 +8,10 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 import { useAuth } from "@/hooks/useAuth";
+import { useSiteContent } from "@/hooks/useSiteContent";
 import { isAdmin } from "@/lib/session";
 
-const links = [
+const allLinks = [
   { href: "/#about", label: "About" },
   { href: "/#events", label: "Rides" },
   { href: "/#benefits", label: "Benefits" },
@@ -22,6 +23,9 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
   const { user, logout } = useAuth();
+  const { content } = useSiteContent();
+  // Drop links to sections an admin has hidden ("/#about" -> "about").
+  const links = allLinks.filter((l) => !content.hidden.includes(l.href.slice(2)));
 
   const handleLogout = async () => {
     setOpen(false);

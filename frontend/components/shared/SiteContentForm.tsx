@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { ChevronLeft, ChevronRight, Eye, Pencil, Plus, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, EyeOff, Pencil, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -33,6 +34,7 @@ const iconEnum = z.enum(SITE_ICON_KEYS);
 const nonEmpty = z.string().min(1, "Required");
 
 const schema = z.object({
+  hidden: z.array(z.string()),
   hero: z.object({
     eyebrow: nonEmpty,
     headline_lines: z.array(nonEmpty).min(1, "Add at least one line"),
@@ -252,6 +254,7 @@ export function SiteContentForm({
       headline_lines: watch("hero.headline_lines"),
       image: watch("hero.image"),
     },
+    hidden: watch("hidden"),
     stats: watch("stats"),
     ticker: watch("ticker"),
     about: {
@@ -293,6 +296,9 @@ export function SiteContentForm({
   const prev = SITE_SECTIONS[idx - 1];
   const next = SITE_SECTIONS[idx + 1];
   const show = (id: SectionId) => active !== id;
+  const visible = !v.hidden.includes(current?.id);
+  const setVisible = (on: boolean) =>
+    bind("hidden", on ? v.hidden.filter((id) => id !== current.id) : [...v.hidden, current.id]);
 
   const selectFromPreview = (id: SectionId) => {
     setActive(id);
@@ -351,7 +357,12 @@ export function SiteContentForm({
                 )}
               >
                 <span className="mr-1 tabular-nums opacity-60">{i + 1}</span>
-                {s.label}
+                <span className={cn(v.hidden.includes(s.id) && "line-through opacity-60")}>
+                  {s.label}
+                </span>
+                {v.hidden.includes(s.id) && (
+                  <EyeOff className="ml-1 inline size-3 opacity-60" aria-label="Hidden" />
+                )}
                 {errors[s.id] && (
                   <span className="absolute -top-0.5 -right-0.5 size-2.5 rounded-full bg-destructive ring-2 ring-background" />
                 )}
@@ -365,6 +376,17 @@ export function SiteContentForm({
             </p>
             <h2 className="mt-1 text-lg font-semibold">{current.label}</h2>
             <p className="text-sm text-muted-foreground">{current.hint}</p>
+            <label className="mt-3 flex cursor-pointer items-center justify-between gap-3 border-t border-border pt-3">
+              <span className="text-sm font-medium">
+                Show this section
+                <span className="block text-xs font-normal text-muted-foreground">
+                  {visible
+                    ? "Visible on the landing page."
+                    : "Hidden from visitors. Your content is kept."}
+                </span>
+              </span>
+              <Switch checked={visible} onCheckedChange={setVisible} />
+            </label>
           </div>
 
           {/* Banner */}
